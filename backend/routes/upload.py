@@ -5,6 +5,7 @@ from sqlalchemy import create_engine, text
 import os
 from dotenv import load_dotenv
 from datetime import datetime
+from services.cleaning import clean_dataset
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -24,13 +25,13 @@ def map_dtype(pandas_dtype):
     elif "bool" in dtype_str:
         return "BOOLEAN"
     else:
-        return "TEXT"  # default fallback for strings/objects
+        return "TEXT"
 
 # clean column names — remove spaces, special chars, lowercase everything
 def clean_column_name(name: str) -> str:
     name = str(name).strip().lower()
-    name = re.sub(r"[^a-z0-9_]", "_", name)  # replace anything not letter/number/underscore
-    if name[0].isdigit():  # SQL table/column names can't start with a number
+    name = re.sub(r"[^a-z0-9_]", "_", name)
+    if name[0].isdigit():
         name = "col_" + name
     return name
 
@@ -52,14 +53,19 @@ async def upload_file(file: UploadFile = File(...)):
     if df.empty:
         raise HTTPException(status_code=400, detail="Uploaded file has no data")
 
-    # 3. clean column names so SQL doesn't break
+    # 3. clean the data — handle missing values, duplicates, dtypes, outliers
+    result = clean_dataset(df)
+    df = result["cleaned_df"]
+    cleaning_report = result["report"]
+
+    # 4. clean column names so SQL doesn't break
     df.columns = [clean_column_name(col) for col in df.columns]
 
-    # 4. generate a unique table name — original filename + timestamp
+    # 5. generate a unique table name — original filename + timestamp
     base_name = re.sub(r"[^a-z0-9_]", "_", file.filename.rsplit(".", 1)[0].lower())
     table_name = f"{base_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
-    # 5. build CREATE TABLE statement dynamically from df dtypes
+    # 6. build CREATE TABLE statement dynamically from df dtypes
     columns_sql = []
     for col_name, dtype in df.dtypes.items():
         pg_type = map_dtype(dtype)
@@ -74,19 +80,20 @@ async def upload_file(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Table creation failed: {e}")
 
-    # 6. insert data using pandas to_sql (uses same engine)
+    # 7. insert data using pandas to_sql
     try:
         df.to_sql(table_name, engine, if_exists="append", index=False)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Data insertion failed: {e}")
 
-    # 7. return success + preview
+    # 8. return success + cleaning report + preview
     preview = df.head(5).to_dict(orient="records")
 
     return {
         "success": True,
         "table_name": table_name,
         "rows_inserted": len(df),
+        "cleaning_report": cleaning_report,
         "columns": list(df.columns),
         "preview": preview
     }

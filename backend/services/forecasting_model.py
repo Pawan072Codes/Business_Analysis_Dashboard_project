@@ -2,17 +2,28 @@ import os
 import joblib
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 MODEL_DIR = "saved_models"
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 
+def evaluate_model(model, X_test, y_test):
+    predictions = model.predict(X_test)
+    mae = mean_absolute_error(y_test, predictions)
+    rmse = np.sqrt(mean_squared_error(y_test, predictions))
+    avg_target = y_test.mean()
+    mae_percent = (mae / avg_target * 100) if avg_target != 0 else 0
+    return {
+        "mae": round(float(mae), 2),
+        "rmse": round(float(rmse), 2),
+        "mae_percent_of_average": round(float(mae_percent), 2),
+        "average_actual_value": round(float(avg_target), 2)
+    }, predictions
+
+
 def train_forecasting_model(feature_result: dict, table_name: str) -> dict:
-    """
-    feature_result: engineer_features() ka output (Phase 6 se)
-    table_name: model file ka naam banane ke liye
-    """
     train_df = feature_result["train_df"]
     test_df = feature_result["test_df"]
     feature_columns = feature_result["feature_columns"]
@@ -23,45 +34,49 @@ def train_forecasting_model(feature_result: dict, table_name: str) -> dict:
     X_test = test_df[feature_columns]
     y_test = test_df[target_column]
 
-    # ---- Model train karo ----
-    # n_estimators = kitne decision trees banayenge (100 = good default)
-    # random_state = fixed number, taaki result reproducible ho (har baar same aaye)
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
+    # ---- Dono models train karo ----
+    rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+    rf_model.fit(X_train, y_train)
+    rf_metrics, rf_predictions = evaluate_model(rf_model, X_test, y_test)
 
-    # ---- Test data pe predict karo, evaluate karo ----
-    predictions = model.predict(X_test)
+    lr_model = LinearRegression()
+    lr_model.fit(X_train, y_train)
+    lr_metrics, lr_predictions = evaluate_model(lr_model, X_test, y_test)
 
-    mae = mean_absolute_error(y_test, predictions)
-    rmse = np.sqrt(mean_squared_error(y_test, predictions))
+    # ---- jo behtar hai (kam MAE), usi ko final model banao ----
+    if rf_metrics["mae"] <= lr_metrics["mae"]:
+        best_model = rf_model
+        best_model_name = "Random Forest"
+        best_metrics = rf_metrics
+        best_predictions = rf_predictions
+    else:
+        best_model = lr_model
+        best_model_name = "Linear Regression"
+        best_metrics = lr_metrics
+        best_predictions = lr_predictions
 
-    # context ke liye — average target value, taaki MAE/RMSE ka % samajh aaye
-    avg_target = y_test.mean()
-    mae_percent = (mae / avg_target * 100) if avg_target != 0 else 0
-
-    # ---- Model file mein save karo (reuse ke liye, retrain na karna pade) ----
+    # ---- best model ko save karo ----
     model_filename = f"{table_name}_model.joblib"
     model_path = os.path.join(MODEL_DIR, model_filename)
-    joblib.dump(model, model_path)
+    joblib.dump(best_model, model_path)
 
     return {
         "success": True,
         "model_path": model_path,
-        "metrics": {
-            "mae": round(float(mae), 2),
-            "rmse": round(float(rmse), 2),
-            "mae_percent_of_average": round(float(mae_percent), 2),
-            "average_actual_value": round(float(avg_target), 2)
+        "chosen_model": best_model_name,
+        "comparison": {
+            "random_forest": rf_metrics,
+            "linear_regression": lr_metrics
         },
+        "metrics": best_metrics,
         "test_predictions_vs_actual": [
             {"actual": round(float(a), 2), "predicted": round(float(p), 2)}
-            for a, p in zip(y_test, predictions)
+            for a, p in zip(y_test, best_predictions)
         ]
     }
 
 
 def load_model(table_name: str):
-    """Pehle se saved model wapas load karta hai, retrain nahi karna padta"""
     model_path = os.path.join(MODEL_DIR, f"{table_name}_model.joblib")
     if not os.path.exists(model_path):
         return None

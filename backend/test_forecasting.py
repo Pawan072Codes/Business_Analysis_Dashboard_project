@@ -17,6 +17,10 @@ feature_result = engineer_features(df, date_col="order_date", target_col="total_
 if feature_result["success"]:
     result = train_forecasting_model(feature_result, table_name="test_forecast")
     print("Model trained and saved at:", result["model_path"])
+    print("Chosen model:", result["chosen_model"])
+    print("\nComparison:")
+    print("Random Forest:", result["comparison"]["random_forest"])
+    print("Linear Regression:", result["comparison"]["linear_regression"])
     print("\nMetrics:")
     print(result["metrics"])
     print("\nSample predictions vs actual (test set):")

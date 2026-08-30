@@ -51,7 +51,7 @@ def get_forecast(table_name: str, days: int = Query(default=30, ge=1, le=180)):
     target_col = roles["revenue_columns"][0]
 
     # ---- 4. wahi feature engineering pipeline chalao (training jaisa hi) ----
-    feature_result = engineer_features(df, date_col=date_col, target_col=target_col)
+    feature_result = engineer_features(df, date_col=date_col, target_col=target_col, granularity="monthly")
     if not feature_result["success"]:
         raise HTTPException(status_code=400, detail=feature_result["reason"])
 
@@ -129,7 +129,7 @@ def train_model(table_name: str):
     date_col = roles["date_columns"][0]
     target_col = roles["revenue_columns"][0]
 
-    feature_result = engineer_features(df, date_col=date_col, target_col=target_col)
+    feature_result = engineer_features(df, date_col=date_col, target_col=target_col, granularity="monthly")
     if not feature_result["success"]:
         raise HTTPException(status_code=400, detail=feature_result["reason"])
 

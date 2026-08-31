@@ -1,0 +1,731 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   BizVision - Responsive Design Stylesheet
+   Phase 13: Mobile-first approach with media queries for various screen sizes
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────────────────────
+   RESPONSIVE DESIGN CONCEPTS:
+   
+   MEDIA QUERIES: CSS rules that apply based on device characteristics
+   - Used to target specific screen sizes
+   - Mobile-first approach: Start with mobile, enhance for larger screens
+   - Breakpoints: Common sizes where layout changes
+   
+   BREAKPOINTS STRATEGY:
+   - Mobile: < 640px (phones)
+   - Tablet: 640px - 1024px (tablets)
+   - Desktop: 1024px - 1536px (laptops)
+   - Large: > 1536px (large monitors)
+   
+   FLEXBOX/GRID ADJUSTMENTS:
+   - Columns: Reduce from 4 → 2 → 1 on smaller screens
+   - Layout: Switch from side-by-side to stacked on mobile
+   - Spacing: Reduce padding/margins on smaller devices
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TABLET BREAKPOINT: 640px - 1024px
+   
+   At this breakpoint:
+   - Header becomes more compact
+   - Sidebar collapses on very small tablets
+   - KPI cards reduce from 4 columns to 2
+   - Charts reduce from 2 columns to 1 or remain 2
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+    /* Adjust root variables for smaller screens */
+    :root {
+        --sidebar-width: 200px;
+        --header-height: 70px;
+        --space-2xl: 2rem;
+    }
+
+    /* Header adjustments */
+    .app-header {
+        padding: var(--space-md) var(--space-lg);
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+    }
+
+    .header-container {
+        gap: 0;
+    }
+
+    .app-subtitle {
+        display: none;
+    }
+
+    .header-actions {
+        gap: var(--space-md);
+    }
+
+    /* Main content padding reduction */
+    .main-content {
+        padding: var(--space-xl) var(--space-lg);
+    }
+
+    /* KPI cards: 4 columns → 2 columns */
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md);
+    }
+
+    /* Charts: Keep 2 columns but reduce gap */
+    .charts-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md);
+    }
+
+    /* Chart containers: Reduce padding */
+    .chart-container {
+        padding: var(--space-md);
+    }
+
+    .chart-placeholder {
+        min-height: 200px;
+    }
+
+    /* Insights: Stack to single column */
+    .insights-container {
+        grid-template-columns: 1fr;
+    }
+
+    /* Forms: Adjust grid */
+    .config-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Metrics: 2 columns */
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Table: Reduce padding */
+    .data-table td,
+    .preview-table td,
+    .forecast-table td,
+    .data-table th,
+    .preview-table th,
+    .forecast-table th {
+        padding: var(--space-sm) var(--space-md);
+    }
+
+    /* Pagination adjustments */
+    .pagination-list {
+        gap: var(--space-sm);
+    }
+
+    .pagination-list button {
+        padding: var(--space-xs) var(--space-sm);
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE BREAKPOINT: < 640px
+   
+   At this breakpoint:
+   - Sidebar converts to hamburger menu (hidden by default)
+   - Header becomes very compact
+   - KPI cards: 2 columns → 1 column (full width)
+   - Charts: Full width, stacked vertically
+   - All spacing reduced for cramped space
+   - Touch-friendly button sizes (min 44px × 44px)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 100%;
+        --header-height: 60px;
+        --space-xl: 1.5rem;
+        --space-2xl: 2rem;
+        --space-3xl: 2.5rem;
+    }
+
+    /* ─── Header Mobile ─── */
+    .app-header {
+        grid-template-columns: 1fr;
+        padding: var(--space-md);
+        gap: 0;
+        align-items: flex-start;
+    }
+
+    .app-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .header-link {
+        font-size: var(--font-size-sm);
+        padding: var(--space-xs) var(--space-md);
+    }
+
+    /* ─── Layout: Sidebar Hidden by Default ─── */
+    .app-layout {
+        flex-direction: column;
+    }
+
+    /* HAMBURGER MENU CONCEPT:
+       The sidebar is hidden on mobile and controlled by JavaScript.
+       When menu is open, sidebar slides in from left or transforms.
+       This is implemented with a checkbox hack or JS toggle. */
+    
+    .sidebar-nav {
+        position: fixed;
+        left: -100%;
+        top: var(--header-height);
+        width: 100%;
+        height: calc(100vh - var(--header-height));
+        background: var(--color-dark-navy);
+        z-index: 99;
+        transition: left var(--transition-base);
+        overflow-y: auto;
+        padding: var(--space-lg) 0;
+    }
+
+    /* When sidebar has 'open' class, it slides in */
+    .sidebar-nav.open {
+        left: 0;
+    }
+
+    .nav-list {
+        gap: 0;
+    }
+
+    .nav-link {
+        padding: var(--space-md) var(--space-lg);
+        gap: var(--space-md);
+    }
+
+    /* ─── Main Content Mobile ─── */
+    .main-content {
+        padding: var(--space-lg) var(--space-md);
+        flex: 1;
+        width: 100%;
+    }
+
+    .section-title {
+        font-size: var(--font-size-xl);
+        margin-bottom: var(--space-lg);
+    }
+
+    .page-title {
+        font-size: var(--font-size-2xl);
+    }
+
+    /* ─── KPI Cards: 1 Column ─── */
+    .kpi-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+    }
+
+    .kpi-card {
+        padding: var(--space-md);
+    }
+
+    .value {
+        font-size: var(--font-size-2xl);
+    }
+
+    /* ─── Charts: 1 Column ─── */
+    .charts-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+    }
+
+    .chart-container {
+        padding: var(--space-md);
+    }
+
+    .chart-placeholder {
+        min-height: 180px;
+        padding: var(--space-md);
+    }
+
+    .chart-title {
+        font-size: var(--font-size-base);
+    }
+
+    /* ─── Insights: Stack ─── */
+    .insights-container {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+    }
+
+    .insights-article,
+    .recommendations-article {
+        padding: var(--space-md);
+    }
+
+    /* ─── Tables: Horizontal Scroll on Mobile ─── */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table th,
+    .preview-table th,
+    .forecast-table th {
+        font-size: var(--font-size-xs);
+        padding: var(--space-sm);
+    }
+
+    .data-table td,
+    .preview-table td,
+    .forecast-table td {
+        font-size: var(--font-size-xs);
+        padding: var(--space-sm);
+    }
+
+    /* ─── Form Elements ─── */
+    .form-group {
+        margin-bottom: var(--space-md);
+    }
+
+    .config-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+    }
+
+    /* Touch-friendly inputs (min 44px height) */
+    .form-input,
+    .form-select {
+        padding: var(--space-md) var(--space-sm);
+        min-height: 44px;
+        font-size: 16px; /* Prevents iOS zoom on focus */
+    }
+
+    .form-label {
+        font-size: var(--font-size-base);
+    }
+
+    .form-help {
+        font-size: var(--font-size-xs);
+    }
+
+    /* ─── Buttons: Touch-Friendly ─── */
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+        padding: var(--space-md) var(--space-lg);
+        font-size: var(--font-size-sm);
+    }
+
+    .btn-large {
+        width: 100%;
+    }
+
+    .file-actions,
+    .form-actions {
+        flex-direction: column;
+        gap: var(--space-md);
+    }
+
+    .file-actions button,
+    .form-actions button {
+        width: 100%;
+    }
+
+    /* ─── Upload Zone ─── */
+    .drag-drop-zone {
+        padding: var(--space-2xl) var(--space-lg);
+        gap: var(--space-md);
+    }
+
+    .upload-icon {
+        font-size: 2rem;
+    }
+
+    .instruction-primary {
+        font-size: var(--font-size-base);
+    }
+
+    /* ─── Forecast Config ─── */
+    .config-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-md);
+    }
+
+    .chart-controls .control-select {
+        width: 100%;
+    }
+
+    /* ─── Metrics: 1 Column ─── */
+    .metrics-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+    }
+
+    .metric-card {
+        padding: var(--space-md);
+    }
+
+    .metric-value .value {
+        font-size: var(--font-size-xl);
+    }
+
+    /* ─── Legend: Stack ─── */
+    .legend-items {
+        grid-template-columns: 1fr;
+    }
+
+    /* ─── Footer ─── */
+    .app-footer {
+        padding: var(--space-lg) var(--space-md);
+        margin-top: var(--space-2xl);
+    }
+
+    .footer-links {
+        flex-direction: column;
+        gap: var(--space-md);
+    }
+
+    /* ─── Data Preview Controls ─── */
+    .preview-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-md);
+    }
+
+    .control-group {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .control-select {
+        width: 100%;
+    }
+
+    /* ─── Stats Grid ─── */
+    .stats-list {
+        grid-template-columns: 1fr;
+    }
+
+    /* ─── Table Controls ─── */
+    .table-controls {
+        flex-direction: column;
+    }
+
+    .search-input,
+    .sort-select {
+        width: 100%;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SMALL MOBILE: < 480px
+   
+   Extra small phones - maximum compactness
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+    :root {
+        --space-lg: 1rem;
+        --space-xl: 1.25rem;
+        --font-size-2xl: 1.25rem;
+    }
+
+    .app-title {
+        font-size: var(--font-size-lg);
+    }
+
+    .page-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .section-title {
+        font-size: var(--font-size-lg);
+    }
+
+    .main-content {
+        padding: var(--space-md);
+    }
+
+    /* Ultra-compact card sizing */
+    .kpi-card {
+        padding: var(--space-md);
+    }
+
+    .value {
+        font-size: var(--font-size-2xl);
+    }
+
+    .unit {
+        font-size: var(--font-size-xs);
+    }
+
+    /* Minimal button padding */
+    .btn {
+        padding: var(--space-sm) var(--space-md);
+        font-size: var(--font-size-sm);
+    }
+
+    /* No display of subtitles */
+    .app-subtitle,
+    .page-description {
+        display: none;
+    }
+
+    /* Reduce visibility of secondary info */
+    .insights-timestamp {
+        display: none;
+    }
+
+    /* Single line form helper text */
+    .form-help {
+        display: none;
+    }
+
+    /* Compact table display */
+    .data-table th,
+    .preview-table th,
+    .forecast-table th {
+        padding: var(--space-xs) var(--space-sm);
+    }
+
+    .data-table td,
+    .preview-table td,
+    .forecast-table td {
+        padding: var(--space-xs) var(--space-sm);
+        word-break: break-word;
+    }
+
+    /* Pagination on single line */
+    .pagination-list {
+        font-size: var(--font-size-xs);
+    }
+
+    /* Chart smaller on very small screens */
+    .chart-placeholder {
+        min-height: 150px;
+    }
+
+    /* No chart legend on ultra-small */
+    .chart-legend {
+        display: none;
+    }
+
+    /* Single column metrics */
+    .metric-value .value {
+        font-size: var(--font-size-lg);
+    }
+
+    .metric-help {
+        display: none;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LANDSCAPE MODE: Phones in landscape
+   
+   Override some mobile-first decisions when device is wider than tall
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .app-header {
+        min-height: 50px;
+        padding: var(--space-sm) var(--space-lg);
+    }
+
+    .main-content {
+        padding: var(--space-md);
+    }
+
+    .section-title {
+        margin-bottom: var(--space-md);
+    }
+
+    /* Reduce vertical space */
+    section {
+        margin-bottom: var(--space-lg);
+    }
+
+    /* Hide non-essential info */
+    .page-description {
+        display: none;
+    }
+
+    /* More compact cards */
+    .kpi-card {
+        padding: var(--space-sm);
+    }
+
+    .value {
+        font-size: var(--font-size-xl);
+    }
+
+    .chart-placeholder {
+        min-height: 200px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LARGE DESKTOP: > 1536px
+   
+   Large monitors - take advantage of extra space
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 1536px) {
+    :root {
+        --sidebar-width: 280px;
+        --space-2xl: 3.5rem;
+        --space-3xl: 5rem;
+    }
+
+    /* Wider layout */
+    .main-content {
+        padding: var(--space-3xl) var(--space-3xl);
+    }
+
+    /* KPI cards: 4 columns comfortable */
+    .kpi-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-xl);
+    }
+
+    /* Charts: can add more */
+    .charts-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-xl);
+    }
+
+    .chart-placeholder {
+        min-height: 300px;
+    }
+
+    /* Large config grid */
+    .config-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    /* Metrics: 4 wide on large desktop */
+    .metrics-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    /* Larger type sizes */
+    .page-title {
+        font-size: 2.5rem;
+    }
+
+    .value {
+        font-size: 2.5rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PRINT STYLES
+   
+   When user prints the page, optimize for paper
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media print {
+    body {
+        background: var(--color-white);
+        color: var(--color-neutral-900);
+    }
+
+    .app-header,
+    .sidebar-nav,
+    .app-footer,
+    .table-controls,
+    .chart-controls {
+        display: none;
+    }
+
+    .app-layout {
+        display: block;
+    }
+
+    .main-content {
+        padding: 0;
+        width: 100%;
+    }
+
+    .kpi-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        page-break-inside: avoid;
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .chart-container {
+        page-break-inside: avoid;
+    }
+
+    section {
+        page-break-inside: avoid;
+        margin-bottom: 2rem;
+    }
+
+    /* Ensure text is readable on print */
+    .data-table th {
+        background: var(--color-neutral-200) !important;
+        color: var(--color-neutral-900) !important;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ACCESSIBILITY: Reduced Motion
+   
+   For users who prefer reduced motion (e.g., vestibular disorders)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK MODE: System preference for dark mode
+   
+   Future enhancement: Support OS dark mode preference
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-color-scheme: dark) {
+    /* Could add dark mode variants here */
+    /* For now, our dark navy + white already works well */
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HIGH CONTRAST: Accessibility feature
+   
+   Enhance contrast for users with vision issues
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-contrast: more) {
+    :root {
+        --shadow-md: 0 0 0 2px var(--color-neutral-700);
+        --shadow-lg: 0 0 0 3px var(--color-neutral-700);
+    }
+
+    .nav-link[aria-current="page"] {
+        border-left-width: 5px;
+    }
+
+    button {
+        border: 2px solid currentColor;
+    }
+}

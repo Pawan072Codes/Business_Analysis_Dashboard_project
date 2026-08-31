@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BizVision - Business Analytics Dashboard">
+    <title>BizVision - Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/responsive.css">
+</head>
+<body>
+    <!-- HEADER: Top navigation and branding -->
+    <header role="banner" class="app-header">
+        <div class="header-container">
+            <h1 class="app-title">BizVision</h1>
+            <p class="app-subtitle">Business Analytics & Forecasting</p>
+            <div class="header-actions">
+                <span id="user-info" aria-label="User information"></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-layout">
+        <!-- SIDEBAR NAVIGATION: Primary navigation menu -->
+        <nav role="navigation" aria-label="Main navigation" class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item active">
+                    <a href="#dashboard" class="nav-link" aria-current="page">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="upload.html" class="nav-link">
+                        <span class="nav-icon">📁</span>
+                        <span class="nav-label">Upload Data</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="forecast.html" class="nav-link">
+                        <span class="nav-icon">🔮</span>
+                        <span class="nav-label">Forecasting</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#settings" class="nav-link">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-label">Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- MAIN CONTENT AREA -->
+        <main role="main" class="main-content">
+            <!-- KPI CARDS SECTION: Key Performance Indicators at a glance -->
+            <section class="kpi-section" aria-labelledby="kpi-heading">
+                <h2 id="kpi-heading" class="section-title">Key Performance Indicators</h2>
+                <div class="kpi-grid" role="region" aria-label="KPI Cards">
+                    <!-- KPI Card 1: Total Revenue -->
+                    <article class="kpi-card" role="region" aria-label="Total Revenue KPI">
+                        <header class="kpi-header">
+                            <h3 class="kpi-title">Total Revenue</h3>
+                        </header>
+                        <div class="kpi-value" aria-live="polite">
+                            <span class="value">$0</span>
+                            <span class="unit">(Loading...)</span>
+                        </div>
+                        <div class="kpi-change" aria-label="Change indicator">
+                            <span class="change-badge">—</span>
+                        </div>
+                    </article>
+
+                    <!-- KPI Card 2: Growth Rate -->
+                    <article class="kpi-card" role="region" aria-label="Growth Rate KPI">
+                        <header class="kpi-header">
+                            <h3 class="kpi-title">Growth Rate</h3>
+                        </header>
+                        <div class="kpi-value" aria-live="polite">
+                            <span class="value">0%</span>
+                            <span class="unit">Month-over-Month</span>
+                        </div>
+                        <div class="kpi-change" aria-label="Change indicator">
+                            <span class="change-badge">—</span>
+                        </div>
+                    </article>
+
+                    <!-- KPI Card 3: Total Transactions -->
+                    <article class="kpi-card" role="region" aria-label="Total Transactions KPI">
+                        <header class="kpi-header">
+                            <h3 class="kpi-title">Total Transactions</h3>
+                        </header>
+                        <div class="kpi-value" aria-live="polite">
+                            <span class="value">0</span>
+                            <span class="unit">Transactions</span>
+                        </div>
+                        <div class="kpi-change" aria-label="Change indicator">
+                            <span class="change-badge">—</span>
+                        </div>
+                    </article>
+
+                    <!-- KPI Card 4: Forecast Accuracy -->
+                    <article class="kpi-card" role="region" aria-label="Forecast Accuracy KPI">
+                        <header class="kpi-header">
+                            <h3 class="kpi-title">Forecast Accuracy</h3>
+                        </header>
+                        <div class="kpi-value" aria-live="polite">
+                            <span class="value">0%</span>
+                            <span class="unit">Model Performance</span>
+                        </div>
+                        <div class="kpi-change" aria-label="Change indicator">
+                            <span class="change-badge">—</span>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- CHARTS SECTION: Data visualization containers -->
+            <section class="charts-section" aria-labelledby="charts-heading">
+                <h2 id="charts-heading" class="section-title">Analytics & Trends</h2>
+                <div class="charts-grid" role="region" aria-label="Data visualization charts">
+                    <!-- Chart 1: Time Series Chart -->
+                    <figure class="chart-container" role="img" aria-label="Time series trend chart">
+                        <figcaption class="chart-title">Revenue Trend</figcaption>
+                        <div class="chart-placeholder" data-chart-type="line">
+                            <canvas id="revenue-chart" aria-label="Revenue over time"></canvas>
+                            <p class="loading-state">Loading chart...</p>
+                        </div>
+                    </figure>
+
+                    <!-- Chart 2: Distribution Chart -->
+                    <figure class="chart-container" role="img" aria-label="Distribution analysis chart">
+                        <figcaption class="chart-title">Data Distribution</figcaption>
+                        <div class="chart-placeholder" data-chart-type="histogram">
+                            <canvas id="distribution-chart" aria-label="Data distribution"></canvas>
+                            <p class="loading-state">Loading chart...</p>
+                        </div>
+                    </figure>
+
+                    <!-- Chart 3: Category Breakdown -->
+                    <figure class="chart-container" role="img" aria-label="Category breakdown chart">
+                        <figcaption class="chart-title">Category Performance</figcaption>
+                        <div class="chart-placeholder" data-chart-type="bar">
+                            <canvas id="category-chart" aria-label="Performance by category"></canvas>
+                            <p class="loading-state">Loading chart...</p>
+                        </div>
+                    </figure>
+
+                    <!-- Chart 4: Comparison Chart -->
+                    <figure class="chart-container" role="img" aria-label="Comparison analysis chart">
+                        <figcaption class="chart-title">Comparative Analysis</figcaption>
+                        <div class="chart-placeholder" data-chart-type="scatter">
+                            <canvas id="comparison-chart" aria-label="Comparative metrics"></canvas>
+                            <p class="loading-state">Loading chart...</p>
+                        </div>
+                    </figure>
+                </div>
+            </section>
+
+            <!-- AI INSIGHTS SECTION: Automated analysis and recommendations -->
+            <section class="insights-section" aria-labelledby="insights-heading">
+                <h2 id="insights-heading" class="section-title">AI-Powered Insights</h2>
+                <div class="insights-container" role="region" aria-label="AI generated insights">
+                    <!-- Insights List -->
+                    <article class="insights-article">
+                        <header class="insights-header">
+                            <h3 class="insights-title">Key Findings</h3>
+                            <time class="insights-timestamp" datetime="2026-08-31">Last updated: Today</time>
+                        </header>
+                        <ul class="insights-list" role="list">
+                            <li class="insight-item" role="listitem" aria-label="Insight">
+                                <span class="insight-badge">📈</span>
+                                <span class="insight-text">Loading insights...</span>
+                            </li>
+                            <li class="insight-item" role="listitem" aria-label="Insight">
+                                <span class="insight-badge">🔍</span>
+                                <span class="insight-text">Analyzing data patterns...</span>
+                            </li>
+                            <li class="insight-item" role="listitem" aria-label="Insight">
+                                <span class="insight-badge">💡</span>
+                                <span class="insight-text">Generating recommendations...</span>
+                            </li>
+                        </ul>
+                    </article>
+
+                    <!-- Insights Recommendations -->
+                    <article class="recommendations-article">
+                        <header class="recommendations-header">
+                            <h3 class="recommendations-title">Recommendations</h3>
+                        </header>
+                        <ol class="recommendations-list" role="list">
+                            <li class="recommendation-item" role="listitem">
+                                <strong>Action:</strong>
+                                <span class="recommendation-text">Awaiting analysis...</span>
+                            </li>
+                            <li class="recommendation-item" role="listitem">
+                                <strong>Action:</strong>
+                                <span class="recommendation-text">Awaiting analysis...</span>
+                            </li>
+                        </ol>
+                    </article>
+                </div>
+            </section>
+
+            <!-- DATA TABLE SECTION: Detailed dataset view -->
+            <section class="data-table-section" aria-labelledby="data-table-heading">
+                <h2 id="data-table-heading" class="section-title">Data Overview</h2>
+                <div class="table-controls" role="region" aria-label="Table controls">
+                    <input 
+                        type="search" 
+                        id="table-search" 
+                        class="search-input" 
+                        placeholder="Search data..." 
+                        aria-label="Search table data">
+                    <select id="table-sort" class="sort-select" aria-label="Sort options">
+                        <option value="date-desc">Newest First</option>
+                        <option value="date-asc">Oldest First</option>
+                        <option value="value-desc">Highest Value</option>
+                        <option value="value-asc">Lowest Value</option>
+                    </select>
+                </div>
+                
+                <div class="table-wrapper" role="region" aria-label="Data table">
+                    <table class="data-table" role="grid">
+                        <caption class="sr-only">Detailed data records</caption>
+                        <thead role="rowgroup">
+                            <tr role="row">
+                                <th role="columnheader" scope="col">Date</th>
+                                <th role="columnheader" scope="col">Category</th>
+                                <th role="columnheader" scope="col">Value</th>
+                                <th role="columnheader" scope="col">Status</th>
+                                <th role="columnheader" scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody role="rowgroup">
+                            <tr role="row" class="table-row">
+                                <td role="gridcell">—</td>
+                                <td role="gridcell">—</td>
+                                <td role="gridcell">—</td>
+                                <td role="gridcell">
+                                    <span class="status-badge" aria-label="Status">Pending</span>
+                                </td>
+                                <td role="gridcell">
+                                    <button class="action-btn" aria-label="View details">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="no-data-message" aria-live="polite">No data loaded. Upload a dataset to begin.</p>
+                </div>
+
+                <!-- Pagination -->
+                <nav class="table-pagination" aria-label="Table pagination">
+                    <ul class="pagination-list" role="list">
+                        <li role="listitem"><button disabled aria-label="Previous page">← Previous</button></li>
+                        <li role="listitem"><span aria-current="page">Page 1 of 1</span></li>
+                        <li role="listitem"><button disabled aria-label="Next page">Next →</button></li>
+                    </ul>
+                </nav>
+            </section>
+        </main>
+    </div>
+
+    <!-- FOOTER: Footer information -->
+    <footer role="contentinfo" class="app-footer">
+        <div class="footer-content">
+            <p>&copy; 2026 BizVision. All rights reserved.</p>
+            <ul class="footer-links" role="list">
+                <li role="listitem"><a href="#privacy">Privacy Policy</a></li>
+                <li role="listitem"><a href="#terms">Terms of Service</a></li>
+                <li role="listitem"><a href="#support">Support</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <!-- Chart.js library for rendering charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <!-- BizVision application scripts -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

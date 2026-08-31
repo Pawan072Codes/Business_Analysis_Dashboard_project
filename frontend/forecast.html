@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BizVision - Forecasting and predictions">
+    <title>Forecasting - BizVision</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/responsive.css">
+</head>
+<body>
+    <!-- HEADER: Top navigation -->
+    <header role="banner" class="app-header">
+        <div class="header-container">
+            <h1 class="app-title">BizVision</h1>
+            <p class="app-subtitle">Business Analytics & Forecasting</p>
+            <div class="header-actions">
+                <a href="index.html" class="header-link" aria-label="Back to dashboard">← Dashboard</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-layout">
+        <!-- SIDEBAR NAVIGATION: Navigation menu -->
+        <nav role="navigation" aria-label="Main navigation" class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="upload.html" class="nav-link">
+                        <span class="nav-icon">📁</span>
+                        <span class="nav-label">Upload Data</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="forecast.html" class="nav-link" aria-current="page">
+                        <span class="nav-icon">🔮</span>
+                        <span class="nav-label">Forecasting</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#settings" class="nav-link">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-label">Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- MAIN CONTENT AREA -->
+        <main role="main" class="main-content forecast-main">
+            <!-- PAGE HEADER -->
+            <section class="page-header" aria-labelledby="page-title">
+                <h2 id="page-title" class="page-title">Forecasting & Predictions</h2>
+                <p class="page-description">
+                    Generate accurate forecasts using machine learning models.
+                    Configure parameters and run predictions on your dataset.
+                </p>
+            </section>
+
+            <!-- FORECAST CONFIGURATION SECTION: Parameters and settings for forecasting -->
+            <section class="forecast-config-section" aria-labelledby="config-heading">
+                <h2 id="config-heading" class="section-title">Forecast Configuration</h2>
+
+                <form class="forecast-form" id="forecast-form" role="region" aria-label="Forecast configuration form">
+                    <!-- Configuration Grid -->
+                    <div class="config-grid">
+                        <!-- Dataset Selection -->
+                        <div class="form-group">
+                            <label for="dataset-select" class="form-label">
+                                <span class="label-text">Select Dataset</span>
+                                <span class="required-indicator" aria-label="Required">*</span>
+                            </label>
+                            <select 
+                                id="dataset-select" 
+                                class="form-select"
+                                required
+                                aria-describedby="dataset-help">
+                                <option value="">-- Choose a dataset --</option>
+                                <option value="train">Training Dataset</option>
+                                <option value="test">Test Dataset</option>
+                                <option value="forecast">Forecast Dataset</option>
+                            </select>
+                            <p id="dataset-help" class="form-help">
+                                Select which dataset to use for forecasting
+                            </p>
+                        </div>
+
+                        <!-- Target Column Selection -->
+                        <div class="form-group">
+                            <label for="target-select" class="form-label">
+                                <span class="label-text">Target Column (to forecast)</span>
+                                <span class="required-indicator" aria-label="Required">*</span>
+                            </label>
+                            <select 
+                                id="target-select" 
+                                class="form-select"
+                                required
+                                aria-describedby="target-help">
+                                <option value="">-- Choose target column --</option>
+                                <option value="revenue">Revenue</option>
+                                <option value="sales">Sales</option>
+                                <option value="visitors">Visitors</option>
+                                <option value="transactions">Transactions</option>
+                            </select>
+                            <p id="target-help" class="form-help">
+                                The column you want to predict
+                            </p>
+                        </div>
+
+                        <!-- Forecast Period -->
+                        <div class="form-group">
+                            <label for="forecast-period" class="form-label">
+                                <span class="label-text">Forecast Period (days)</span>
+                                <span class="required-indicator" aria-label="Required">*</span>
+                            </label>
+                            <input 
+                                type="number" 
+                                id="forecast-period" 
+                                class="form-input"
+                                min="1"
+                                max="365"
+                                value="30"
+                                required
+                                aria-describedby="period-help">
+                            <p id="period-help" class="form-help">
+                                Number of days to forecast into the future (1-365)
+                            </p>
+                        </div>
+
+                        <!-- Model Selection -->
+                        <div class="form-group">
+                            <label for="model-select" class="form-label">
+                                <span class="label-text">Forecasting Model</span>
+                                <span class="required-indicator" aria-label="Required">*</span>
+                            </label>
+                            <select 
+                                id="model-select" 
+                                class="form-select"
+                                required
+                                aria-describedby="model-help">
+                                <option value="">-- Choose model --</option>
+                                <option value="arima" selected>ARIMA</option>
+                                <option value="exponential_smoothing">Exponential Smoothing</option>
+                                <option value="prophet">Facebook Prophet</option>
+                                <option value="linear_regression">Linear Regression</option>
+                                <option value="random_forest">Random Forest</option>
+                            </select>
+                            <p id="model-help" class="form-help">
+                                Select the machine learning model for predictions
+                            </p>
+                        </div>
+
+                        <!-- Confidence Level -->
+                        <div class="form-group">
+                            <label for="confidence-level" class="form-label">
+                                <span class="label-text">Confidence Level (%)</span>
+                            </label>
+                            <input 
+                                type="number" 
+                                id="confidence-level" 
+                                class="form-input"
+                                min="50"
+                                max="99"
+                                value="95"
+                                step="5"
+                                aria-describedby="confidence-help">
+                            <p id="confidence-help" class="form-help">
+                                Confidence interval for prediction bounds (50-99%)
+                            </p>
+                        </div>
+
+                        <!-- Seasonality Detection -->
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input 
+                                    type="checkbox" 
+                                    id="seasonality-check" 
+                                    class="form-checkbox"
+                                    checked
+                                    aria-describedby="seasonality-desc">
+                                <span class="checkbox-text">Detect Seasonality</span>
+                            </label>
+                            <p id="seasonality-desc" class="form-help">
+                                Automatically detect and model seasonal patterns
+                            </p>
+                        </div>
+
+                        <!-- Trend Detection -->
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input 
+                                    type="checkbox" 
+                                    id="trend-check" 
+                                    class="form-checkbox"
+                                    checked
+                                    aria-describedby="trend-desc">
+                                <span class="checkbox-text">Include Trend Analysis</span>
+                            </label>
+                            <p id="trend-desc" class="form-help">
+                                Include trend component in forecast model
+                            </p>
+                        </div>
+
+                        <!-- Anomaly Detection -->
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input 
+                                    type="checkbox" 
+                                    id="anomaly-check" 
+                                    class="form-checkbox"
+                                    aria-describedby="anomaly-desc">
+                                <span class="checkbox-text">Detect Anomalies</span>
+                            </label>
+                            <p id="anomaly-desc" class="form-help">
+                                Identify and flag unusual data points before forecasting
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions" role="group" aria-label="Forecast action buttons">
+                        <button 
+                            type="submit" 
+                            id="generate-forecast-btn" 
+                            class="btn btn-primary btn-large"
+                            aria-label="Generate forecast">
+                            Generate Forecast
+                        </button>
+                        <button 
+                            type="reset" 
+                            id="reset-config-btn" 
+                            class="btn btn-secondary"
+                            aria-label="Reset form to default values">
+                            Reset Form
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- MAIN FORECAST CHART SECTION: Large visualization area for forecast results -->
+            <section class="main-chart-section" aria-labelledby="main-chart-heading">
+                <h2 id="main-chart-heading" class="section-title">Forecast Results</h2>
+                
+                <!-- Chart Type Toggle -->
+                <div class="chart-controls" role="group" aria-label="Chart display options">
+                    <label for="chart-type-select" class="control-label">Chart Type:</label>
+                    <select id="chart-type-select" class="control-select" aria-label="Select chart type">
+                        <option value="line">Line Chart</option>
+                        <option value="area">Area Chart</option>
+                        <option value="candlestick">Candlestick</option>
+                    </select>
+
+                    <label for="time-range-select" class="control-label">Time Range:</label>
+                    <select id="time-range-select" class="control-select" aria-label="Select time range">
+                        <option value="1m">Last Month</option>
+                        <option value="3m">Last 3 Months</option>
+                        <option value="6m">Last 6 Months</option>
+                        <option value="1y">Last Year</option>
+                        <option value="all">All Data</option>
+                    </select>
+                </div>
+
+                <!-- Main Forecast Chart Container -->
+                <figure class="main-chart-container" role="img" aria-label="Main forecast visualization">
+                    <figcaption class="sr-only">Forecasted values with confidence intervals</figcaption>
+                    <div class="chart-placeholder" data-chart-type="forecast-line">
+                        <canvas id="main-forecast-chart" aria-label="Forecast chart"></canvas>
+                        <p class="loading-state" id="chart-loading">
+                            Configure parameters and generate forecast to display chart
+                        </p>
+                    </div>
+                </figure>
+
+                <!-- Chart Legend -->
+                <div class="chart-legend" role="region" aria-label="Chart legend">
+                    <dl class="legend-items">
+                        <dt class="legend-label">Historical Data:</dt>
+                        <dd class="legend-item">
+                            <span class="legend-color historical"></span>
+                            <span class="legend-text">Observed values from your dataset</span>
+                        </dd>
+
+                        <dt class="legend-label">Forecast:</dt>
+                        <dd class="legend-item">
+                            <span class="legend-color forecast"></span>
+                            <span class="legend-text">Predicted values</span>
+                        </dd>
+
+                        <dt class="legend-label">Confidence Interval:</dt>
+                        <dd class="legend-item">
+                            <span class="legend-color interval"></span>
+                            <span class="legend-text">Upper and lower prediction bounds</span>
+                        </dd>
+                    </dl>
+                </div>
+            </section>
+
+            <!-- MODEL PERFORMANCE SECTION: Accuracy metrics and validation -->
+            <section class="model-performance-section" aria-labelledby="performance-heading">
+                <h2 id="performance-heading" class="section-title">Model Performance Metrics</h2>
+
+                <div class="metrics-grid" role="region" aria-label="Performance metrics">
+                    <!-- MAE Metric -->
+                    <article class="metric-card" role="region" aria-label="Mean Absolute Error">
+                        <header class="metric-header">
+                            <h3 class="metric-title">MAE</h3>
+                            <p class="metric-description">Mean Absolute Error</p>
+                        </header>
+                        <div class="metric-value" aria-live="polite">
+                            <span class="value">—</span>
+                            <span class="unit">units</span>
+                        </div>
+                        <p class="metric-help">Lower is better</p>
+                    </article>
+
+                    <!-- RMSE Metric -->
+                    <article class="metric-card" role="region" aria-label="Root Mean Squared Error">
+                        <header class="metric-header">
+                            <h3 class="metric-title">RMSE</h3>
+                            <p class="metric-description">Root Mean Squared Error</p>
+                        </header>
+                        <div class="metric-value" aria-live="polite">
+                            <span class="value">—</span>
+                            <span class="unit">units</span>
+                        </div>
+                        <p class="metric-help">Lower is better</p>
+                    </article>
+
+                    <!-- MAPE Metric -->
+                    <article class="metric-card" role="region" aria-label="Mean Absolute Percentage Error">
+                        <header class="metric-header">
+                            <h3 class="metric-title">MAPE</h3>
+                            <p class="metric-description">Mean Absolute % Error</p>
+                        </header>
+                        <div class="metric-value" aria-live="polite">
+                            <span class="value">—</span>
+                            <span class="unit">%</span>
+                        </div>
+                        <p class="metric-help">Lower is better</p>
+                    </article>
+
+                    <!-- R² Metric -->
+                    <article class="metric-card" role="region" aria-label="R-squared score">
+                        <header class="metric-header">
+                            <h3 class="metric-title">R² Score</h3>
+                            <p class="metric-description">Coefficient of Determination</p>
+                        </header>
+                        <div class="metric-value" aria-live="polite">
+                            <span class="value">—</span>
+                            <span class="unit">0.0 - 1.0</span>
+                        </div>
+                        <p class="metric-help">Closer to 1.0 is better</p>
+                    </article>
+                </div>
+            </section>
+
+            <!-- COMPARISON CHARTS SECTION: Additional insights and comparisons -->
+            <section class="comparison-section" aria-labelledby="comparison-heading">
+                <h2 id="comparison-heading" class="section-title">Additional Insights</h2>
+
+                <div class="charts-grid" role="region" aria-label="Comparison and insight charts">
+                    <!-- Residuals Chart -->
+                    <figure class="chart-container" role="img" aria-label="Residuals analysis chart">
+                        <figcaption class="chart-title">Residual Analysis</figcaption>
+                        <div class="chart-placeholder" data-chart-type="residuals">
+                            <canvas id="residuals-chart" aria-label="Model residuals"></canvas>
+                            <p class="loading-state">Generate forecast to view residuals</p>
+                        </div>
+                    </figure>
+
+                    <!-- Autocorrelation Chart -->
+                    <figure class="chart-container" role="img" aria-label="Autocorrelation chart">
+                        <figcaption class="chart-title">Autocorrelation Function</figcaption>
+                        <div class="chart-placeholder" data-chart-type="acf">
+                            <canvas id="acf-chart" aria-label="Autocorrelation"></canvas>
+                            <p class="loading-state">Generate forecast to view ACF</p>
+                        </div>
+                    </figure>
+
+                    <!-- Feature Importance Chart -->
+                    <figure class="chart-container" role="img" aria-label="Feature importance chart">
+                        <figcaption class="chart-title">Feature Importance</figcaption>
+                        <div class="chart-placeholder" data-chart-type="feature-importance">
+                            <canvas id="feature-importance-chart" aria-label="Feature weights"></canvas>
+                            <p class="loading-state">Generate forecast to view feature importance</p>
+                        </div>
+                    </figure>
+
+                    <!-- Forecast Error Distribution -->
+                    <figure class="chart-container" role="img" aria-label="Error distribution chart">
+                        <figcaption class="chart-title">Forecast Error Distribution</figcaption>
+                        <div class="chart-placeholder" data-chart-type="error-distribution">
+                            <canvas id="error-dist-chart" aria-label="Error distribution"></canvas>
+                            <p class="loading-state">Generate forecast to view error distribution</p>
+                        </div>
+                    </figure>
+                </div>
+            </section>
+
+            <!-- FORECAST TABLE SECTION: Detailed forecast data in tabular format -->
+            <section class="forecast-table-section" aria-labelledby="forecast-table-heading">
+                <h2 id="forecast-table-heading" class="section-title">Detailed Forecast Data</h2>
+
+                <!-- Table Controls -->
+                <div class="table-controls" role="region" aria-label="Table controls">
+                    <button id="export-csv-btn" class="btn btn-secondary" aria-label="Export forecast to CSV">
+                        📥 Export to CSV
+                    </button>
+                    <button id="export-json-btn" class="btn btn-secondary" aria-label="Export forecast to JSON">
+                        📥 Export to JSON
+                    </button>
+                </div>
+
+                <!-- Forecast Data Table -->
+                <div class="table-wrapper" role="region" aria-label="Forecast data table">
+                    <table class="forecast-table" role="grid">
+                        <caption class="sr-only">Detailed forecast values and confidence intervals</caption>
+                        <thead role="rowgroup">
+                            <tr role="row">
+                                <th role="columnheader" scope="col">Date</th>
+                                <th role="columnheader" scope="col">Forecast Value</th>
+                                <th role="columnheader" scope="col">Lower Bound</th>
+                                <th role="columnheader" scope="col">Upper Bound</th>
+                                <th role="columnheader" scope="col">Confidence</th>
+                                <th role="columnheader" scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody role="rowgroup" id="forecast-table-body">
+                            <tr role="row" class="empty-state">
+                                <td role="gridcell" colspan="6" class="empty-cell">
+                                    <p>No forecast generated yet</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Pagination -->
+                <nav class="table-pagination" aria-label="Forecast table pagination">
+                    <ul class="pagination-list" role="list">
+                        <li role="listitem"><button disabled aria-label="Previous page">← Previous</button></li>
+                        <li role="listitem"><span aria-current="page">Page 1 of 1</span></li>
+                        <li role="listitem"><button disabled aria-label="Next page">Next →</button></li>
+                    </ul>
+                </nav>
+            </section>
+
+            <!-- FORECAST STATUS SECTION: Processing and result messages -->
+            <section class="forecast-status-section" aria-labelledby="status-heading">
+                <h2 id="status-heading" class="section-title">Processing Status</h2>
+
+                <div 
+                    id="forecast-status" 
+                    class="forecast-status" 
+                    role="status" 
+                    aria-live="polite"
+                    aria-label="Forecast processing status">
+                    <p class="no-status-message">Ready to generate forecast</p>
+                </div>
+
+                <!-- Success Message -->
+                <div id="success-message" class="message message-success" role="alert" aria-live="polite">
+                    <p class="message-text">Forecast generated successfully!</p>
+                </div>
+
+                <!-- Error Message -->
+                <div id="error-message" class="message message-error" role="alert" aria-live="assertive">
+                    <p class="message-text">An error occurred during forecasting.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer role="contentinfo" class="app-footer">
+        <div class="footer-content">
+            <p>&copy; 2026 BizVision. All rights reserved.</p>
+            <ul class="footer-links" role="list">
+                <li role="listitem"><a href="#privacy">Privacy Policy</a></li>
+                <li role="listitem"><a href="#terms">Terms of Service</a></li>
+                <li role="listitem"><a href="#support">Support</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <!-- Chart.js library for rendering charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <!-- BizVision application scripts -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

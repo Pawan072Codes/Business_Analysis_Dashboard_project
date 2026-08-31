@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BizVision - Upload and manage datasets">
+    <title>Upload Data - BizVision</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/responsive.css">
+</head>
+<body>
+    <!-- HEADER: Top navigation -->
+    <header role="banner" class="app-header">
+        <div class="header-container">
+            <h1 class="app-title">BizVision</h1>
+            <p class="app-subtitle">Business Analytics & Forecasting</p>
+            <div class="header-actions">
+                <a href="index.html" class="header-link" aria-label="Back to dashboard">← Dashboard</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-layout">
+        <!-- SIDEBAR NAVIGATION: Navigation menu -->
+        <nav role="navigation" aria-label="Main navigation" class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="upload.html" class="nav-link" aria-current="page">
+                        <span class="nav-icon">📁</span>
+                        <span class="nav-label">Upload Data</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="forecast.html" class="nav-link">
+                        <span class="nav-icon">🔮</span>
+                        <span class="nav-label">Forecasting</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#settings" class="nav-link">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-label">Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- MAIN CONTENT AREA -->
+        <main role="main" class="main-content">
+            <!-- PAGE HEADER -->
+            <section class="page-header" aria-labelledby="page-title">
+                <h2 id="page-title" class="page-title">Upload Dataset</h2>
+                <p class="page-description">
+                    Upload your CSV or Excel files for data analysis and forecasting.
+                    Supported formats: CSV, XLSX, XLS
+                </p>
+            </section>
+
+            <!-- UPLOAD SECTION: Drag-and-drop area for file upload -->
+            <section class="upload-section" aria-labelledby="upload-heading">
+                <h2 id="upload-heading" class="section-title">Select or Drag Your File</h2>
+
+                <div class="upload-area-wrapper">
+                    <!-- Drag-and-drop zone -->
+                    <div 
+                        class="drag-drop-zone" 
+                        id="drag-drop-area"
+                        role="region"
+                        aria-label="File upload area"
+                        tabindex="0"
+                        aria-describedby="upload-instructions">
+                        
+                        <!-- Upload Icon -->
+                        <div class="upload-icon" aria-hidden="true">📤</div>
+                        
+                        <!-- Upload Instructions -->
+                        <div id="upload-instructions" class="upload-instructions">
+                            <p class="instruction-primary">
+                                Drag and drop your file here
+                            </p>
+                            <p class="instruction-secondary">
+                                or
+                            </p>
+                        </div>
+
+                        <!-- File Input -->
+                        <input 
+                            type="file" 
+                            id="file-input" 
+                            class="file-input"
+                            accept=".csv,.xlsx,.xls"
+                            aria-label="Choose file to upload"
+                            required>
+                        
+                        <label for="file-input" class="file-label">
+                            <span class="browse-text">Browse Files</span>
+                        </label>
+
+                        <!-- Supported Formats Info -->
+                        <p class="supported-formats">
+                            <small>Supported: CSV, XLSX, XLS • Max size: 100MB</small>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Upload Status Messages -->
+                <div 
+                    id="upload-status" 
+                    class="upload-status" 
+                    role="status" 
+                    aria-live="polite"
+                    aria-label="Upload status">
+                    <!-- Status messages will appear here -->
+                </div>
+
+                <!-- Upload Progress Bar -->
+                <div id="progress-container" class="progress-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
+                    <span class="progress-text" id="progress-text">0%</span>
+                </div>
+            </section>
+
+            <!-- FILE INFORMATION SECTION: Display selected file details -->
+            <section class="file-info-section" id="file-info-section" aria-labelledby="file-info-heading">
+                <h2 id="file-info-heading" class="section-title">File Information</h2>
+                
+                <div class="file-info-container" role="region" aria-label="Uploaded file information">
+                    <article class="file-info-card">
+                        <header class="file-info-header">
+                            <h3 class="file-name" id="selected-file-name">No file selected</h3>
+                        </header>
+                        <dl class="file-details">
+                            <dt>File Size:</dt>
+                            <dd id="file-size">—</dd>
+                            
+                            <dt>File Type:</dt>
+                            <dd id="file-type">—</dd>
+                            
+                            <dt>Upload Date:</dt>
+                            <dd id="upload-date">—</dd>
+                            
+                            <dt>Status:</dt>
+                            <dd id="file-status">
+                                <span class="status-badge" aria-label="File status">Pending</span>
+                            </dd>
+                        </dl>
+                    </article>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="file-actions" role="group" aria-label="File action buttons">
+                    <button id="upload-btn" class="btn btn-primary" disabled aria-label="Upload selected file">
+                        Upload File
+                    </button>
+                    <button id="clear-btn" class="btn btn-secondary" disabled aria-label="Clear selection and start over">
+                        Clear Selection
+                    </button>
+                </div>
+            </section>
+
+            <!-- DATA PREVIEW SECTION: Preview of uploaded data -->
+            <section class="data-preview-section" id="data-preview-section" aria-labelledby="preview-heading">
+                <h2 id="preview-heading" class="section-title">Data Preview</h2>
+                
+                <!-- Preview Controls -->
+                <div class="preview-controls" role="region" aria-label="Preview controls">
+                    <div class="control-group">
+                        <label for="preview-rows-select" class="control-label">Rows to Display:</label>
+                        <select id="preview-rows-select" class="control-select" aria-label="Number of rows to show">
+                            <option value="5">First 5 rows</option>
+                            <option value="10" selected>First 10 rows</option>
+                            <option value="20">First 20 rows</option>
+                            <option value="50">First 50 rows</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <span class="data-summary" id="data-summary" aria-live="polite">
+                            No data loaded
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Data Preview Table -->
+                <div class="table-wrapper" role="region" aria-label="Data preview table">
+                    <table class="preview-table" role="grid">
+                        <caption class="sr-only">Preview of uploaded dataset</caption>
+                        <thead role="rowgroup">
+                            <tr role="row" id="table-header-row">
+                                <!-- Header cells will be populated dynamically -->
+                                <th role="columnheader" scope="col">No columns detected</th>
+                            </tr>
+                        </thead>
+                        <tbody role="rowgroup" id="table-body">
+                            <tr role="row" class="empty-state">
+                                <td role="gridcell" colspan="100" class="empty-cell">
+                                    <p>Upload a file to preview data</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Data Statistics -->
+                <div class="data-stats" role="region" aria-label="Data statistics">
+                    <article class="stats-card">
+                        <h3 class="stats-title">Dataset Statistics</h3>
+                        <dl class="stats-list">
+                            <dt>Total Rows:</dt>
+                            <dd id="total-rows">0</dd>
+                            
+                            <dt>Total Columns:</dt>
+                            <dd id="total-columns">0</dd>
+                            
+                            <dt>Missing Values:</dt>
+                            <dd id="missing-values">0</dd>
+                            
+                            <dt>Data Types Detected:</dt>
+                            <dd id="data-types">None</dd>
+                        </dl>
+                    </article>
+                </div>
+            </section>
+
+            <!-- CLEANING OPTIONS SECTION: Data preprocessing options -->
+            <section class="cleaning-section" id="cleaning-section" aria-labelledby="cleaning-heading">
+                <h2 id="cleaning-heading" class="section-title">Data Cleaning Options</h2>
+
+                <form class="cleaning-form" id="cleaning-form" role="region" aria-label="Data cleaning preferences">
+                    <fieldset class="form-fieldset">
+                        <legend class="form-legend">Select cleaning operations to apply:</legend>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input 
+                                    type="checkbox" 
+                                    id="remove-duplicates-check" 
+                                    class="form-checkbox"
+                                    aria-describedby="remove-duplicates-desc">
+                                <span class="checkbox-text">Remove Duplicate Rows</span>
+                            </label>
+                            <p id="remove-duplicates-desc" class="form-help">
+                                Identifies and removes exact duplicate records from your dataset
+                            </p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input 
+                                    type="checkbox" 
+                                    id="handle-missing-check" 
+                                    class="form-checkbox"
+                                    aria-describedby="handle-missing-desc">
+                                <span class="checkbox-text">Handle Missing Values</span>
+                            </label>
+                            <p id="handle-missing-desc" class="form-help">
+                                Fills or removes rows with missing data points
+                            </p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input 
+                                    type="checkbox" 
+                                    id="standardize-check" 
+                                    class="form-checkbox"
+                                    aria-describedby="standardize-desc">
+                                <span class="checkbox-text">Standardize Column Names</span>
+                            </label>
+                            <p id="standardize-desc" class="form-help">
+                                Converts column names to lowercase and removes special characters
+                            </p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input 
+                                    type="checkbox" 
+                                    id="normalize-check" 
+                                    class="form-checkbox"
+                                    aria-describedby="normalize-desc">
+                                <span class="checkbox-text">Normalize Data Types</span>
+                            </label>
+                            <p id="normalize-desc" class="form-help">
+                                Automatically detects and converts columns to appropriate data types
+                            </p>
+                        </div>
+                    </fieldset>
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions" role="group" aria-label="Form action buttons">
+                        <button 
+                            type="button" 
+                            id="process-btn" 
+                            class="btn btn-primary"
+                            disabled
+                            aria-label="Process and save cleaned data">
+                            Process & Save Data
+                        </button>
+                        <button 
+                            type="reset" 
+                            id="reset-cleaning-btn" 
+                            class="btn btn-secondary"
+                            aria-label="Reset cleaning options">
+                            Reset Options
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- PROCESSING STATUS SECTION: Show processing results -->
+            <section class="processing-section" id="processing-section" aria-labelledby="processing-heading">
+                <h2 id="processing-heading" class="section-title">Processing Status</h2>
+                
+                <div 
+                    id="processing-status" 
+                    class="processing-status" 
+                    role="status" 
+                    aria-live="polite"
+                    aria-label="Data processing status">
+                    <p class="no-processing-message">No processing in progress</p>
+                </div>
+
+                <!-- Success Message -->
+                <div id="success-message" class="message message-success" role="alert" aria-live="polite">
+                    <p class="message-text">Data successfully processed and saved!</p>
+                </div>
+
+                <!-- Error Message -->
+                <div id="error-message" class="message message-error" role="alert" aria-live="assertive">
+                    <p class="message-text">An error occurred during processing.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer role="contentinfo" class="app-footer">
+        <div class="footer-content">
+            <p>&copy; 2026 BizVision. All rights reserved.</p>
+            <ul class="footer-links" role="list">
+                <li role="listitem"><a href="#privacy">Privacy Policy</a></li>
+                <li role="listitem"><a href="#terms">Terms of Service</a></li>
+                <li role="listitem"><a href="#support">Support</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <!-- Chart.js library for rendering charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <!-- BizVision application scripts -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

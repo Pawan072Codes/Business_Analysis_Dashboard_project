@@ -18,11 +18,11 @@ def generate_summary_stats(df: pd.DataFrame) -> dict:
     summary = {}
     for col in numeric_df.columns:
         summary[col] = {
-            "mean": round(numeric_df[col].mean(), 2),
-            "median": round(numeric_df[col].median(), 2),
-            "min": round(numeric_df[col].min(), 2),
-            "max": round(numeric_df[col].max(), 2),
-            "std": round(numeric_df[col].std(), 2)
+            "mean": float(round(numeric_df[col].mean(), 2)),
+            "median": float(round(numeric_df[col].median(), 2)),
+            "min": float(round(numeric_df[col].min(), 2)),
+            "max": float(round(numeric_df[col].max(), 2)),
+            "std": float(round(numeric_df[col].std(), 2))
         }
     return summary
 

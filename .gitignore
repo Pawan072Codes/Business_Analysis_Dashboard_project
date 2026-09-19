@@ -1,5 +1,29 @@
+# Environment
 .env
 backend/venv/
+venv/
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# macOS
 .DS_Store
+
+# Generated ML models
+saved_models/
+backend/saved_models/
+
+# Generated charts
+static/charts/
+backend/static/charts/
+
+# Test/cache files
+.pytest_cache/
+.coverage
+
+# IDE
+.vscode/
+.idea/

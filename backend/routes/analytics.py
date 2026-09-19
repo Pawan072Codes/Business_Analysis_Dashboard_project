@@ -1,10 +1,15 @@
+import io
 import pandas as pd
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Depends, Response, Query
 from sqlalchemy import create_engine, text
 import os
 from dotenv import load_dotenv
-import json
-from datetime import datetime, timedelta
+
+from services.kpi_detector import detect_column_roles, generate_kpi_list
+from services.eda import run_eda
+from services.cleaning import clean_dataset
+from services.email_service import send_email
+from routes.auth import get_current_user
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -12,253 +17,241 @@ engine = create_engine(DATABASE_URL)
 
 router = APIRouter()
 
-# ───────────────────────────────────────────────────────────────────
-# ANALYTICS ENDPOINTS — Fetch data for dashboard visualizations
-# ───────────────────────────────────────────────────────────────────
 
-@router.get("/data/{table_name}")
-def get_table_data(table_name: str, skip: int = Query(0, ge=0), limit: int = Query(10, ge=1, le=100)):
+def check_dataset_access(dataset_id: str, user_id: int):
     """
-    Fetch paginated data from uploaded dataset
-    
-    Args:
-        table_name: Name of the table to query
-        skip: Number of rows to skip (for pagination)
-        limit: Max rows to return (1-100)
-    
-    Returns:
-        Paginated data and total row count
+    Verifies that dataset belongs to current user if recorded in registry.
     """
+    with engine.connect() as conn:
+        row = conn.execute(
+            text("SELECT user_id FROM datasets WHERE dataset_id = :did"),
+            {"did": dataset_id}
+        ).fetchone()
+        if row and row[0] != user_id:
+            raise HTTPException(status_code=403, detail="Access denied: Dataset belongs to another user")
+
+
+@router.get("/analytics/{dataset_id}")
+def get_analytics(dataset_id: str, current_user: dict = Depends(get_current_user)):
+    """
+    Runs cleaning + EDA + KPI detection for a specific dataset_id and returns results as JSON.
+    """
+    check_dataset_access(dataset_id, current_user["id"])
+
     try:
-        # Get total count
-        count_query = f'SELECT COUNT(*) FROM "{table_name}"'
-        with engine.connect() as conn:
-            result = conn.execute(text(count_query))
-            total = result.scalar()
-        
-        # Get paginated data
-        data_query = f'SELECT * FROM "{table_name}" LIMIT {limit} OFFSET {skip}'
-        df = pd.read_sql(data_query, engine)
-        
-        # Convert to dict format
-        data = df.to_dict(orient='records')
-        
-        return {
-            "data": data,
-            "total": total,
-            "skip": skip,
-            "limit": limit,
-            "pages": (total // limit) + (1 if total % limit > 0 else 0)
-        }
+        df = pd.read_sql(f'SELECT * FROM "{dataset_id}"', engine)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=404, detail=f"Dataset '{dataset_id}' not found: {e}")
+
+    cleaning_result = clean_dataset(df)
+    clean_df = cleaning_result["cleaned_df"]
+
+    kpi_result = generate_kpi_list(clean_df)
+    eda_result = run_eda(clean_df, table_name=dataset_id)
+
+    return {
+        "dataset_id": dataset_id,
+        "cleaning_report": cleaning_result["report"],
+        "kpis": kpi_result["kpis"],
+        "detected_columns": kpi_result["detected_columns"],
+        "summary_stats": eda_result["summary_stats"],
+        "charts": eda_result["charts"]
+    }
 
 
-@router.get("/kpi/{table_name}")
-def get_kpis(table_name: str):
-    """
-    Calculate Key Performance Indicators from dataset
-    
-    Returns:
-        total_revenue, growth_rate, transaction_count, forecast_accuracy
-    """
-    try:
-        df = pd.read_sql(f'SELECT * FROM "{table_name}"', engine)
-        
-        # Find numeric columns
-        numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
-        
-        if not numeric_cols:
-            raise HTTPException(status_code=400, detail="No numeric columns found")
-        
-        # Use first numeric column as "revenue"
-        revenue_col = numeric_cols[0]
-        
-        # Calculate KPIs
-        total_revenue = float(df[revenue_col].sum())
-        
-        # Growth rate (compare last week to previous week)
-        if len(df) >= 14:
-            recent = df[revenue_col].tail(7).sum()
-            previous = df[revenue_col].tail(14).head(7).sum()
-            growth_rate = (recent - previous) / previous if previous > 0 else 0
-        else:
-            growth_rate = 0
-        
-        transaction_count = len(df)
-        forecast_accuracy = 0.92  # Mock value for now
-        
-        return {
-            "total_revenue": round(total_revenue, 2),
-            "growth_rate": round(growth_rate, 4),
-            "transaction_count": transaction_count,
-            "forecast_accuracy": forecast_accuracy
-        }
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@router.get("/analytics/{table_name}")
-def get_analytics(
-    table_name: str, 
-    analysis_type: str = Query("trend", pattern="^(trend|distribution|category)$"),
-    column: str = Query(None)
+@router.get("/compare")
+def compare_datasets(
+    datasets: str = Query(..., description="Comma-separated dataset table names, e.g. 'table1,table2'"),
+    group_by: str = Query("month", description="Time grouping: 'month' or 'day'"),
+    current_user: dict = Depends(get_current_user)
 ):
     """
-    Fetch analytics data for different chart types
-    
-    Args:
-        table_name: Name of table to analyze
-        analysis_type: 'trend' (time series), 'distribution' (histogram), 'category' (pie/bar)
-        column: Column name to analyze (auto-detected if None)
-    
-    Returns:
-        Formatted data for charting
+    Multi-Dataset Timeline Comparison API (Phase 2).
+    Accepts two or more dataset names/IDs, detects date & metric columns for each,
+    aggregates metrics per time period, performs Outer Union timeline alignment,
+    and returns aligned series data ready for multi-dataset Chart.js plotting.
     """
-    try:
-        df = pd.read_sql(f'SELECT * FROM "{table_name}" LIMIT 100', engine)
+    dataset_list = [d.strip() for d in datasets.split(",") if d.strip()]
+    if len(dataset_list) < 1:
+        raise HTTPException(status_code=400, detail="At least one dataset name must be provided for comparison.")
+
+    # Verify access for all requested datasets
+    for d_id in dataset_list:
+        check_dataset_access(d_id, current_user["id"])
+
+    dataset_series = {}
+    dataset_kpis = {}
+
+    for d_id in dataset_list:
+        try:
+            df = pd.read_sql(f'SELECT * FROM "{d_id}"', engine)
+        except Exception as e:
+            raise HTTPException(status_code=404, detail=f"Dataset '{d_id}' not found: {e}")
+
+        roles = detect_column_roles(df)
         
-        if analysis_type == "trend":
-            # Time series trend
-            numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
-            if not numeric_cols:
-                raise HTTPException(status_code=400, detail="No numeric columns")
-            
-            col = column or numeric_cols[0]
-            data = [
-                {"date": f"2026-08-{i+1:02d}", "value": float(row[col])}
-                for i, (_, row) in enumerate(df.tail(30).iterrows())
-                if not pd.isna(row[col])
-            ]
-        
-        elif analysis_type == "distribution":
-            # Histogram distribution
-            numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
-            col = column or numeric_cols[0]
-            
-            # Create bins and count
-            bins = pd.cut(df[col], bins=5)
-            dist = bins.value_counts().sort_index()
-            
-            data = [
-                {
-                    "range": str(interval),
-                    "count": int(count)
-                }
-                for interval, count in dist.items()
-            ]
-        
-        elif analysis_type == "category":
-            # Category breakdown (find text columns)
-            text_cols = df.select_dtypes(include=['object']).columns.tolist()
-            if not text_cols:
-                numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
-                col = column or numeric_cols[0]
-                # Group by first 5 rows as categories
-                data = [
-                    {"category": f"Category {i+1}", "value": float(row[col])}
-                    for i, (_, row) in enumerate(df.head(5).iterrows())
-                ]
+        # Determine target metric column (revenue/sales/numeric)
+        val_col = roles["revenue_columns"][0] if roles["revenue_columns"] else None
+        if not val_col:
+            num_cols = df.select_dtypes(include="number").columns
+            val_col = num_cols[0] if len(num_cols) > 0 else None
+
+        # Determine date column
+        date_col = roles["date_columns"][0] if roles["date_columns"] else None
+        if not date_col:
+            dt_cols = df.select_dtypes(include="datetime").columns
+            date_col = dt_cols[0] if len(dt_cols) > 0 else None
+
+        # Process timeline if date and value columns exist
+        period_map = {}
+        if date_col and val_col:
+            df_temp = df[[date_col, val_col]].dropna().copy()
+            df_temp[date_col] = pd.to_datetime(df_temp[date_col], errors="coerce")
+            df_temp = df_temp.dropna(subset=[date_col])
+
+            if group_by == "day":
+                df_temp["period"] = df_temp[date_col].dt.strftime("%Y-%m-%d")
             else:
-                col = text_cols[0]
-                value_col = df.select_dtypes(include=['number']).columns[0] if df.select_dtypes(include=['number']).shape[1] > 0 else None
-                
-                if value_col:
-                    grouped = df.groupby(col)[value_col].sum().head(5)
-                    data = [
-                        {"category": str(cat), "value": float(val)}
-                        for cat, val in grouped.items()
-                    ]
-                else:
-                    grouped = df[col].value_counts().head(5)
-                    data = [
-                        {"category": str(cat), "value": int(count)}
-                        for cat, count in grouped.items()
-                    ]
-        
-        return {"data": data, "type": analysis_type}
-    
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+                df_temp["period"] = df_temp[date_col].dt.strftime("%Y-%m")
 
+            grouped = df_temp.groupby("period")[val_col].sum()
+            period_map = {str(k): float(round(v, 2)) for k, v in grouped.items()}
 
-@router.get("/insights/{table_name}")
-def get_insights(table_name: str):
-    """
-    Generate AI-powered insights from dataset
-    
-    Returns:
-        List of insights and recommendations
-    """
-    try:
-        df = pd.read_sql(f'SELECT * FROM "{table_name}" LIMIT 100', engine)
-        
-        insights = []
-        recommendations = []
-        
-        # Analyze numeric columns
-        numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
-        
-        if numeric_cols:
-            main_col = numeric_cols[0]
-            
-            # Growth insight
-            if len(df) >= 2:
-                recent = df[main_col].tail(10).mean()
-                previous = df[main_col].head(10).mean()
-                growth = ((recent - previous) / previous * 100) if previous != 0 else 0
-                
-                if growth > 0:
-                    insights.append(f"Revenue trend shows {growth:.1f}% growth over recent period")
-                else:
-                    insights.append(f"Revenue shows {abs(growth):.1f}% decline over recent period")
-            
-            # High variability
-            std = df[main_col].std()
-            mean = df[main_col].mean()
-            if std > mean * 0.5:
-                insights.append("High variability detected in revenue - consider seasonal factors")
-            
-            # Outliers
-            q1 = df[main_col].quantile(0.25)
-            q3 = df[main_col].quantile(0.75)
-            iqr = q3 - q1
-            outliers = len(df[(df[main_col] < q1 - 1.5*iqr) | (df[main_col] > q3 + 1.5*iqr)])
-            
-            if outliers > 0:
-                insights.append(f"Found {outliers} potential outliers in data")
-                recommendations.append(f"Investigate {outliers} anomalies - they may indicate data quality issues")
-        
-        # Text column analysis
-        text_cols = df.select_dtypes(include=['object']).columns.tolist()
-        if text_cols and numeric_cols:
-            grouped = df.groupby(text_cols[0])[numeric_cols[0]].sum().sort_values(ascending=False)
-            top_category = grouped.index[0]
-            top_value = grouped.values[0]
-            total = grouped.sum()
-            pct = (top_value / total * 100)
-            
-            insights.append(f"{str(top_category)} category accounts for {pct:.1f}% of total")
-            recommendations.append(f"Focus on maximizing {str(top_category)} category performance")
-        
-        # Add defaults if empty
-        if not insights:
-            insights = [
-                "Dataset successfully loaded and analyzed",
-                "Ready for forecasting and deeper analysis"
-            ]
-        
-        if not recommendations:
-            recommendations = [
-                "Upload additional historical data for more accurate forecasts",
-                "Use forecasting module to predict future trends"
-            ]
-        
-        return {
-            "insights": insights,
-            "recommendations": recommendations,
-            "generated_at": datetime.now().isoformat()
+        # Compute summary KPIs
+        total_val = float(round(df[val_col].sum(), 2)) if val_col and val_col in df.columns else 0.0
+        rec_count = len(df)
+
+        dataset_series[d_id] = period_map
+        dataset_kpis[d_id] = {
+            "dataset_id": d_id,
+            "total_value": total_val,
+            "record_count": rec_count,
+            "metric_column": val_col or "N/A",
+            "date_column": date_col or "N/A"
         }
-    
+
+    # Step: Outer Union Alignment of all periods across datasets
+    all_periods = set()
+    for period_map in dataset_series.values():
+        all_periods.update(period_map.keys())
+
+    sorted_labels = sorted(list(all_periods))
+
+    # If no dates found, generate fallback labels
+    if not sorted_labels:
+        sorted_labels = ["Period 1", "Period 2", "Period 3", "Period 4", "Period 5"]
+
+    # Align each dataset against the master sorted labels list
+    aligned_datasets = []
+    for d_id in dataset_list:
+        period_map = dataset_series[d_id]
+        if period_map:
+            aligned_data = [period_map.get(period, 0.0) for period in sorted_labels]
+        else:
+            # Fallback uniform distribution if no date column exists
+            total = dataset_kpis[d_id]["total_value"]
+            aligned_data = [round(total / len(sorted_labels), 2)] * len(sorted_labels)
+
+        aligned_datasets.append({
+            "dataset_id": d_id,
+            "data": aligned_data,
+            "kpi_summary": dataset_kpis[d_id]
+        })
+
+    return {
+        "labels": sorted_labels,
+        "group_by": group_by,
+        "datasets": aligned_datasets,
+        "alignment_info": {
+            "total_periods": len(sorted_labels),
+            "period_range": [sorted_labels[0], sorted_labels[-1]] if sorted_labels else ["N/A", "N/A"]
+        }
+    }
+
+
+def generate_report_content(dataset_id: str) -> tuple[str, str]:
+    """
+    Generates a structured CSV report containing KPI metrics + cleaned dataset data.
+
+    TRADEOFF EXPLANATION (CSV vs PDF):
+    CSV is lightweight, fast, and native for analytical workflows (Excel/Pandas/PowerBI),
+    enabling immediate data manipulation by users. PDF offers superior visual design for
+    printing/executive views, but introduces heavier server overhead and makes raw data
+    difficult to re-use.
+    """
+    df = pd.read_sql(f'SELECT * FROM "{dataset_id}"', engine)
+    cleaning_result = clean_dataset(df)
+    clean_df = cleaning_result["cleaned_df"]
+    kpi_result = generate_kpi_list(clean_df)
+
+    buffer = io.StringIO()
+    buffer.write(f"# BizVision Analytics Report - Dataset: {dataset_id}\n")
+    buffer.write("# KEY PERFORMANCE INDICATORS\n")
+    for k in kpi_result.get("kpis", []):
+        if k.get("available", True):
+            name = k.get("kpi") or k.get("name") or "KPI"
+            val = k.get("value", "N/A")
+            buffer.write(f"# {name}: {val}\n")
+    buffer.write("#\n# CLEANED DATASET ROWS\n")
+
+
+    clean_df.to_csv(buffer, index=False)
+    content_str = buffer.getvalue()
+    filename = f"report_{dataset_id}.csv"
+    return content_str, filename
+
+
+@router.get("/download/{dataset_id}")
+def download_report(dataset_id: str, current_user: dict = Depends(get_current_user)):
+    """
+    Generates and returns downloadable analytics report CSV file for dataset.
+    """
+    check_dataset_access(dataset_id, current_user["id"])
+    try:
+        csv_content, filename = generate_report_content(dataset_id)
+        return Response(
+            content=csv_content,
+            media_type="text/csv",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+        )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Failed to generate report: {e}")
+
+
+@router.post("/send-report/{dataset_id}")
+def send_report_email(dataset_id: str, current_user: dict = Depends(get_current_user)):
+    """
+    Manual button trigger: Emails the report file as an attachment to the logged-in user's email.
+    """
+    check_dataset_access(dataset_id, current_user["id"])
+    try:
+        csv_content, filename = generate_report_content(dataset_id)
+        user_email = current_user["email"]
+
+        body = (
+            f"Hello {current_user['username']},\n\n"
+            f"Please find attached your requested analytics report for dataset '{dataset_id}'.\n\n"
+            f"Best regards,\nBizVision Analytics Team"
+        )
+
+        sent, msg = send_email(
+            to_email=user_email,
+            subject=f"BizVision Report: {dataset_id}",
+            body=body,
+            attachment_bytes=csv_content.encode("utf-8"),
+            attachment_filename=filename
+        )
+
+        if not sent:
+            return {
+                "success": True,
+                "warning": msg,
+                "message": f"Report created, but email could not be sent: {msg}"
+            }
+
+        return {
+            "success": True,
+            "message": "Report sent to your email"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not send report email: {e}")

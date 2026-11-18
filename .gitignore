@@ -27,3 +27,34 @@ backend/static/charts/
 # IDE
 .vscode/
 .idea/
+
+PS D:\BizVision project\bizvision> git ls-files "*env*"
+PS D:\BizVision project\bizvision> Get-Content .gitignore
+# Environment
+.env
+backend/venv/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# macOS
+.DS_Store
+
+# Generated ML models
+saved_models/
+backend/saved_models/
+
+# Generated charts
+static/charts/
+backend/static/charts/
+
+# Test/cache files
+.pytest_cache/
+.coverage
+
+.env.*
+!.env.example

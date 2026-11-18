@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BizVision - Login or Sign Up for your AI Business Analytics Dashboard">
+    <title>BizVision - Authentication</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth.js"></script>
+    <style>
+        .auth-tabs {
+            display: flex;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 4px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            gap: 4px;
+        }
+
+        .auth-tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .auth-tab-btn.active {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        .auth-tab-btn:hover:not(.active) {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .password-rules {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+
+<body class="auth-page">
+    <main role="main" class="auth-container">
+        <article class="auth-card" role="region" aria-label="Authentication Card">
+            <header class="auth-header">
+                <h1 class="auth-title">BizVision</h1>
+                <p id="auth-subtitle" class="auth-subtitle">AI-Powered Business Analytics Platform</p>
+            </header>
+
+            <!-- Mode Switcher Tabs -->
+            <div class="auth-tabs" role="tablist">
+                <button type="button" id="tab-login" class="auth-tab-btn active" role="tab" aria-selected="true">
+                    Log In
+                </button>
+                <button type="button" id="tab-signup" class="auth-tab-btn" role="tab" aria-selected="false">
+                    Sign Up
+                </button>
+            </div>
+
+            <div id="auth-alert" class="auth-alert" role="alert" style="display: none;"></div>
+
+            <!-- 1. LOGIN FORM -->
+            <form id="login-form" class="auth-form" novalidate>
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" name="username" class="form-input" placeholder="Enter your username"
+                        required autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" class="form-input" placeholder="Enter your password"
+                        required autocomplete="current-password">
+                </div>
+
+                <button type="submit" id="login-btn" class="auth-submit-btn">Log In to Workspace</button>
+            </form>
+
+            <!-- 2. SIGN UP FORM -->
+            <form id="signup-form" class="auth-form" style="display: none;" novalidate>
+                <div class="form-group">
+                    <label for="signup-username">Username</label>
+                    <input type="text" id="signup-username" name="username" class="form-input" placeholder="Choose a username"
+                        required autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-email">Email Address</label>
+                    <input type="email" id="signup-email" name="email" class="form-input" placeholder="name@company.com"
+                        required autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" name="password" class="form-input" placeholder="Create a secure password"
+                        required autocomplete="new-password">
+                    <div class="password-rules">Minimum 6 characters. Validated with salted bcrypt encryption.</div>
+                </div>
+
+                <button type="submit" id="signup-btn" class="auth-submit-btn">Create Free Account</button>
+            </form>
+
+            <footer class="auth-footer">
+                <p id="auth-footer-text">Don't have an account yet? <a href="#" id="switch-to-signup">Sign Up</a></p>
+            </footer>
+        </article>
+    </main>
+
+    <script>
+        const apiBase = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '8000'))
+            ? 'http://127.0.0.1:8000/api'
+            : '/api';
+
+        const tabLogin = document.getElementById('tab-login');
+        const tabSignup = document.getElementById('tab-signup');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const authAlert = document.getElementById('auth-alert');
+        const authSubtitle = document.getElementById('auth-subtitle');
+        const footerText = document.getElementById('auth-footer-text');
+        const switchToSignup = document.getElementById('switch-to-signup');
+
+        function setMode(mode) {
+            authAlert.style.display = 'none';
+            if (mode === 'signup') {
+                tabSignup.classList.add('active');
+                tabSignup.setAttribute('aria-selected', 'true');
+                tabLogin.classList.remove('active');
+                tabLogin.setAttribute('aria-selected', 'false');
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+                authSubtitle.textContent = 'Create your new analytics workspace';
+                footerText.innerHTML = 'Already have an account? <a href="#" id="switch-to-login">Log In</a>';
+                const switchBtn = document.getElementById('switch-to-login');
+                if (switchBtn) switchBtn.onclick = (e) => { e.preventDefault(); setMode('login'); };
+            } else {
+                tabLogin.classList.add('active');
+                tabLogin.setAttribute('aria-selected', 'true');
+                tabSignup.classList.remove('active');
+                tabSignup.setAttribute('aria-selected', 'false');
+                signupForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                authSubtitle.textContent = 'Log in to your account';
+                footerText.innerHTML = 'Don\'t have an account yet? <a href="#" id="switch-to-signup">Sign Up</a>';
+                const switchBtn = document.getElementById('switch-to-signup');
+                if (switchBtn) switchBtn.onclick = (e) => { e.preventDefault(); setMode('signup'); };
+            }
+        }
+
+        tabLogin.addEventListener('click', () => setMode('login'));
+        tabSignup.addEventListener('click', () => setMode('signup'));
+        if (switchToSignup) switchToSignup.addEventListener('click', (e) => { e.preventDefault(); setMode('signup'); });
+
+        // URL Query parameter checks (e.g., ?mode=signup or ?expired=1)
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('mode') === 'signup' || window.location.pathname.includes('signup')) {
+            setMode('signup');
+        }
+        if (params.get('expired') === '1') {
+            authAlert.textContent = 'Your session has expired. Please log in again.';
+            authAlert.style.display = 'block';
+        }
+
+        // Handle Log In submission
+        loginForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            authAlert.style.display = 'none';
+
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            if (!username || !password) {
+                authAlert.textContent = 'Please enter both username and password.';
+                authAlert.style.display = 'block';
+                return;
+            }
+
+            const btn = document.getElementById('login-btn');
+            btn.disabled = true;
+            btn.textContent = 'Logging in...';
+
+            try {
+                const res = await fetch(`${apiBase}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Login failed. Please verify your credentials.');
+                }
+
+                // Clear previous state and store clean session
+                sessionStorage.clear();
+                localStorage.setItem('session_token', data.token);
+                localStorage.setItem('user_info', JSON.stringify(data.user));
+
+                // Returning user vs New user logic
+                const count = (typeof data.dataset_count === 'number') ? data.dataset_count : 0;
+                if (count === 0) {
+                    // New user with zero datasets -> redirect to Upload page
+                    window.location.href = 'upload.html?onboarding=1';
+                } else {
+                    // Returning user with datasets -> redirect to Dashboard
+                    window.location.href = 'index.html';
+                }
+            } catch (err) {
+                authAlert.textContent = err.message;
+                authAlert.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Log In to Workspace';
+            }
+        });
+
+        // Handle Sign Up submission
+        signupForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            authAlert.style.display = 'none';
+
+            const username = document.getElementById('signup-username').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+
+            if (!username || !email || !password) {
+                authAlert.textContent = 'Please fill out all required fields.';
+                authAlert.style.display = 'block';
+                return;
+            }
+
+            if (!email.includes('@') || !email.includes('.')) {
+                authAlert.textContent = 'Please provide a valid email address.';
+                authAlert.style.display = 'block';
+                return;
+            }
+
+            if (password.length < 6) {
+                authAlert.textContent = 'Password must be at least 6 characters long.';
+                authAlert.style.display = 'block';
+                return;
+            }
+
+            const btn = document.getElementById('signup-btn');
+            btn.disabled = true;
+            btn.textContent = 'Creating Account...';
+
+            try {
+                const res = await fetch(`${apiBase}/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Registration failed.');
+                }
+
+                // Auto-login newly registered user
+                const loginRes = await fetch(`${apiBase}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const loginData = await loginRes.json();
+                if (loginRes.ok && loginData.token) {
+                    sessionStorage.clear();
+                    localStorage.setItem('session_token', loginData.token);
+                    localStorage.setItem('user_info', JSON.stringify(loginData.user));
+                    // New user -> direct to upload
+                    window.location.href = 'upload.html?onboarding=1';
+                    return;
+                }
+
+                // Fallback to login tab
+                authAlert.style.background = 'rgba(16, 185, 129, 0.15)';
+                authAlert.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                authAlert.style.color = '#34d399';
+                authAlert.textContent = 'Account created successfully! Please log in.';
+                authAlert.style.display = 'block';
+                setMode('login');
+            } catch (err) {
+                authAlert.textContent = err.message;
+                authAlert.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Create Free Account';
+            }
+        });
+    </script>
+</body>
+
+</html>

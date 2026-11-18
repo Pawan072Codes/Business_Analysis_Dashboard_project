@@ -3,27 +3,920 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="BizVision - Forecasting and predictions">
-    <title>Forecasting - BizVision</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="stylesheet" href="/static/css/responsive.css">
+    <meta name="description" content="BizVision - Predictive Forecasting & Machine Learning Analytics Dashboard">
+    <title>Predictive Forecasting - BizVision</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="js/auth.js"></script>
+
+    <style>
+        /* ══════════════════════════════════════════════════════════════════════
+           PREDICTIVE FORECASTING DASHBOARD STYLING
+           ══════════════════════════════════════════════════════════════════════ */
+        :root {
+            --fc-bg-dark: #090e1a;
+            --fc-card-bg: #0f172a;
+            --fc-card-border: #1e293b;
+            --fc-accent-primary: #0284c7;
+            --fc-accent-glow: #38bdf8;
+            --fc-accent-teal: #14b8a6;
+            --fc-accent-emerald: #10b981;
+            --fc-accent-indigo: #6366f1;
+            --fc-text-primary: #f8fafc;
+            --fc-text-secondary: #94a3b8;
+            --fc-text-muted: #64748b;
+        }
+
+        body.forecast-page {
+            background-color: var(--fc-bg-dark);
+            color: var(--fc-text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .forecast-main {
+            padding: 24px 36px 48px;
+            box-sizing: border-box;
+            background-color: var(--fc-bg-dark);
+            min-height: calc(100vh - var(--header-height));
+        }
+
+        /* ── Header Titles ── */
+        .fc-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .fc-title-group h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin: 0 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .fc-title-group p {
+            font-size: 13.5px;
+            color: var(--fc-text-secondary);
+            margin: 0;
+        }
+
+        .fc-top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ── Common Card Styling ── */
+        .fc-card {
+            background: #0d1527;
+            border: 1px solid #1c273c;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .fc-card:hover {
+            border-color: #2a3a54;
+        }
+
+        .fc-card-header {
+            padding: 16px 22px;
+            border-bottom: 1px solid #1c273c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f192e;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .fc-card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fc-card-body {
+            padding: 22px;
+        }
+
+        /* ── 1. Top Control Bar ── */
+        .fc-control-bar {
+            background: #0f192e;
+            border: 1px solid #1f2d47;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .fc-controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .fc-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .fc-field-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .fc-select, .fc-input {
+            background: #090e1a;
+            border: 1px solid #233148;
+            color: #f8fafc;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .fc-select:focus, .fc-input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+        }
+
+        .fc-granularity-pills {
+            display: inline-flex;
+            background: #090e1a;
+            border: 1px solid #233148;
+            border-radius: 8px;
+            padding: 3px;
+            gap: 3px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .fc-granularity-pill {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .fc-granularity-pill.active {
+            background: #0284c7;
+            color: #ffffff;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-run-forecast {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            border: 1px solid #38bdf8;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+            width: 100%;
+            box-sizing: border-box;
+            height: 40px;
+        }
+
+        .btn-run-forecast:hover {
+            background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+            box-shadow: 0 6px 18px rgba(56, 189, 248, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-run-forecast:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── 2. KPI Summary Cards ── */
+        .fc-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .fc-kpi-card {
+            background: #0d1527;
+            border: 1px solid #1c273c;
+            border-radius: 12px;
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .fc-kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #334155;
+        }
+
+        .fc-kpi-card.kpi-projected::before { background: linear-gradient(90deg, #38bdf8, #0284c7); }
+        .fc-kpi-card.kpi-growth::before { background: linear-gradient(90deg, #2dd4bf, #10b981); }
+        .fc-kpi-card.kpi-peak::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+        .fc-kpi-card.kpi-model::before { background: linear-gradient(90deg, #a855f7, #6366f1); }
+
+        .fc-kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: #2e3e5c;
+        }
+
+        .fc-kpi-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .fc-kpi-label {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .fc-kpi-icon {
+            font-size: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #152033;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fc-kpi-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: #f8fafc;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .fc-kpi-sub {
+            font-size: 12px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-trend-up {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-weight: 700;
+            font-size: 11.5px;
+        }
+
+        .badge-trend-down {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-weight: 700;
+            font-size: 11.5px;
+        }
+
+        /* ── 3. Model Performance & Evaluation Panel ── */
+        .fc-perf-panel {
+            background: #0b1220;
+            border: 1px solid #1a2538;
+            border-radius: 12px;
+            padding: 16px 22px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .fc-perf-title-side {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .fc-perf-tag {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #38bdf8;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .fc-perf-badges {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .fc-perf-metric {
+            background: #111a2e;
+            border: 1px solid #1f2c42;
+            border-radius: 8px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .fc-perf-m-label {
+            font-size: 11.5px;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .fc-perf-m-val {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .fc-perf-m-val.highlight {
+            color: #2dd4bf;
+        }
+
+        /* ── 4. Chart Section & Interactive Slicers ── */
+        .fc-chart-container {
+            position: relative;
+            min-height: 440px;
+            width: 100%;
+        }
+
+        .fc-chart-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: #090e1a;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .fc-preset-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .fc-preset-btn {
+            background: #111827;
+            border: 1px solid #1f293d;
+            color: #94a3b8;
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .fc-preset-btn:hover {
+            color: #f1f5f9;
+            background: #1e293b;
+        }
+
+        .fc-preset-btn.active {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #38bdf8;
+        }
+
+        .fc-timeline-slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            max-width: 420px;
+        }
+
+        .fc-slider-range {
+            width: 100%;
+            accent-color: #38bdf8;
+            cursor: pointer;
+        }
+
+        /* ── 5. Driver Analysis & Decomposition 2-Column Grid ── */
+        .fc-insights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .fc-insights-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .dow-bars-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .dow-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12.5px;
+        }
+
+        .dow-bar-label {
+            width: 85px;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .dow-bar-track {
+            flex: 1;
+            background: #090e1a;
+            border-radius: 6px;
+            height: 18px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .dow-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0284c7, #38bdf8);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+
+        .dow-bar-fill.peak {
+            background: linear-gradient(90deg, #0d9488, #2dd4bf);
+        }
+
+        .dow-bar-val {
+            width: 75px;
+            text-align: right;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .driver-card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .driver-card-item {
+            background: #0b1220;
+            border: 1px solid #1a2538;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .driver-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .driver-rank {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #1e293b;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+
+        .driver-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        .driver-weight {
+            font-size: 13px;
+            font-weight: 700;
+            color: #2dd4bf;
+        }
+
+        /* ── 6. Forecast Data Table & Row Controls ── */
+        .fc-table-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px;
+            border-bottom: 1px solid #1c273c;
+            background: #0f192e;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .fc-table-search {
+            background: #090e1a;
+            border: 1px solid #233148;
+            color: #f8fafc;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            width: 240px;
+            outline: none;
+        }
+
+        .fc-table-search:focus {
+            border-color: #38bdf8;
+        }
+
+        .fc-table-wrapper {
+            max-height: 480px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .fc-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .fc-data-table th {
+            background: #0b1220;
+            color: #94a3b8;
+            font-weight: 600;
+            padding: 11px 16px;
+            border-bottom: 1px solid #1c273c;
+            cursor: pointer;
+            user-select: none;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .fc-data-table th:hover {
+            color: #38bdf8;
+        }
+
+        .fc-data-table td {
+            padding: 10px 16px;
+            border-bottom: 1px solid #162033;
+            color: #cbd5e1;
+        }
+
+        .fc-data-table tbody tr:hover {
+            background: #141f33;
+        }
+
+        .tag-forecasted {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.12);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .tag-historical {
+            display: inline-block;
+            background: rgba(148, 163, 184, 0.12);
+            color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .table-footer-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px;
+            background: #0f192e;
+            border-top: 1px solid #1c273c;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 12.5px;
+            color: #94a3b8;
+        }
+
+        /* ── 7. Delivery & Action Buttons ── */
+        .btn-fc-action {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            padding: 8px 15px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-fc-action:hover {
+            background: #27354f;
+            border-color: #475569;
+            color: #ffffff;
+        }
+
+        .btn-fc-primary {
+            background: #0284c7;
+            border-color: #38bdf8;
+            color: #ffffff;
+        }
+
+        .btn-fc-primary:hover {
+            background: #0369a1;
+        }
+
+        /* ── Modal Dialog (Send Email) ── */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #0f172a;
+            border: 1px solid #233148;
+            border-radius: 14px;
+            width: 90%;
+            max-width: 520px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 16px 22px;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0b1120;
+        }
+
+        .modal-body {
+            padding: 22px;
+        }
+
+        .modal-footer {
+            padding: 14px 22px;
+            background: #0b1120;
+            border-top: 1px solid #1e293b;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* ── Skeletons for Loading State ── */
+        .fc-skeleton {
+            background: linear-gradient(90deg, #131c2e 25%, #1c2a44 50%, #131c2e 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ── PRINT-OPTIMIZED STYLESHEET ── */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+
+            .app-header,
+            .sidebar-nav,
+            .fc-top-actions,
+            .btn-run-forecast,
+            .fc-preset-group,
+            .fc-timeline-slider-wrapper,
+            .fc-table-toolbar,
+            .table-footer-controls,
+            .app-footer,
+            .floating-theme-toggle {
+                display: none !important;
+            }
+
+            .app-layout, .main-content, .forecast-main {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .fc-card, .fc-control-bar, .fc-kpi-card, .fc-perf-panel {
+                background: #ffffff !important;
+                border: 1px solid #cccccc !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                break-inside: avoid;
+                margin-bottom: 16px !important;
+            }
+
+            .fc-card-header {
+                background: #f1f5f9 !important;
+                border-bottom: 1px solid #cccccc !important;
+                color: #000000 !important;
+            }
+
+            .fc-card-title, .fc-kpi-value, .fc-perf-m-val, h2 {
+                color: #000000 !important;
+            }
+
+            .fc-data-table th {
+                background: #e2e8f0 !important;
+                color: #000000 !important;
+            }
+
+            .fc-data-table td {
+                color: #1e293b !important;
+                border-bottom: 1px solid #e2e8f0 !important;
+            }
+
+            .fc-table-wrapper {
+                max-height: none !important;
+                overflow: visible !important;
+            }
+        }
+    </style>
 </head>
-<body>
-    <!-- HEADER: Top navigation -->
+
+<body class="forecast-page">
+    <!-- TOAST NOTIFICATION SYSTEM CONTAINER -->
+    <div id="toast-container" class="toast-notification-container" aria-live="polite"></div>
+
+    <!-- HEADER: Top navigation and branding -->
     <header role="banner" class="app-header">
-        <div class="header-container">
-            <h1 class="app-title">BizVision</h1>
-            <p class="app-subtitle">Business Analytics & Forecasting</p>
-            <div class="header-actions">
-                <a href="index.html" class="header-link" aria-label="Back to dashboard">← Dashboard</a>
+        <!-- LEFT: Mobile Menu Toggle, Logo & Branding -->
+        <div class="header-left">
+            <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Toggle Navigation" title="Toggle Sidebar Navigation">
+                ☰
+            </button>
+            <a href="index.html" class="logo-container">
+                <span class="logo-icon">📊</span>
+                <div class="logo-text">
+                    <h1 class="logo-title">BizVision</h1>
+                    <span class="logo-subtitle">Analytics Dashboard</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- MIDDLE: Primary Global Dataset Search Bar -->
+        <div class="header-middle">
+            <div class="dataset-search-wrapper">
+                <span class="dataset-search-icon" title="Search active dataset" aria-label="Search dataset">🔍</span>
+                <input type="search" id="dataset-search-input" class="dataset-search-input" placeholder="Search pages, datasets, metrics..." autocomplete="off">
+                <button type="button" id="dataset-search-clear-btn" class="dataset-search-clear-btn" style="display: none;" title="Clear search">✕</button>
+                <div id="dataset-search-dropdown" class="dataset-search-dropdown" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Header Actions -->
+        <div class="header-right">
+            <!-- Notifications Bell -->
+            <div style="position: relative;">
+                <button id="notif-btn" class="header-action-btn" aria-label="Notifications" title="Notifications">
+                    🔔
+                    <span class="notif-badge" id="notif-badge-count">3</span>
+                </button>
+                <div id="notif-dropdown-menu" class="header-dropdown-menu" style="display: none;">
+                    <div class="dropdown-header-info" style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>Notifications</strong>
+                        <button id="clear-notif-btn" class="clear-notif-action-btn">Clear all</button>
+                    </div>
+                    <div id="notif-items-container"></div>
+                </div>
+            </div>
+
+            <!-- Profile Avatar Menu -->
+            <div style="position: relative;">
+                <button id="profile-btn" class="profile-trigger-btn" aria-label="User Profile">
+                    <img id="avatar-img" class="avatar-badge" src="" alt="Avatar" style="display: none;">
+                    <span id="avatar-initial" class="avatar-badge">P</span>
+                    <span id="header-username-text" class="profile-username">Pawan</span>
+                    <span style="font-size: 10px; opacity: 0.8;">▾</span>
+                </button>
+                <div id="profile-dropdown-menu" class="header-dropdown-menu" style="display: none;">
+                    <div class="dropdown-header-info">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <strong id="menu-user-name">Pawan</strong>
+                            <span class="user-role-badge">Data Analyst</span>
+                        </div>
+                        <div id="menu-user-email" style="font-size: 12px; opacity: 0.75; margin-top: 2px;">pawan@bizvision.com</div>
+                    </div>
+                    <a href="profile.html" class="dropdown-item-link">👤 My Profile</a>
+                    <a href="settings.html" class="dropdown-item-link">⚙️ Account Settings</a>
+                    <a href="upload.html" class="dropdown-item-link">📁 Upload Datasets</a>
+                    <button id="theme-toggle-menu-btn" class="dropdown-item-link">🌙 Toggle Theme</button>
+                    <div class="dropdown-divider"></div>
+                    <button id="logout-menu-btn" class="dropdown-item-link danger">🚪 Log Out</button>
+                </div>
             </div>
         </div>
     </header>
 
     <div class="app-layout">
-        <!-- SIDEBAR NAVIGATION: Navigation menu -->
+        <!-- SIDEBAR NAVIGATION -->
         <nav role="navigation" aria-label="Main navigation" class="sidebar-nav">
-            <ul class="nav-list">
+            <ul class="nav-list nav-list-main">
                 <li class="nav-item">
                     <a href="index.html" class="nav-link">
                         <span class="nav-icon">📊</span>
@@ -43,436 +936,409 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#settings" class="nav-link">
-                        <span class="nav-icon">⚙️</span>
-                        <span class="nav-label">Settings</span>
+                    <a href="compare.html" class="nav-link">
+                        <span class="nav-icon">⚖️</span>
+                        <span class="nav-label">Compare Dataset</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="insights.html" class="nav-link">
+                        <span class="nav-icon">💡</span>
+                        <span class="nav-label">AI Insight</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="reports.html" class="nav-link">
+                        <span class="nav-icon">📄</span>
+                        <span class="nav-label">Report</span>
                     </a>
                 </li>
             </ul>
+
+            <div class="nav-section-bottom">
+                <ul class="nav-list nav-list-bottom">
+                    <li class="nav-item">
+                        <a href="profile.html" class="nav-link">
+                            <span class="nav-icon">👤</span>
+                            <span class="nav-label">My Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="settings.html" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            <span class="nav-label">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </nav>
 
         <!-- MAIN CONTENT AREA -->
         <main role="main" class="main-content forecast-main">
-            <!-- PAGE HEADER -->
-            <section class="page-header" aria-labelledby="page-title">
-                <h2 id="page-title" class="page-title">Forecasting & Predictions</h2>
-                <p class="page-description">
-                    Generate accurate forecasts using machine learning models.
-                    Configure parameters and run predictions on your dataset.
+            <!-- PAGE HEADER & TOP ACTION BUTTONS -->
+            <div class="fc-header-row">
+                <div class="fc-title-group">
+                    <h2><span>🔮</span> Predictive Forecasting & Analytics</h2>
+                    <p>Machine learning predictive models, 95% confidence bounds, and driver decomposition</p>
+                </div>
+                <div class="fc-top-actions">
+                    <!-- Export Report Dropdown -->
+                    <div style="position: relative; display: inline-flex;">
+                        <button type="button" id="export-csv-btn" class="btn-fc-action" title="Download forecast report in CSV format">
+                            <span>📥</span> Export CSV
+                        </button>
+                        <button type="button" id="export-xlsx-btn" class="btn-fc-action" style="margin-left: 4px;" title="Download forecast report in Excel XLSX format">
+                            <span>📊</span> Export XLSX
+                        </button>
+                    </div>
+
+                    <!-- Print Page Button -->
+                    <button type="button" id="print-page-btn" class="btn-fc-action" title="Print this complete forecast dashboard">
+                        <span>🖨️</span> Print Report
+                    </button>
+
+                    <!-- Send Email Button -->
+                    <button type="button" id="open-email-modal-btn" class="btn-fc-action btn-fc-primary" title="Email this forecast to stakeholders">
+                        <span>✉️</span> Send via Email
+                    </button>
+                </div>
+            </div>
+
+            <!-- EMPTY STATE WHEN 0 DATASETS -->
+            <div id="forecast-empty-state" style="display: none; text-align: center; padding: 60px 20px; background: #0d1527; border: 1px dashed #1e293b; border-radius: 12px; margin-bottom: 24px;">
+                <div style="font-size: 40px; margin-bottom: 12px;">🔮</div>
+                <h3 style="font-size: 18px; color: #f1f5f9; margin: 0 0 8px 0;">No Datasets Available for Forecasting</h3>
+                <p style="font-size: 14px; color: #94a3b8; max-width: 480px; margin: 0 auto 20px auto;">
+                    Upload a dataset with time series or business records to generate predictive ML forecasts, confidence intervals, and trend projections.
                 </p>
-            </section>
+                <a href="upload.html" class="btn-fc-action btn-fc-primary" style="display: inline-flex; text-decoration: none; padding: 10px 22px;">
+                    <span>📁</span> Upload a Dataset
+                </a>
+            </div>
 
-            <!-- FORECAST CONFIGURATION SECTION: Parameters and settings for forecasting -->
-            <section class="forecast-config-section" aria-labelledby="config-heading">
-                <h2 id="config-heading" class="section-title">Forecast Configuration</h2>
+            <div id="forecast-content">
 
-                <form class="forecast-form" id="forecast-form" role="region" aria-label="Forecast configuration form">
-                    <!-- Configuration Grid -->
-                    <div class="config-grid">
-                        <!-- Dataset Selection -->
-                        <div class="form-group">
-                            <label for="dataset-select" class="form-label">
-                                <span class="label-text">Select Dataset</span>
-                                <span class="required-indicator" aria-label="Required">*</span>
-                            </label>
-                            <select 
-                                id="dataset-select" 
-                                class="form-select"
-                                required
-                                aria-describedby="dataset-help">
-                                <option value="">-- Choose a dataset --</option>
-                                <option value="train">Training Dataset</option>
-                                <option value="test">Test Dataset</option>
-                                <option value="forecast">Forecast Dataset</option>
-                            </select>
-                            <p id="dataset-help" class="form-help">
-                                Select which dataset to use for forecasting
-                            </p>
-                        </div>
+            <!-- 1. TOP CONTROL BAR (Configuration Filters & Inputs) -->
+            <section class="fc-control-bar" aria-label="Forecast Configuration Filters">
+                <div class="fc-controls-grid">
+                    <!-- Dataset Selector -->
+                    <div class="fc-field-group">
+                        <label class="fc-field-label" for="fc-dataset-select">
+                            <span>🗄️</span> Dataset:
+                        </label>
+                        <select id="fc-dataset-select" class="fc-select" title="Choose dataset for forecasting">
+                            <!-- Populated dynamically via JS -->
+                        </select>
+                    </div>
 
-                        <!-- Target Column Selection -->
-                        <div class="form-group">
-                            <label for="target-select" class="form-label">
-                                <span class="label-text">Target Column (to forecast)</span>
-                                <span class="required-indicator" aria-label="Required">*</span>
-                            </label>
-                            <select 
-                                id="target-select" 
-                                class="form-select"
-                                required
-                                aria-describedby="target-help">
-                                <option value="">-- Choose target column --</option>
-                                <option value="revenue">Revenue</option>
-                                <option value="sales">Sales</option>
-                                <option value="visitors">Visitors</option>
-                                <option value="transactions">Transactions</option>
-                            </select>
-                            <p id="target-help" class="form-help">
-                                The column you want to predict
-                            </p>
-                        </div>
+                    <!-- Target Metric Dropdown -->
+                    <div class="fc-field-group">
+                        <label class="fc-field-label" for="fc-target-metric">
+                            <span>🎯</span> Target Metric:
+                        </label>
+                        <select id="fc-target-metric" class="fc-select" title="Target numerical metric to predict">
+                            <option value="sales" selected>Sales ($)</option>
+                            <option value="profit">Profit ($)</option>
+                            <option value="revenue">Revenue ($)</option>
+                            <option value="budget_allocated">Budget Allocated ($)</option>
+                            <option value="actual_spend">Actual Spend ($)</option>
+                        </select>
+                    </div>
 
-                        <!-- Forecast Period -->
-                        <div class="form-group">
-                            <label for="forecast-period" class="form-label">
-                                <span class="label-text">Forecast Period (days)</span>
-                                <span class="required-indicator" aria-label="Required">*</span>
-                            </label>
-                            <input 
-                                type="number" 
-                                id="forecast-period" 
-                                class="form-input"
-                                min="1"
-                                max="365"
-                                value="30"
-                                required
-                                aria-describedby="period-help">
-                            <p id="period-help" class="form-help">
-                                Number of days to forecast into the future (1-365)
-                            </p>
-                        </div>
+                    <!-- Date / Timeline Column -->
+                    <div class="fc-field-group">
+                        <label class="fc-field-label" for="fc-date-col">
+                            <span>📅</span> Date Column:
+                        </label>
+                        <select id="fc-date-col" class="fc-select" title="Date/Timestamp field">
+                            <option value="order_date" selected>order_date (Date)</option>
+                            <option value="closing_date">closing_date (Date)</option>
+                            <option value="signup_date">signup_date (Date)</option>
+                        </select>
+                    </div>
 
-                        <!-- Model Selection -->
-                        <div class="form-group">
-                            <label for="model-select" class="form-label">
-                                <span class="label-text">Forecasting Model</span>
-                                <span class="required-indicator" aria-label="Required">*</span>
-                            </label>
-                            <select 
-                                id="model-select" 
-                                class="form-select"
-                                required
-                                aria-describedby="model-help">
-                                <option value="">-- Choose model --</option>
-                                <option value="arima" selected>ARIMA</option>
-                                <option value="exponential_smoothing">Exponential Smoothing</option>
-                                <option value="prophet">Facebook Prophet</option>
-                                <option value="linear_regression">Linear Regression</option>
-                                <option value="random_forest">Random Forest</option>
-                            </select>
-                            <p id="model-help" class="form-help">
-                                Select the machine learning model for predictions
-                            </p>
-                        </div>
+                    <!-- Forecast Horizon Selector -->
+                    <div class="fc-field-group">
+                        <label class="fc-field-label" for="fc-horizon-select">
+                            <span>⏳</span> Horizon:
+                        </label>
+                        <select id="fc-horizon-select" class="fc-select">
+                            <option value="7">Next 7 Days</option>
+                            <option value="30" selected>Next 30 Days</option>
+                            <option value="90">Next 3 Months (90 Days)</option>
+                            <option value="180">Next 6 Months (180 Days)</option>
+                            <option value="365">Next 1 Year (365 Days)</option>
+                        </select>
+                    </div>
 
-                        <!-- Confidence Level -->
-                        <div class="form-group">
-                            <label for="confidence-level" class="form-label">
-                                <span class="label-text">Confidence Level (%)</span>
-                            </label>
-                            <input 
-                                type="number" 
-                                id="confidence-level" 
-                                class="form-input"
-                                min="50"
-                                max="99"
-                                value="95"
-                                step="5"
-                                aria-describedby="confidence-help">
-                            <p id="confidence-help" class="form-help">
-                                Confidence interval for prediction bounds (50-99%)
-                            </p>
-                        </div>
-
-                        <!-- Seasonality Detection -->
-                        <div class="form-group">
-                            <label class="checkbox-label">
-                                <input 
-                                    type="checkbox" 
-                                    id="seasonality-check" 
-                                    class="form-checkbox"
-                                    checked
-                                    aria-describedby="seasonality-desc">
-                                <span class="checkbox-text">Detect Seasonality</span>
-                            </label>
-                            <p id="seasonality-desc" class="form-help">
-                                Automatically detect and model seasonal patterns
-                            </p>
-                        </div>
-
-                        <!-- Trend Detection -->
-                        <div class="form-group">
-                            <label class="checkbox-label">
-                                <input 
-                                    type="checkbox" 
-                                    id="trend-check" 
-                                    class="form-checkbox"
-                                    checked
-                                    aria-describedby="trend-desc">
-                                <span class="checkbox-text">Include Trend Analysis</span>
-                            </label>
-                            <p id="trend-desc" class="form-help">
-                                Include trend component in forecast model
-                            </p>
-                        </div>
-
-                        <!-- Anomaly Detection -->
-                        <div class="form-group">
-                            <label class="checkbox-label">
-                                <input 
-                                    type="checkbox" 
-                                    id="anomaly-check" 
-                                    class="form-checkbox"
-                                    aria-describedby="anomaly-desc">
-                                <span class="checkbox-text">Detect Anomalies</span>
-                            </label>
-                            <p id="anomaly-desc" class="form-help">
-                                Identify and flag unusual data points before forecasting
-                            </p>
+                    <!-- Granularity / Frequency Slicer -->
+                    <div class="fc-field-group">
+                        <label class="fc-field-label">
+                            <span>📶</span> Granularity:
+                        </label>
+                        <div class="fc-granularity-pills" id="fc-granularity-group">
+                            <button type="button" class="fc-granularity-pill active" data-granularity="daily">Daily</button>
+                            <button type="button" class="fc-granularity-pill" data-granularity="weekly">Weekly</button>
+                            <button type="button" class="fc-granularity-pill" data-granularity="monthly">Monthly</button>
                         </div>
                     </div>
 
-                    <!-- Action Buttons -->
-                    <div class="form-actions" role="group" aria-label="Forecast action buttons">
-                        <button 
-                            type="submit" 
-                            id="generate-forecast-btn" 
-                            class="btn btn-primary btn-large"
-                            aria-label="Generate forecast">
-                            Generate Forecast
-                        </button>
-                        <button 
-                            type="reset" 
-                            id="reset-config-btn" 
-                            class="btn btn-secondary"
-                            aria-label="Reset form to default values">
-                            Reset Form
+                    <!-- Model Selection Dropdown -->
+                    <div class="fc-field-group">
+                        <label class="fc-field-label" for="fc-model-select">
+                            <span>🤖</span> Algorithm:
+                        </label>
+                        <select id="fc-model-select" class="fc-select">
+                            <option value="random_forest" selected>🌲 Random Forest Regression</option>
+                            <option value="linear_regression">📈 Linear Regression</option>
+                            <option value="decision_tree">🌿 Decision Tree Regression</option>
+                            <option value="ridge">📉 Ridge Regression (L2)</option>
+                        </select>
+                    </div>
+
+                    <!-- Generate Forecast Button -->
+                    <div class="fc-field-group">
+                        <button type="button" id="run-forecast-btn" class="btn-run-forecast">
+                            <span>🔮</span> Generate Forecast
                         </button>
                     </div>
-                </form>
-            </section>
-
-            <!-- MAIN FORECAST CHART SECTION: Large visualization area for forecast results -->
-            <section class="main-chart-section" aria-labelledby="main-chart-heading">
-                <h2 id="main-chart-heading" class="section-title">Forecast Results</h2>
-                
-                <!-- Chart Type Toggle -->
-                <div class="chart-controls" role="group" aria-label="Chart display options">
-                    <label for="chart-type-select" class="control-label">Chart Type:</label>
-                    <select id="chart-type-select" class="control-select" aria-label="Select chart type">
-                        <option value="line">Line Chart</option>
-                        <option value="area">Area Chart</option>
-                        <option value="candlestick">Candlestick</option>
-                    </select>
-
-                    <label for="time-range-select" class="control-label">Time Range:</label>
-                    <select id="time-range-select" class="control-select" aria-label="Select time range">
-                        <option value="1m">Last Month</option>
-                        <option value="3m">Last 3 Months</option>
-                        <option value="6m">Last 6 Months</option>
-                        <option value="1y">Last Year</option>
-                        <option value="all">All Data</option>
-                    </select>
                 </div>
+            </section>
 
-                <!-- Main Forecast Chart Container -->
-                <figure class="main-chart-container" role="img" aria-label="Main forecast visualization">
-                    <figcaption class="sr-only">Forecasted values with confidence intervals</figcaption>
-                    <div class="chart-placeholder" data-chart-type="forecast-line">
-                        <canvas id="main-forecast-chart" aria-label="Forecast chart"></canvas>
-                        <p class="loading-state" id="chart-loading">
-                            Configure parameters and generate forecast to display chart
+            <!-- ACTIVE FORECAST ATTRIBUTES STRIP -->
+            <section class="fc-attributes-strip" id="fc-attributes-strip" style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; padding: 12px 18px; background: #0f192e; border: 1px solid #1f2d47; border-radius: 8px; font-size: 13px; align-items: center;">
+                <span style="color: #94a3b8; font-weight: 600;">Active Configuration:</span>
+                <span class="attr-pill" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.25); padding: 3px 10px; border-radius: 6px;">📁 Dataset: <strong id="attr-dataset-name">superstore_sales_2026.csv</strong></span>
+                <span class="attr-pill" style="background: rgba(168, 85, 247, 0.12); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.25); padding: 3px 10px; border-radius: 6px;">📅 Date Column: <strong id="attr-date-col">order_date</strong></span>
+                <span class="attr-pill" style="background: rgba(45, 212, 191, 0.12); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.25); padding: 3px 10px; border-radius: 6px;">⏳ Horizon: <strong id="attr-horizon">30 Days</strong></span>
+                <span class="attr-pill" style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); padding: 3px 10px; border-radius: 6px;">📶 Granularity: <strong id="attr-granularity">Daily</strong></span>
+                <span class="attr-pill" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25); padding: 3px 10px; border-radius: 6px;">🤖 Algorithm: <strong id="attr-algorithm">Random Forest Regression</strong></span>
+            </section>
+
+            <!-- 2. KPI SUMMARY CARDS -->
+            <section class="fc-kpi-grid" aria-label="Forecast KPI Summary Metrics">
+                <!-- 1. Projected Total Value -->
+                <article class="fc-kpi-card kpi-projected">
+                    <div class="fc-kpi-top">
+                        <span class="fc-kpi-label">Projected Total Value</span>
+                        <div class="fc-kpi-icon">💰</div>
+                    </div>
+                    <div class="fc-kpi-value" id="kpi-projected-total">$148,290.45</div>
+                    <div class="fc-kpi-sub">
+                        <span>Sum across selected horizon</span>
+                    </div>
+                </article>
+
+                <!-- 2. Expected Growth (%) -->
+                <article class="fc-kpi-card kpi-growth">
+                    <div class="fc-kpi-top">
+                        <span class="fc-kpi-label">Expected Growth</span>
+                        <div class="fc-kpi-icon">📈</div>
+                    </div>
+                    <div class="fc-kpi-value" id="kpi-expected-growth">+14.8%</div>
+                    <div class="fc-kpi-sub">
+                        <span class="badge-trend-up" id="kpi-growth-badge">▲ +14.8% vs Past Period</span>
+                    </div>
+                </article>
+
+                <!-- 3. Peak Prediction -->
+                <article class="fc-kpi-card kpi-peak">
+                    <div class="fc-kpi-top">
+                        <span class="fc-kpi-label">Peak Prediction</span>
+                        <div class="fc-kpi-icon">🎯</div>
+                    </div>
+                    <div class="fc-kpi-value" id="kpi-peak-val">$8,450.00</div>
+                    <div class="fc-kpi-sub">
+                        <span>Projected on: </span><strong id="kpi-peak-date" style="color: #cbd5e1;">2026-10-18</strong>
+                    </div>
+                </article>
+
+                <!-- 4. Active Model & Confidence -->
+                <article class="fc-kpi-card kpi-model">
+                    <div class="fc-kpi-top">
+                        <span class="fc-kpi-label">Active Model & Confidence</span>
+                        <div class="fc-kpi-icon">🛡️</div>
+                    </div>
+                    <div class="fc-kpi-value" id="kpi-active-model" style="font-size: 20px; color: #a78bfa;">Random Forest</div>
+                    <div class="fc-kpi-sub">
+                        <span style="color: #2dd4bf; font-weight: 700;" id="kpi-confidence-badge">✓ 95% Confidence Interval</span>
+                    </div>
+                </article>
+            </section>
+
+            <!-- 3. MODEL PERFORMANCE & EVALUATION PANEL -->
+            <section class="fc-perf-panel" aria-label="Model Performance & Evaluation">
+                <div class="fc-perf-title-side">
+                    <span class="fc-perf-tag">Model Benchmarks</span>
+                    <span style="font-size: 13px; color: #94a3b8;" id="perf-model-summary">Trained on historical time-series with 80/20 train/test split</span>
+                </div>
+                <div class="fc-perf-badges">
+                    <div class="fc-perf-metric">
+                        <span class="fc-perf-m-label">Active Model:</span>
+                        <span class="fc-perf-m-val" id="badge-model-name">Random Forest</span>
+                    </div>
+                    <div class="fc-perf-metric">
+                        <span class="fc-perf-m-label">MAE:</span>
+                        <span class="fc-perf-m-val" id="badge-mae">142.30</span>
+                    </div>
+                    <div class="fc-perf-metric">
+                        <span class="fc-perf-m-label">RMSE:</span>
+                        <span class="fc-perf-m-val" id="badge-rmse">198.45</span>
+                    </div>
+                    <div class="fc-perf-metric">
+                        <span class="fc-perf-m-label">R² Score / Benchmark:</span>
+                        <span class="fc-perf-m-val highlight" id="badge-r2">0.941 (94.1% Accuracy)</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. INTERACTIVE FORECAST VISUALIZATION & SLICERS -->
+            <section class="fc-card" id="fc-main-chart-card">
+                <div class="fc-card-header">
+                    <h3 class="fc-card-title">
+                        <span>📊</span> Interactive Forecast Trajectory & 95% Confidence Band
+                    </h3>
+                    <div style="font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 14px;">
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <span style="display: inline-block; width: 14px; height: 3px; background: #38bdf8;"></span> Historical
+                        </span>
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <span style="display: inline-block; width: 14px; height: 3px; border-top: 2px dashed #a855f7;"></span> Forecast
+                        </span>
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <span style="display: inline-block; width: 12px; height: 12px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 2px;"></span> 95% CI Shaded
+                        </span>
+                    </div>
+                </div>
+                <div class="fc-card-body">
+                    <!-- Interactive Slicers Bar -->
+                    <div class="fc-chart-toolbar">
+                        <div class="fc-preset-group">
+                            <span style="font-size: 11.5px; color: #64748b; margin-right: 4px; font-weight: 600;">ZOOM:</span>
+                            <button type="button" class="fc-preset-btn" data-range="30">1M</button>
+                            <button type="button" class="fc-preset-btn active" data-range="90">3M</button>
+                            <button type="button" class="fc-preset-btn" data-range="180">6M</button>
+                            <button type="button" class="fc-preset-btn" data-range="365">1Y</button>
+                            <button type="button" class="fc-preset-btn" data-range="all">ALL</button>
+                        </div>
+
+                        <!-- Date Range Slider Slicer -->
+                        <div class="fc-timeline-slider-wrapper">
+                            <span style="font-size: 11.5px; color: #64748b; white-space: nowrap; font-weight: 600;">SLICER:</span>
+                            <input type="range" id="timeline-slider" class="fc-slider-range" min="0" max="100" value="100" title="Slide to filter timeline window">
+                            <span id="timeline-slider-label" style="font-size: 11.5px; color: #38bdf8; font-weight: 700; white-space: nowrap;">Latest 90 Days</span>
+                        </div>
+                    </div>
+
+                    <!-- Chart Canvas -->
+                    <div class="fc-chart-container" id="chart-wrapper">
+                        <canvas id="main-forecast-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. MODEL INSIGHTS & DRIVER ANALYSIS (2-Column Grid) -->
+            <div class="fc-insights-grid">
+                <!-- Trend & Seasonality Decomposition Card -->
+                <div class="fc-card" style="margin-bottom: 0;">
+                    <div class="fc-card-header">
+                        <h3 class="fc-card-title">
+                            <span>📅</span> Trend & Seasonality Decomposition
+                        </h3>
+                        <span style="font-size: 11.5px; color: #2dd4bf; font-weight: 600;" id="seasonality-badge">Day-of-Week Patterns</span>
+                    </div>
+                    <div class="fc-card-body">
+                        <p style="font-size: 12.5px; color: #94a3b8; margin: 0 0 16px 0;">
+                            Historical velocity average across days of the week reveals persistent cyclic volume peaks:
                         </p>
+                        <div class="dow-bars-container" id="dow-bars-container">
+                            <!-- Populated dynamically via JS -->
+                        </div>
                     </div>
-                </figure>
-
-                <!-- Chart Legend -->
-                <div class="chart-legend" role="region" aria-label="Chart legend">
-                    <dl class="legend-items">
-                        <dt class="legend-label">Historical Data:</dt>
-                        <dd class="legend-item">
-                            <span class="legend-color historical"></span>
-                            <span class="legend-text">Observed values from your dataset</span>
-                        </dd>
-
-                        <dt class="legend-label">Forecast:</dt>
-                        <dd class="legend-item">
-                            <span class="legend-color forecast"></span>
-                            <span class="legend-text">Predicted values</span>
-                        </dd>
-
-                        <dt class="legend-label">Confidence Interval:</dt>
-                        <dd class="legend-item">
-                            <span class="legend-color interval"></span>
-                            <span class="legend-text">Upper and lower prediction bounds</span>
-                        </dd>
-                    </dl>
-                </div>
-            </section>
-
-            <!-- MODEL PERFORMANCE SECTION: Accuracy metrics and validation -->
-            <section class="model-performance-section" aria-labelledby="performance-heading">
-                <h2 id="performance-heading" class="section-title">Model Performance Metrics</h2>
-
-                <div class="metrics-grid" role="region" aria-label="Performance metrics">
-                    <!-- MAE Metric -->
-                    <article class="metric-card" role="region" aria-label="Mean Absolute Error">
-                        <header class="metric-header">
-                            <h3 class="metric-title">MAE</h3>
-                            <p class="metric-description">Mean Absolute Error</p>
-                        </header>
-                        <div class="metric-value" aria-live="polite">
-                            <span class="value">—</span>
-                            <span class="unit">units</span>
-                        </div>
-                        <p class="metric-help">Lower is better</p>
-                    </article>
-
-                    <!-- RMSE Metric -->
-                    <article class="metric-card" role="region" aria-label="Root Mean Squared Error">
-                        <header class="metric-header">
-                            <h3 class="metric-title">RMSE</h3>
-                            <p class="metric-description">Root Mean Squared Error</p>
-                        </header>
-                        <div class="metric-value" aria-live="polite">
-                            <span class="value">—</span>
-                            <span class="unit">units</span>
-                        </div>
-                        <p class="metric-help">Lower is better</p>
-                    </article>
-
-                    <!-- MAPE Metric -->
-                    <article class="metric-card" role="region" aria-label="Mean Absolute Percentage Error">
-                        <header class="metric-header">
-                            <h3 class="metric-title">MAPE</h3>
-                            <p class="metric-description">Mean Absolute % Error</p>
-                        </header>
-                        <div class="metric-value" aria-live="polite">
-                            <span class="value">—</span>
-                            <span class="unit">%</span>
-                        </div>
-                        <p class="metric-help">Lower is better</p>
-                    </article>
-
-                    <!-- R² Metric -->
-                    <article class="metric-card" role="region" aria-label="R-squared score">
-                        <header class="metric-header">
-                            <h3 class="metric-title">R² Score</h3>
-                            <p class="metric-description">Coefficient of Determination</p>
-                        </header>
-                        <div class="metric-value" aria-live="polite">
-                            <span class="value">—</span>
-                            <span class="unit">0.0 - 1.0</span>
-                        </div>
-                        <p class="metric-help">Closer to 1.0 is better</p>
-                    </article>
-                </div>
-            </section>
-
-            <!-- COMPARISON CHARTS SECTION: Additional insights and comparisons -->
-            <section class="comparison-section" aria-labelledby="comparison-heading">
-                <h2 id="comparison-heading" class="section-title">Additional Insights</h2>
-
-                <div class="charts-grid" role="region" aria-label="Comparison and insight charts">
-                    <!-- Residuals Chart -->
-                    <figure class="chart-container" role="img" aria-label="Residuals analysis chart">
-                        <figcaption class="chart-title">Residual Analysis</figcaption>
-                        <div class="chart-placeholder" data-chart-type="residuals">
-                            <canvas id="residuals-chart" aria-label="Model residuals"></canvas>
-                            <p class="loading-state">Generate forecast to view residuals</p>
-                        </div>
-                    </figure>
-
-                    <!-- Autocorrelation Chart -->
-                    <figure class="chart-container" role="img" aria-label="Autocorrelation chart">
-                        <figcaption class="chart-title">Autocorrelation Function</figcaption>
-                        <div class="chart-placeholder" data-chart-type="acf">
-                            <canvas id="acf-chart" aria-label="Autocorrelation"></canvas>
-                            <p class="loading-state">Generate forecast to view ACF</p>
-                        </div>
-                    </figure>
-
-                    <!-- Feature Importance Chart -->
-                    <figure class="chart-container" role="img" aria-label="Feature importance chart">
-                        <figcaption class="chart-title">Feature Importance</figcaption>
-                        <div class="chart-placeholder" data-chart-type="feature-importance">
-                            <canvas id="feature-importance-chart" aria-label="Feature weights"></canvas>
-                            <p class="loading-state">Generate forecast to view feature importance</p>
-                        </div>
-                    </figure>
-
-                    <!-- Forecast Error Distribution -->
-                    <figure class="chart-container" role="img" aria-label="Error distribution chart">
-                        <figcaption class="chart-title">Forecast Error Distribution</figcaption>
-                        <div class="chart-placeholder" data-chart-type="error-distribution">
-                            <canvas id="error-dist-chart" aria-label="Error distribution"></canvas>
-                            <p class="loading-state">Generate forecast to view error distribution</p>
-                        </div>
-                    </figure>
-                </div>
-            </section>
-
-            <!-- FORECAST TABLE SECTION: Detailed forecast data in tabular format -->
-            <section class="forecast-table-section" aria-labelledby="forecast-table-heading">
-                <h2 id="forecast-table-heading" class="section-title">Detailed Forecast Data</h2>
-
-                <!-- Table Controls -->
-                <div class="table-controls" role="region" aria-label="Table controls">
-                    <button id="export-csv-btn" class="btn btn-secondary" aria-label="Export forecast to CSV">
-                        📥 Export to CSV
-                    </button>
-                    <button id="export-json-btn" class="btn btn-secondary" aria-label="Export forecast to JSON">
-                        📥 Export to JSON
-                    </button>
                 </div>
 
-                <!-- Forecast Data Table -->
-                <div class="table-wrapper" role="region" aria-label="Forecast data table">
-                    <table class="forecast-table" role="grid">
-                        <caption class="sr-only">Detailed forecast values and confidence intervals</caption>
-                        <thead role="rowgroup">
-                            <tr role="row">
-                                <th role="columnheader" scope="col">Date</th>
-                                <th role="columnheader" scope="col">Forecast Value</th>
-                                <th role="columnheader" scope="col">Lower Bound</th>
-                                <th role="columnheader" scope="col">Upper Bound</th>
-                                <th role="columnheader" scope="col">Confidence</th>
-                                <th role="columnheader" scope="col">Actions</th>
+                <!-- Feature Importance / Key Drivers Card -->
+                <div class="fc-card" style="margin-bottom: 0;">
+                    <div class="fc-card-header">
+                        <h3 class="fc-card-title">
+                            <span>⚡</span> Feature Importance / Key Drivers
+                        </h3>
+                        <span style="font-size: 11.5px; color: #a78bfa; font-weight: 600;">Model Impact Weights</span>
+                    </div>
+                    <div class="fc-card-body">
+                        <p style="font-size: 12.5px; color: #94a3b8; margin: 0 0 16px 0;">
+                            Top contributing indicators influencing projected values in the selected machine learning model:
+                        </p>
+                        <div class="driver-card-list" id="drivers-container">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. FORECAST DATA TABLE & ROW CONTROLS -->
+            <section class="fc-card" style="margin-top: 24px;">
+                <div class="fc-card-header">
+                    <div>
+                        <h3 class="fc-card-title">
+                            <span>📋</span> Forecast Data Table & Row Projections
+                        </h3>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <!-- Row View Slicer/Dropdown (10 up to 400 rows) -->
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <label for="table-row-limit" style="font-size: 12px; color: #94a3b8; font-weight: 600;">Rows per page:</label>
+                            <select id="table-row-limit" class="fc-select" style="padding: 5px 10px; width: auto; font-size: 12.5px;">
+                                <option value="10" selected>10 rows</option>
+                                <option value="25">25 rows</option>
+                                <option value="50">50 rows</option>
+                                <option value="100">100 rows</option>
+                                <option value="200">200 rows</option>
+                                <option value="400">400 rows</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fc-table-toolbar">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="text" id="fc-table-search" class="fc-table-search" placeholder="Search by date, actual, forecast...">
+                        <span id="fc-table-row-count-badge" style="font-size: 11.5px; background: #1e293b; color: #94a3b8; padding: 3px 8px; border-radius: 6px;">Total 150 Rows</span>
+                    </div>
+                    <div style="font-size: 12px; color: #94a3b8;">
+                        Click any header to sort ascending/descending
+                    </div>
+                </div>
+
+                <div class="fc-table-wrapper">
+                    <table class="fc-data-table" id="fc-data-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="date">Date ▾</th>
+                                <th data-sort="type">Record Type ▾</th>
+                                <th data-sort="actual">Actual Value ▾</th>
+                                <th data-sort="predicted">Forecasted Value ▾</th>
+                                <th data-sort="lower">Lower Bound (95%) ▾</th>
+                                <th data-sort="upper">Upper Bound (95%) ▾</th>
+                                <th data-sort="spread">Uncertainty Spread ▾</th>
                             </tr>
                         </thead>
-                        <tbody role="rowgroup" id="forecast-table-body">
-                            <tr role="row" class="empty-state">
-                                <td role="gridcell" colspan="6" class="empty-cell">
-                                    <p>No forecast generated yet</p>
-                                </td>
-                            </tr>
+                        <tbody id="fc-table-tbody">
+                            <!-- Populated dynamically via JS -->
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Table Pagination -->
-                <nav class="table-pagination" aria-label="Forecast table pagination">
-                    <ul class="pagination-list" role="list">
-                        <li role="listitem"><button disabled aria-label="Previous page">← Previous</button></li>
-                        <li role="listitem"><span aria-current="page">Page 1 of 1</span></li>
-                        <li role="listitem"><button disabled aria-label="Next page">Next →</button></li>
-                    </ul>
-                </nav>
-            </section>
-
-            <!-- FORECAST STATUS SECTION: Processing and result messages -->
-            <section class="forecast-status-section" aria-labelledby="status-heading">
-                <h2 id="status-heading" class="section-title">Processing Status</h2>
-
-                <div 
-                    id="forecast-status" 
-                    class="forecast-status" 
-                    role="status" 
-                    aria-live="polite"
-                    aria-label="Forecast processing status">
-                    <p class="no-status-message">Ready to generate forecast</p>
-                </div>
-
-                <!-- Success Message -->
-                <div id="success-message" class="message message-success" role="alert" aria-live="polite">
-                    <p class="message-text">Forecast generated successfully!</p>
-                </div>
-
-                <!-- Error Message -->
-                <div id="error-message" class="message message-error" role="alert" aria-live="assertive">
-                    <p class="message-text">An error occurred during forecasting.</p>
+                <div class="table-footer-controls">
+                    <div id="fc-pagination-info">Showing 1 to 10 of 150 rows</div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <button type="button" id="fc-prev-btn" class="btn-fc-action" style="padding: 4px 10px; font-size: 12px;" disabled>← Previous</button>
+                        <span id="fc-page-num" style="padding: 0 8px; font-size: 12px; font-weight: 600; color: #cbd5e1;">Page 1 of 15</span>
+                        <button type="button" id="fc-next-btn" class="btn-fc-action" style="padding: 4px 10px; font-size: 12px;">Next →</button>
+                    </div>
                 </div>
             </section>
+            </div><!-- /#forecast-content -->
         </main>
     </div>
 
@@ -480,20 +1346,61 @@
     <footer role="contentinfo" class="app-footer">
         <div class="footer-content">
             <p>&copy; 2026 BizVision. All rights reserved.</p>
-            <ul class="footer-links" role="list">
-                <li role="listitem"><a href="#privacy">Privacy Policy</a></li>
-                <li role="listitem"><a href="#terms">Terms of Service</a></li>
-                <li role="listitem"><a href="#support">Support</a></li>
-            </ul>
         </div>
     </footer>
 
-    <!-- Chart.js library for rendering charts -->
+    <!-- 7. SEND EMAIL MODAL DIALOG -->
+    <div id="email-modal" class="modal-backdrop" aria-modal="true" role="dialog">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+                    <span>✉️</span> Send Predictive Forecast Report
+                </h3>
+                <button type="button" id="email-modal-close-btn" style="background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer;">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="email-forecast-form">
+                    <div class="fc-field-group" style="margin-bottom: 14px;">
+                        <label class="fc-field-label" for="email-recipient">Recipient Email Address *</label>
+                        <input type="email" id="email-recipient" class="fc-input" placeholder="e.g. executive@company.com" required>
+                    </div>
+                    <div class="fc-field-group" style="margin-bottom: 14px;">
+                        <label class="fc-field-label" for="email-subject">Subject Line</label>
+                        <input type="text" id="email-subject" class="fc-input" value="BizVision Predictive Forecast & Trend Analytics Report">
+                    </div>
+                    <div class="fc-field-group" style="margin-bottom: 14px;">
+                        <label class="fc-field-label" for="email-format-select">Report Attachment Format</label>
+                        <select id="email-format-select" class="fc-select">
+                            <option value="csv" selected>CSV Data Spreadsheet (.csv)</option>
+                            <option value="pdf">Summary Executive PDF (.pdf)</option>
+                        </select>
+                    </div>
+                    <div class="fc-field-group">
+                        <label class="fc-field-label" for="email-notes">Personal Notes / Executive Context</label>
+                        <textarea id="email-notes" class="fc-input" rows="3" placeholder="Add custom commentary, key takeaways, or action items..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="email-cancel-btn" class="btn-fc-action">Cancel</button>
+                <button type="button" id="email-submit-btn" class="btn-fc-action btn-fc-primary">
+                    <span>🚀</span> Send Email Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js and Controllers -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-    
-    <!-- BizVision application scripts -->
-    <script src="/static/js/api.js"></script>
-    <script src="/static/js/charts.js"></script>
-    <script src="/static/js/main.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/forecast_controller.js"></script>
+    <script src="js/copilot.js"></script>
+    <script src="js/main.js"></script>
+
+    <!-- FLOATING ANIMATED THEME TOGGLE (Fixed Bottom Right) -->
+    <button id="floating-theme-toggle" class="floating-theme-toggle" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+        <span>🌙</span> <span>Dark Mode</span>
+    </button>
 </body>
 </html>

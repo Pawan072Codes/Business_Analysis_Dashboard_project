@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BizVision - Side-by-Side Cleaned Dataset Comparison & Trend Variance Analysis">
+    <title>Compare Dataset - BizVision</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="js/auth.js"></script>
+    <style>
+        /* ══════════════════════════════════════════════════════════════════════
+           BIZVISION DARK NAVY THEME — COMPARE DATASET PAGE
+           ══════════════════════════════════════════════════════════════════════ */
+        :root {
+            --cmp-bg-dark: #0b0f19;
+            --cmp-card-bg: #0f192e;
+            --cmp-card-border: #1f2d47;
+            --cmp-hover-border: #334155;
+            --cmp-ds-a-color: #38bdf8;   /* Sky Blue */
+            --cmp-ds-b-color: #10b981;   /* Emerald Green */
+            --cmp-increase: #10b981;
+            --cmp-decrease: #ef4444;
+            --cmp-neutral: #94a3b8;
+            --cmp-text-primary: #f8fafc;
+            --cmp-text-secondary: #94a3b8;
+            --cmp-text-muted: #64748b;
+        }
+
+        body.compare-page {
+            background-color: var(--cmp-bg-dark) !important;
+            color: var(--cmp-text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .compare-page .app-header {
+            background: #0d1322 !important;
+            border-bottom: 1px solid #1c263b !important;
+        }
+
+        .compare-page .sidebar-nav {
+            background: #0d1322 !important;
+            border-right: 1px solid #1c263b !important;
+        }
+
+        .compare-page .main-content {
+            background-color: var(--cmp-bg-dark) !important;
+            padding: 24px 32px 60px 32px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* ── Header Titles ── */
+        .cmp-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .cmp-title-group h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin: 0 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cmp-title-group p {
+            font-size: 13.5px;
+            color: var(--cmp-text-secondary);
+            margin: 0;
+        }
+
+        /* ── 1. Selector Bar ── */
+        .cmp-selector-bar {
+            background: #0f192e;
+            border: 1px solid #1f2d47;
+            border-radius: 14px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .cmp-datasets-select-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .cmp-select-unit {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 240px;
+            flex: 1;
+        }
+
+        .cmp-select-label {
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-ds-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        .badge-ds-a { background: #0284c7; color: #e0f2fe; }
+        .badge-ds-b { background: #059669; color: #d1fae5; }
+
+        .cmp-select {
+            background: #090e1a;
+            border: 1px solid #233148;
+            color: #f8fafc;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            outline: none;
+            transition: border-color 0.2s;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .cmp-select:focus {
+            border-color: #38bdf8;
+        }
+
+        .cmp-select-mini {
+            background: #090e1a;
+            border: 1px solid #233148;
+            color: #f8fafc;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .cmp-select-mini:focus {
+            border-color: #38bdf8;
+        }
+
+        .cmp-vs-badge {
+            font-size: 14px;
+            font-weight: 800;
+            color: #64748b;
+            padding: 6px 10px;
+            background: #090e1a;
+            border-radius: 50%;
+            border: 1px solid #1f2d47;
+            align-self: flex-end;
+            margin-bottom: 4px;
+        }
+
+        .cmp-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* ── Date Filter Group ── */
+        .date-filter-pill-box {
+            display: flex;
+            background: #090e1a;
+            border: 1px solid #1f2d47;
+            border-radius: 8px;
+            padding: 3px;
+            gap: 3px;
+        }
+
+        .date-filter-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .date-filter-btn:hover {
+            color: #f8fafc;
+        }
+
+        .date-filter-btn.active {
+            background: #0284c7;
+            color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ── Compare Button ── */
+        .btn-compare-main {
+            background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+            color: #ffffff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+        }
+
+        .btn-compare-main:hover:not(:disabled) {
+            background: linear-gradient(135deg, #0369a1 0%, #1d4ed8 100%);
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .btn-disabled {
+            opacity: 0.45 !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        .btn-active-glow {
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(2, 132, 199, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
+        }
+
+        /* ── Validation Warning ── */
+        .cmp-alert-box {
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fde68a;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        /* ── 2. Column Selection & Manual Compare Panel ── */
+        .cmp-column-panel {
+            background: #0f192e;
+            border: 1px solid #1f2d47;
+            border-radius: 12px;
+            padding: 20px 22px;
+            margin-bottom: 24px;
+        }
+
+        .column-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #1c273c;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .column-panel-title {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .column-quick-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-quick-tag {
+            background: #090e1a;
+            border: 1px solid #233148;
+            color: #94a3b8;
+            font-size: 11.5px;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-quick-tag:hover {
+            color: #f8fafc;
+            border-color: #38bdf8;
+        }
+
+        .manual-mapping-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed #1c273c;
+        }
+
+        .manual-map-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .manual-map-label {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .col-metrics-checkbox-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .col-checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #090e1a;
+            border: 1px solid #233148;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            color: #e2e8f0;
+            user-select: none;
+        }
+
+        .col-checkbox-label:hover {
+            border-color: #38bdf8;
+        }
+
+        .col-checkbox-label input[type="checkbox"] {
+            accent-color: #0284c7;
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+        }
+
+        .col-role-badge {
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            letter-spacing: 0.04em;
+        }
+
+        .role-metric { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+        .role-category { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .role-date { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+
+        /* ── 9. Plain-English Summary Banner ── */
+        .cmp-summary-banner {
+            background: linear-gradient(135deg, #0d1a33 0%, #0e1e3b 100%);
+            border: 1px solid #1f3760;
+            border-left: 5px solid #38bdf8;
+            padding: 18px 22px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            color: #f1f5f9;
+            font-size: 14.5px;
+            line-height: 1.6;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        /* ── 8. Biggest Changes Section ── */
+        .cmp-highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .highlight-card {
+            background: #0f192e;
+            border: 1px solid #1f2d47;
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .highlight-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .icon-increase { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .icon-decrease { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .icon-stable { background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); }
+
+        .highlight-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .highlight-tag {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+        }
+
+        .highlight-value {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .highlight-sub {
+            font-size: 12px;
+            color: #cbd5e1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        /* ── 3. KPI Comparison Cards ── */
+        .cmp-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-compare-card {
+            background: #0f192e;
+            border: 1px solid #1f2d47;
+            border-radius: 12px;
+            padding: 18px 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .kpi-compare-card:hover {
+            border-color: #334155;
+            transform: translateY(-2px);
+        }
+
+        .kpi-compare-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #1c273c;
+        }
+
+        .kpi-compare-title {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .kpi-change-pill {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+
+        .text-increase { color: #10b981; }
+        .text-decrease { color: #ef4444; }
+        .text-neutral { color: #94a3b8; }
+
+        .kpi-change-pill.text-increase {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .kpi-change-pill.text-decrease {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .kpi-change-pill.text-neutral {
+            background: rgba(148, 163, 184, 0.15);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        .kpi-compare-body {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .kpi-side-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .kpi-side-label {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .kpi-side-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: #f8fafc;
+        }
+
+        .ds-a-side .kpi-side-value { color: #38bdf8; }
+        .ds-b-side .kpi-side-value { color: #10b981; }
+
+        .kpi-side-divider {
+            font-size: 11px;
+            font-weight: 800;
+            color: #64748b;
+            padding: 4px 6px;
+            background: #090e1a;
+            border-radius: 4px;
+        }
+
+        .kpi-compare-footer {
+            font-size: 12px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 8px;
+            border-top: 1px dashed #1c273c;
+        }
+
+        /* ── 4, 5, 6. Single Combined Charts ── */
+        .cmp-charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .cmp-charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .cmp-chart-card {
+            background: #0f192e;
+            border: 1px solid #1f2d47;
+            border-radius: 12px;
+            padding: 20px 22px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cmp-chart-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #1c273c;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .cmp-chart-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cmp-chart-legend-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 11.5px;
+        }
+
+        .legend-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        .indicator-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot-ds-a { background-color: #38bdf8; }
+        .dot-ds-b { background-color: #10b981; }
+
+        .cmp-canvas-wrapper {
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+
+        /* ── Side-by-Side Dataset Record Inspection (Req 4) ── */
+        .cmp-side-by-side-section {
+            background: #0f192e;
+            border: 1px solid #1f2d47;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .cmp-side-by-side-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #1c273c;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .cmp-side-by-side-tables-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1100px) {
+            .cmp-side-by-side-tables-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .cmp-record-table-card {
+            background: #090e1a;
+            border: 1px solid #1c273c;
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .record-card-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .record-card-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-actions-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-action-sm {
+            background: #111827;
+            border: 1px solid #233148;
+            color: #e2e8f0;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s;
+        }
+
+        .btn-action-sm:hover {
+            border-color: #38bdf8;
+            color: #fff;
+        }
+
+        .btn-action-sm.active-mode {
+            background: #0284c7;
+            border-color: #38bdf8;
+            color: #fff;
+        }
+
+        .table-search-input {
+            background: #050811;
+            border: 1px solid #1f2d47;
+            color: #f8fafc;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            width: 140px;
+            outline: none;
+        }
+
+        .table-search-input:focus {
+            border-color: #38bdf8;
+            width: 170px;
+        }
+
+        /* ── Scrollable Table Box & Custom Scrollbar ── */
+        .cmp-scrollable-table-box {
+            max-height: 420px;
+            overflow: auto;
+            border: 1px solid #1c273c;
+            border-radius: 8px;
+            background: #090e1a;
+            position: relative;
+        }
+
+        .cmp-scrollable-table-box::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .cmp-scrollable-table-box::-webkit-scrollbar-track {
+            background: #090e1a;
+        }
+
+        .cmp-scrollable-table-box::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+
+        .cmp-scrollable-table-box::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        .cmp-record-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            white-space: nowrap;
+        }
+
+        .cmp-record-table th {
+            position: sticky;
+            top: 0;
+            background: #0d1424;
+            color: #94a3b8;
+            font-weight: 700;
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 2px solid #1f2d47;
+            z-index: 2;
+        }
+
+        .cmp-record-table td {
+            padding: 7px 12px;
+            border-bottom: 1px solid #162033;
+            color: #cbd5e1;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cmp-record-table tr:hover td {
+            background: #111a2f;
+        }
+
+        tr.row-selected td {
+            background: rgba(56, 189, 248, 0.12) !important;
+        }
+
+        tr.row-selected-b td {
+            background: rgba(16, 185, 129, 0.12) !important;
+        }
+
+        /* Editable cell styling */
+        .cell-editable {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .cell-editable:hover {
+            outline: 1px dashed #38bdf8;
+            background: rgba(56, 189, 248, 0.08);
+        }
+
+        .cell-editing input {
+            background: #050811;
+            border: 1px solid #38bdf8;
+            color: #fff;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            width: 100%;
+            outline: none;
+        }
+
+        /* ── 7. Detailed Comparison Matrix Table ── */
+        .cmp-table-card {
+            background: #0f192e;
+            border: 1px solid #1f2d47;
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 24px;
+        }
+
+        .cmp-table-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .btn-export-csv {
+            background: #090e1a;
+            border: 1px solid #233148;
+            color: #f8fafc;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-export-csv:hover:not(:disabled) {
+            border-color: #38bdf8;
+            background: #131d33;
+        }
+
+        .table-responsive-box {
+            overflow-x: auto;
+        }
+
+        .cmp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+        }
+
+        .cmp-table th {
+            background-color: #090e1a;
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11.5px;
+            letter-spacing: 0.04em;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 2px solid #1f2d47;
+        }
+
+        .cmp-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #1c273c;
+            color: #e2e8f0;
+        }
+
+        .cmp-table tr:hover td {
+            background-color: #121c32;
+        }
+
+        .col-metric-name {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .table-cat-sub {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .col-val-a { color: #38bdf8; font-weight: 600; }
+        .col-val-b { color: #10b981; font-weight: 600; }
+
+        .status-pill {
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .status-pill-increase {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-pill-decrease {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-pill-neutral {
+            background: rgba(148, 163, 184, 0.15);
+            color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        /* ── Loading State ── */
+        .cmp-loading-card {
+            background: #0f192e;
+            border: 1px solid #1f2d47;
+            border-radius: 14px;
+            padding: 48px 24px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .cmp-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(56, 189, 248, 0.2);
+            border-top-color: #38bdf8;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .cmp-loading-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 6px;
+        }
+
+        /* ── Empty State ── */
+        .cmp-empty-card {
+            background: #0f192e;
+            border: 1px dashed #1f2d47;
+            border-radius: 14px;
+            padding: 60px 24px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .cmp-empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.9;
+        }
+
+        .cmp-empty-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 8px;
+        }
+
+        .cmp-empty-desc {
+            font-size: 14px;
+            color: #94a3b8;
+            max-width: 520px;
+            margin: 0 auto 20px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body class="compare-page">
+    <!-- HEADER -->
+    <header role="banner" class="app-header">
+        <!-- LEFT: Mobile Menu Toggle, Logo & Branding -->
+        <div class="header-left">
+            <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Toggle Navigation" title="Toggle Sidebar Navigation">
+                ☰
+            </button>
+            <a href="index.html" class="logo-container">
+                <span class="logo-icon">📊</span>
+                <div class="logo-text">
+                    <h1 class="logo-title">BizVision</h1>
+                    <span class="logo-subtitle">Analytics Dashboard</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- MIDDLE: Primary Global Dataset Search Bar -->
+        <div class="header-middle">
+            <div class="dataset-search-wrapper">
+                <span class="dataset-search-icon" title="Search active dataset" aria-label="Search dataset">🔍</span>
+                <input type="search" id="dataset-search-input" class="dataset-search-input" placeholder="Search anything in your dataset..." autocomplete="off">
+                <button type="button" id="dataset-search-clear-btn" class="dataset-search-clear-btn" style="display: none;" title="Clear search">✕</button>
+                <div id="dataset-search-dropdown" class="dataset-search-dropdown" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Header Actions -->
+        <div class="header-right">
+            <!-- Notifications Bell -->
+            <div style="position: relative;">
+                <button id="notif-btn" class="header-action-btn" aria-label="Notifications" title="Notifications">
+                    🔔
+                    <span class="notif-badge" id="notif-badge-count">3</span>
+                </button>
+                <div id="notif-dropdown-menu" class="header-dropdown-menu" style="display: none;">
+                    <div class="dropdown-header-info" style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>Notifications</strong>
+                        <button id="clear-notif-btn" class="clear-notif-action-btn">Clear all</button>
+                    </div>
+                    <div id="notif-items-container"></div>
+                </div>
+            </div>
+
+            <!-- Profile Avatar Menu -->
+            <div style="position: relative;">
+                <button id="profile-btn" class="profile-trigger-btn" aria-label="User Profile">
+                    <img id="avatar-img" class="avatar-badge" src="" alt="Avatar" style="display: none;">
+                    <span id="avatar-initial" class="avatar-badge">P</span>
+                    <span id="header-username-text" class="profile-username">User</span>
+                    <span style="font-size: 10px; opacity: 0.8;">▾</span>
+                </button>
+                <div id="profile-dropdown-menu" class="header-dropdown-menu" style="display: none;">
+                    <div class="dropdown-header-info">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <strong id="menu-user-name">User</strong>
+                            <span class="user-role-badge">Pro Plan</span>
+                        </div>
+                        <div id="menu-user-email" style="font-size: 12px; opacity: 0.75; margin-top: 2px;">user@bizvision.com</div>
+                    </div>
+                    <a href="profile.html" class="dropdown-item-link">👤 My Profile</a>
+                    <a href="settings.html" class="dropdown-item-link">⚙️ Account Settings</a>
+                    <a href="upload.html" class="dropdown-item-link">📁 Upload Datasets</a>
+                    <button id="theme-toggle-menu-btn" class="dropdown-item-link">🌙 Toggle Theme</button>
+                    <div class="dropdown-divider"></div>
+                    <button id="logout-menu-btn" class="dropdown-item-link danger">🚪 Log Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-layout">
+        <!-- SIDEBAR NAVIGATION -->
+        <nav role="navigation" aria-label="Main navigation" class="sidebar-nav">
+            <ul class="nav-list nav-list-main">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="upload.html" class="nav-link">
+                        <span class="nav-icon">📁</span>
+                        <span class="nav-label">Upload Data</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="forecast.html" class="nav-link">
+                        <span class="nav-icon">🔮</span>
+                        <span class="nav-label">Forecasting</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="compare.html" class="nav-link" aria-current="page">
+                        <span class="nav-icon">⚖️</span>
+                        <span class="nav-label">Compare Dataset</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="insights.html" class="nav-link">
+                        <span class="nav-icon">💡</span>
+                        <span class="nav-label">AI Insight</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="reports.html" class="nav-link">
+                        <span class="nav-icon">📄</span>
+                        <span class="nav-label">Report</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-section-bottom">
+                <ul class="nav-list nav-list-bottom">
+                    <li class="nav-item">
+                        <a href="profile.html" class="nav-link">
+                            <span class="nav-icon">👤</span>
+                            <span class="nav-label">My Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="settings.html" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            <span class="nav-label">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main role="main" class="main-content">
+            <!-- PAGE TITLE ROW -->
+            <section class="cmp-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+                <div class="cmp-title-group">
+                    <h2>⚖️ Dataset Comparison</h2>
+                    <p>Direct side-by-side performance, trend divergence, and metric comparison between cleaned datasets.</p>
+                </div>
+                <div class="cmp-header-actions" style="display: flex; gap: 10px; align-items: center;">
+                    <input type="file" id="compare-upload-input" accept=".csv,.xlsx,.xls" style="display: none;">
+                    <label for="compare-upload-input" class="btn-compare-main" style="background: #0284c7; cursor: pointer; padding: 8px 16px; font-size: 13px; text-decoration: none;">
+                        <span>📁</span> Upload Cleaned Dataset
+                    </label>
+                </div>
+            </section>
+
+            <!-- SELECTOR & VALIDATION BAR -->
+            <section class="cmp-selector-bar">
+                <div class="cmp-datasets-select-wrapper">
+                    <!-- Dataset A Selector -->
+                    <div class="cmp-select-unit">
+                        <label for="dataset-a-select" class="cmp-select-label">
+                            <span class="badge-ds-tag badge-ds-a">Dataset A</span>
+                            <span style="color: #94a3b8;">(Cleaned Benchmark)</span>
+                        </label>
+                        <select id="dataset-a-select" class="cmp-select">
+                            <option value="">Loading datasets...</option>
+                        </select>
+                    </div>
+
+                    <!-- VS Divider -->
+                    <div class="cmp-vs-badge">VS</div>
+
+                    <!-- Dataset B Selector -->
+                    <div class="cmp-select-unit">
+                        <label for="dataset-b-select" class="cmp-select-label">
+                            <span class="badge-ds-tag badge-ds-b">Dataset B</span>
+                            <span style="color: #94a3b8;">(Comparison Target)</span>
+                        </label>
+                        <select id="dataset-b-select" class="cmp-select">
+                            <option value="">— Select Dataset B —</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Date Filter & Run Action -->
+                <div class="cmp-actions-group">
+                    <!-- Date Filter Pills -->
+                    <div class="date-filter-pill-box" id="date-filter-group" title="Aggregate time series trend by Day, Month, or Year">
+                        <button type="button" class="date-filter-btn" data-grouping="day">Day</button>
+                        <button type="button" class="date-filter-btn active" data-grouping="month">Month</button>
+                        <button type="button" class="date-filter-btn" data-grouping="year">Year</button>
+                    </div>
+
+                    <!-- Compare Button -->
+                    <button id="compare-btn" class="btn-compare-main btn-disabled" disabled>
+                        <span>⚡</span>
+                        <span>Compare Datasets</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- VALIDATION / WARNING ALERT -->
+            <div id="validation-alert" class="cmp-alert-box alert-warning" style="display: none;">
+                <span>⚠️</span>
+                <span id="validation-msg">Both datasets must be the cleaned versions processed through the Upload/Cleaning pipeline.</span>
+            </div>
+
+            <!-- COLUMN SELECTION & MANUAL COMPARE PANEL -->
+            <section id="column-selection-panel" class="cmp-column-panel" style="display: none;">
+                <div class="column-panel-header">
+                    <div class="column-panel-title">
+                        <span>🎛️</span>
+                        <span>Column Selection Panel — Manual & Common Column Mapping</span>
+                    </div>
+                    <div class="column-quick-actions">
+                        <button type="button" id="select-all-metrics-btn" class="btn-quick-tag">✓ Select All Metrics</button>
+                        <button type="button" id="clear-all-metrics-btn" class="btn-quick-tag">✕ Reset Selection</button>
+                    </div>
+                </div>
+
+                <!-- Manual Column Mapping Row -->
+                <div class="manual-mapping-row">
+                    <!-- Dataset A Metric -->
+                    <div class="manual-map-group">
+                        <label for="manual-metric-a-select" class="manual-map-label">
+                            <span class="badge-ds-tag badge-ds-a" style="font-size: 9px; padding: 2px 5px;">A</span>
+                            <span>Dataset A Metric:</span>
+                        </label>
+                        <select id="manual-metric-a-select" class="cmp-select">
+                            <option value="">Auto-detected</option>
+                        </select>
+                    </div>
+
+                    <!-- Dataset B Metric -->
+                    <div class="manual-map-group">
+                        <label for="manual-metric-b-select" class="manual-map-label">
+                            <span class="badge-ds-tag badge-ds-b" style="font-size: 9px; padding: 2px 5px;">B</span>
+                            <span>Dataset B Metric:</span>
+                        </label>
+                        <select id="manual-metric-b-select" class="cmp-select">
+                            <option value="">Auto-detected</option>
+                        </select>
+                    </div>
+
+                    <!-- Category Breakdown Selector -->
+                    <div id="category-field-group" class="manual-map-group">
+                        <label for="compare-category-select" class="manual-map-label">
+                            <span>🏷️</span>
+                            <span>Category / Region Column:</span>
+                        </label>
+                        <select id="compare-category-select" class="cmp-select">
+                            <option value="">None / Auto</option>
+                        </select>
+                    </div>
+
+                    <!-- Date Column Selector -->
+                    <div id="date-field-group" class="manual-map-group">
+                        <label for="compare-date-select" class="manual-map-label">
+                            <span>📅</span>
+                            <span>Date / Timeline Column:</span>
+                        </label>
+                        <select id="compare-date-select" class="cmp-select">
+                            <option value="">None / Auto</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Common Numeric Metrics Checkboxes -->
+                <div>
+                    <div style="font-size: 11.5px; font-weight: 700; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase;">
+                        COMMON NUMERIC METRICS TO INCLUDE:
+                    </div>
+                    <div id="column-metrics-list" class="col-metrics-checkbox-container">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- LOADING STATE -->
+            <section id="compare-loading-section" class="cmp-loading-card" style="display: none;">
+                <div class="cmp-spinner"></div>
+                <div class="cmp-loading-title" id="compare-loading-text">Matching columns...</div>
+                <p style="font-size: 13px; color: #94a3b8; margin: 0;">Aligning schemas and crunching side-by-side variances...</p>
+            </section>
+
+            <!-- EMPTY STATE -->
+            <section id="compare-empty-state" class="cmp-empty-card">
+                <div class="cmp-empty-icon">⚖️</div>
+                <h3 class="cmp-empty-title">Select or Upload Cleaned Datasets to Compare</h3>
+                <p class="cmp-empty-desc">
+                    Choose Dataset A and Dataset B from the selector bar above, or upload a cleaned CSV/Excel dataset directly below to inspect schema columns, generate overlaid trend graphs, review KPI deltas, and export comparison reports.
+                </p>
+                <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 22px; flex-wrap: wrap;">
+                    <a href="upload.html" class="btn-compare-main" style="background: #0284c7; cursor: pointer; padding: 10px 22px; font-size: 13.5px; text-decoration: none;">
+                        <span>📁</span> Upload Cleaned Dataset Now
+                    </a>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 12px;">
+                    <span class="badge-ds-tag badge-ds-a">1. Pick Dataset A</span>
+                    <span style="color: #64748b;">→</span>
+                    <span class="badge-ds-tag badge-ds-b">2. Pick Dataset B</span>
+                    <span style="color: #64748b;">→</span>
+                    <span class="badge-ds-tag" style="background:#2563eb;">3. Run Comparison</span>
+                </div>
+            </section>
+
+            <!-- ERROR STATE -->
+            <section id="compare-error-state" class="cmp-alert-box alert-error" style="display: none;">
+                <span style="font-size: 20px;">⚠️</span>
+                <div>
+                    <strong style="display: block; font-size: 14px; margin-bottom: 2px;">Comparison Error</strong>
+                    <span id="compare-error-msg">These datasets don't share a common metric to compare.</span>
+                </div>
+            </section>
+
+            <!-- RESULTS SECTION -->
+            <section id="compare-results-section" style="display: none;">
+                <!-- 9. PLAIN-ENGLISH SUMMARY BANNER -->
+                <div id="summary-banner-content" class="cmp-summary-banner">
+                    💡 <strong>Comparative Insight:</strong> Loading real-time comparison insight...
+                </div>
+
+                <!-- 8. BIGGEST CHANGES SECTION -->
+                <div class="cmp-highlights-grid">
+                    <!-- Top Increase -->
+                    <div class="highlight-card">
+                        <div class="highlight-icon-box icon-increase">🚀</div>
+                        <div class="highlight-content">
+                            <span class="highlight-tag">Top Increase</span>
+                            <span id="top-increase-val" class="highlight-value" style="color: #10b981;">+0.0%</span>
+                            <span id="top-increase-sub" class="highlight-sub">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Top Decrease -->
+                    <div class="highlight-card">
+                        <div class="highlight-icon-box icon-decrease">🔻</div>
+                        <div class="highlight-content">
+                            <span class="highlight-tag">Top Decrease</span>
+                            <span id="top-decrease-val" class="highlight-value" style="color: #ef4444;">-0.0%</span>
+                            <span id="top-decrease-sub" class="highlight-sub">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Most Stable -->
+                    <div class="highlight-card">
+                        <div class="highlight-icon-box icon-stable">⚖️</div>
+                        <div class="highlight-content">
+                            <span class="highlight-tag">Most Stable</span>
+                            <span id="most-stable-val" class="highlight-value" style="color: #38bdf8;">0.0%</span>
+                            <span id="most-stable-sub" class="highlight-sub">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. KPI COMPARISON CARDS -->
+                <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="font-size: 16px; font-weight: 700; color: #f1f5f9; margin: 0;">
+                        Selected Metrics Overview
+                    </h3>
+                    <div style="font-size: 12px; color: #94a3b8; display: flex; gap: 14px;">
+                        <span><span style="color:#38bdf8; font-weight:700;">●</span> Dataset A</span>
+                        <span><span style="color:#10b981; font-weight:700;">●</span> Dataset B</span>
+                    </div>
+                </div>
+                <div id="kpi-comparison-grid" class="cmp-kpi-grid">
+                    <!-- Populated dynamically via JS -->
+                </div>
+
+                <!-- 4, 5, 6. CHARTS COMPARISON (BOTH CHARTS ALWAYS VISIBLE, SIDE-BY-SIDE!) -->
+                <section class="cmp-charts-grid">
+                    <!-- 5. Growth / Change by Category Chart (Single Combined Chart) -->
+                    <div id="category-chart-container" class="cmp-chart-card">
+                        <div class="cmp-chart-card-header">
+                            <div class="cmp-chart-title">
+                                <span>📊</span>
+                                <span id="category-chart-title-text">Category / Region Growth Breakdown</span>
+                            </div>
+                            <div class="cmp-chart-legend-badge">
+                                <div class="legend-indicator">
+                                    <span class="indicator-dot dot-ds-a"></span>
+                                    <span id="badge-a-name-cat" style="color: #38bdf8;">Dataset A</span>
+                                </div>
+                                <div class="legend-indicator">
+                                    <span class="indicator-dot dot-ds-b"></span>
+                                    <span id="badge-b-name-cat" style="color: #10b981;">Dataset B</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cmp-canvas-wrapper">
+                            <canvas id="compare-category-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 4. Metric Comparison Line Chart (ALWAYS VISIBLE WITH COLUMN SELECTOR!) -->
+                    <div id="trend-chart-container" class="cmp-chart-card">
+                        <div class="cmp-chart-card-header">
+                            <div class="cmp-chart-title">
+                                <span>📈</span>
+                                <span id="trend-chart-title-text">Metric Comparison & Trend Line</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <label for="trend-metric-column-select" style="font-size: 11px; color: #94a3b8; font-weight: 600;">Metric:</label>
+                                    <select id="trend-metric-column-select" class="cmp-select-mini" title="Switch metric plotted on line chart">
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
+                                <div class="cmp-chart-legend-badge">
+                                    <div class="legend-indicator">
+                                        <span class="indicator-dot dot-ds-a"></span>
+                                        <span id="badge-a-name-trend" style="color: #38bdf8;">Dataset A</span>
+                                    </div>
+                                    <div class="legend-indicator">
+                                        <span class="indicator-dot dot-ds-b"></span>
+                                        <span id="badge-b-name-trend" style="color: #10b981;">Dataset B</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cmp-canvas-wrapper">
+                            <canvas id="compare-trend-chart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SIDE-BY-SIDE DATASET RECORD TABLES WITH SCROLLBAR, SELECTION, INLINE EDIT & DOWNLOAD -->
+                <section class="cmp-side-by-side-section">
+                    <div class="cmp-side-by-side-header">
+                        <div>
+                            <h3 style="font-size: 16px; font-weight: 700; color: #f8fafc; margin: 0 0 4px 0;">
+                                📋 Side-by-Side Dataset Record Inspection & Editor
+                            </h3>
+                            <span style="font-size: 12.5px; color: #94a3b8;">
+                                View, scroll horizontally & vertically, select rows, edit values inline, and export dataset records.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="cmp-side-by-side-tables-grid">
+                        <!-- LEFT: DATASET A TABLE -->
+                        <div class="cmp-record-table-card">
+                            <div class="record-card-top-bar">
+                                <div class="record-card-title">
+                                    <span class="badge-ds-tag badge-ds-a">DATASET A</span>
+                                    <span id="card-table-title-a" style="color: #38bdf8; font-weight: 700;">Loading...</span>
+                                    <span id="card-table-count-a" style="font-size: 11px; color: #64748b;">(0 rows)</span>
+                                </div>
+                                <div class="card-actions-row">
+                                    <input type="search" id="search-table-a" class="table-search-input" placeholder="Search in A...">
+                                    <button type="button" id="edit-mode-btn-a" class="btn-action-sm" title="Toggle inline cell editing">
+                                        <span>✏️</span>
+                                        <span id="edit-mode-text-a">Edit</span>
+                                    </button>
+                                    <button type="button" id="download-dataset-a-btn" class="btn-action-sm" title="Download Dataset A as CSV">
+                                        <span>📥</span>
+                                        <span>CSV</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="cmp-scrollable-table-box" id="scroll-box-table-a">
+                                <table class="cmp-record-table" id="record-table-a">
+                                    <thead id="record-thead-a">
+                                        <tr>
+                                            <th><input type="checkbox" id="select-all-rows-a"></th>
+                                            <th>#</th>
+                                            <th>Loading...</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="record-tbody-a">
+                                        <tr><td colspan="3" style="text-align:center; padding: 24px; color:#64748b;">Loading dataset records...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:11px; color:#64748b; padding-top:4px;">
+                                <span id="selected-rows-count-a">0 rows selected</span>
+                                <span>Tip: Click any cell to edit value</span>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT: DATASET B TABLE -->
+                        <div class="cmp-record-table-card">
+                            <div class="record-card-top-bar">
+                                <div class="record-card-title">
+                                    <span class="badge-ds-tag badge-ds-b">DATASET B</span>
+                                    <span id="card-table-title-b" style="color: #10b981; font-weight: 700;">Loading...</span>
+                                    <span id="card-table-count-b" style="font-size: 11px; color: #64748b;">(0 rows)</span>
+                                </div>
+                                <div class="card-actions-row">
+                                    <input type="search" id="search-table-b" class="table-search-input" placeholder="Search in B...">
+                                    <button type="button" id="edit-mode-btn-b" class="btn-action-sm" title="Toggle inline cell editing">
+                                        <span>✏️</span>
+                                        <span id="edit-mode-text-b">Edit</span>
+                                    </button>
+                                    <button type="button" id="download-dataset-b-btn" class="btn-action-sm" title="Download Dataset B as CSV">
+                                        <span>📥</span>
+                                        <span>CSV</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="cmp-scrollable-table-box" id="scroll-box-table-b">
+                                <table class="cmp-record-table" id="record-table-b">
+                                    <thead id="record-thead-b">
+                                        <tr>
+                                            <th><input type="checkbox" id="select-all-rows-b"></th>
+                                            <th>#</th>
+                                            <th>Loading...</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="record-tbody-b">
+                                        <tr><td colspan="3" style="text-align:center; padding: 24px; color:#64748b;">Loading dataset records...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:11px; color:#64748b; padding-top:4px;">
+                                <span id="selected-rows-count-b">0 rows selected</span>
+                                <span>Tip: Click any cell to edit value</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 7 & 10. COMPARISON MATRIX TABLE & EXPORT -->
+                <section class="cmp-table-card">
+                    <div class="cmp-table-header-row">
+                        <h3 style="font-size: 16px; font-weight: 700; color: #f8fafc; margin: 0;">
+                            Detailed Comparison Matrix
+                        </h3>
+                        <button id="export-comparison-btn" class="btn-export-csv" title="Export comparison results to CSV">
+                            <span>📥</span>
+                            <span>Download Comparison Report CSV</span>
+                        </button>
+                    </div>
+
+                    <div class="table-responsive-box">
+                        <table class="cmp-table">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th id="th-dataset-a-name">Dataset A</th>
+                                    <th id="th-dataset-b-name">Dataset B</th>
+                                    <th>Difference</th>
+                                    <th>Change %</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comparison-table-body">
+                                <!-- Populated dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/compare_controller.js"></script>
+    <script src="js/copilot.js"></script>
+</body>
+
+</html>

@@ -20,14 +20,16 @@ router = APIRouter()
 
 def check_dataset_access(dataset_id: str, user_id: int):
     """
-    Verifies that dataset belongs to current user if recorded in registry.
+    Verifies that dataset belongs to current user.
     """
     with engine.connect() as conn:
         row = conn.execute(
             text("SELECT user_id FROM datasets WHERE dataset_id = :did"),
             {"did": dataset_id}
         ).fetchone()
-        if row and row[0] != user_id:
+        if not row:
+            raise HTTPException(status_code=404, detail="Dataset not found or access denied")
+        if row[0] != user_id:
             raise HTTPException(status_code=403, detail="Access denied: Dataset belongs to another user")
 
 

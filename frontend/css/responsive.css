@@ -36,15 +36,21 @@
 @media (max-width: 1024px) {
     /* Adjust root variables for smaller screens */
     :root {
-        --sidebar-width: 200px;
+        --sidebar-width: 240px;
         --header-height: 70px;
-        --space-2xl: 2rem;
+        --space-2xl: 1.5rem;
+    }
+
+    .nav-link {
+        padding: 10px 14px;
+        gap: 10px;
+        font-size: 0.9rem;
     }
 
     /* Header adjustments */
     .app-header {
         padding: var(--space-md) var(--space-lg);
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr auto;
         gap: var(--space-md);
     }
 

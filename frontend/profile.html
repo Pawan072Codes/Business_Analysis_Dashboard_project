@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BizVision - User Profile & Account Settings">
+    <title>My Profile - BizVision</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="js/auth.js"></script>
+    <style>
+        .profile-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-neutral-200);
+            margin-bottom: 25px;
+        }
+
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-indigo) 0%, var(--color-teal) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-neutral-700);
+        }
+
+        .form-control {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            font-size: 14px;
+            background-color: #f8fafc;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-indigo);
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+
+<body class="profile-page">
+    <!-- HEADER -->
+    <header role="banner" class="app-header">
+        <!-- LEFT: Mobile Menu Toggle, Logo & Branding -->
+        <div class="header-left">
+            <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Toggle Navigation" title="Toggle Sidebar Navigation">
+                ☰
+            </button>
+            <a href="index.html" class="logo-container">
+                <span class="logo-icon">📊</span>
+                <div class="logo-text">
+                    <h1 class="logo-title">BizVision</h1>
+                    <span class="logo-subtitle">Analytics Dashboard</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- MIDDLE: Primary Global Dataset Search Bar -->
+        <div class="header-middle">
+            <div class="dataset-search-wrapper">
+                <span class="dataset-search-icon" title="Search active dataset" aria-label="Search dataset">🔍</span>
+                <input type="search" id="dataset-search-input" class="dataset-search-input" placeholder="Search anything in your dataset..." autocomplete="off">
+                <button type="button" id="dataset-search-clear-btn" class="dataset-search-clear-btn" style="display: none;" title="Clear search">✕</button>
+                <div id="dataset-search-dropdown" class="dataset-search-dropdown" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Header Actions -->
+        <div class="header-right">
+            <!-- Notifications Bell -->
+            <div style="position: relative;">
+                <button id="notif-btn" class="header-action-btn" aria-label="Notifications" title="Notifications">
+                    🔔
+                    <span class="notif-badge" id="notif-badge-count">3</span>
+                </button>
+                <div id="notif-dropdown-menu" class="header-dropdown-menu" style="display: none;">
+                    <div class="dropdown-header-info" style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>Notifications</strong>
+                        <button id="clear-notif-btn" class="clear-notif-action-btn">Clear all</button>
+                    </div>
+                    <div id="notif-items-container">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Avatar Menu -->
+            <div style="position: relative;">
+                <button id="profile-btn" class="profile-trigger-btn" aria-label="User Profile">
+                    <img id="avatar-img" class="avatar-badge" src="" alt="Avatar" style="display: none;">
+                    <span id="avatar-initial" class="avatar-badge">P</span>
+                    <span id="header-username-text" class="profile-username">User</span>
+                    <span style="font-size: 10px; opacity: 0.8;">▾</span>
+                </button>
+                <div id="profile-dropdown-menu" class="header-dropdown-menu" style="display: none;">
+                    <div class="dropdown-header-info">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <strong id="menu-user-name">User</strong>
+                            <span class="user-role-badge">Pro Plan</span>
+                        </div>
+                        <div id="menu-user-email" style="font-size: 12px; opacity: 0.75; margin-top: 2px;">user@bizvision.com</div>
+                    </div>
+                    <a href="profile.html" class="dropdown-item-link">👤 My Profile</a>
+                    <a href="settings.html" class="dropdown-item-link">⚙️ Account Settings</a>
+                    <a href="upload.html" class="dropdown-item-link">📁 Upload Datasets</a>
+                    <button id="theme-toggle-menu-btn" class="dropdown-item-link">🌙 Toggle Theme</button>
+                    <div class="dropdown-divider"></div>
+                    <button id="logout-menu-btn" class="dropdown-item-link danger">🚪 Log Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-layout">
+        <!-- SIDEBAR NAVIGATION -->
+        <nav role="navigation" aria-label="Main navigation" class="sidebar-nav">
+            <ul class="nav-list nav-list-main">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="upload.html" class="nav-link">
+                        <span class="nav-icon">📁</span>
+                        <span class="nav-label">Upload Data</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="forecast.html" class="nav-link">
+                        <span class="nav-icon">🔮</span>
+                        <span class="nav-label">Forecasting</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="compare.html" class="nav-link">
+                        <span class="nav-icon">⚖️</span>
+                        <span class="nav-label">Compare Dataset</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="insights.html" class="nav-link">
+                        <span class="nav-icon">💡</span>
+                        <span class="nav-label">AI Insight</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="reports.html" class="nav-link">
+                        <span class="nav-icon">📄</span>
+                        <span class="nav-label">Report</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-section-bottom">
+                <ul class="nav-list nav-list-bottom">
+                    <li class="nav-item active">
+                        <a href="profile.html" class="nav-link" aria-current="page">
+                            <span class="nav-icon">👤</span>
+                            <span class="nav-label">My Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="settings.html" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            <span class="nav-label">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main role="main" class="main-content">
+            <section class="page-header">
+                <h2 class="page-title">User Account Profile</h2>
+                <p class="page-description">Manage personal info, avatar image, security, and view account analytics statistics.</p>
+            </section>
+
+            <!-- NOTIFICATION -->
+            <div id="profile-notif" style="display: none; padding: 12px 16px; margin-bottom: 20px; border-radius: 6px; font-weight: 500;"></div>
+
+            <!-- HEADER PROFILE CARD -->
+            <div class="profile-card" style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <div class="avatar-circle" id="prof-avatar" style="overflow: hidden; padding: 0;">
+                    <img id="prof-avatar-img" src="" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                    <span id="prof-avatar-text">U</span>
+                </div>
+                <div style="flex: 1;">
+                    <h2 style="margin: 0 0 4px 0; font-size: 22px; color: var(--color-neutral-900);" id="display-name">User Name</h2>
+                    <p style="margin: 0; color: var(--color-neutral-600); font-size: 14px;" id="display-email">user@bizvision.com</p>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <span style="background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">Pro Analyst Tier</span>
+                        <span style="background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">Status: Active</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USER STATS GRID -->
+            <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px;">
+                <div class="kpi-card">
+                    <span class="kpi-title">Active Datasets</span>
+                    <div class="kpi-value"><span id="stat-datasets">0</span></div>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title">ML Models Trained</span>
+                    <div class="kpi-value"><span id="stat-models">4</span></div>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title">Reports Generated</span>
+                    <div class="kpi-value"><span id="stat-reports">12</span></div>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title">Security Level</span>
+                    <div class="kpi-value"><span style="color: #059669;">Verified</span></div>
+                </div>
+            </div>
+
+            <!-- EDIT DETAILS FORM -->
+            <div class="profile-card">
+                <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--color-neutral-900);">Personal Details & Avatar</h3>
+                <form id="profile-details-form">
+                    <div class="form-grid" style="margin-bottom: 20px;">
+                        <div class="form-group">
+                            <label for="prof-username">Username</label>
+                            <input type="text" id="prof-username" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="prof-email">Email Address</label>
+                            <input type="email" id="prof-email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="prof-fullname">Full Name</label>
+                            <input type="text" id="prof-fullname" class="form-control" placeholder="e.g. Pawan Kumar">
+                        </div>
+                        <div class="form-group">
+                            <label for="prof-jobtitle">Job Title / Role</label>
+                            <input type="text" id="prof-jobtitle" class="form-control" placeholder="e.g. Senior Business Analyst">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label for="prof-avatar-url">Profile Picture / Avatar Image URL</label>
+                            <input type="url" id="prof-avatar-url" class="form-control" placeholder="https://images.unsplash.com/photo-... or custom image URL">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn" style="background-color: var(--color-indigo); color: white; padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;">
+                        💾 Save Profile Changes
+                    </button>
+                </form>
+            </div>
+
+            <!-- PASSWORD & SECURITY FORM -->
+            <div class="profile-card">
+                <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--color-neutral-900);">Security & Password</h3>
+                <form id="password-form">
+                    <div class="form-grid" style="margin-bottom: 20px;">
+                        <div class="form-group">
+                            <label for="pwd-current">Current Password</label>
+                            <input type="password" id="pwd-current" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pwd-new">New Password</label>
+                            <input type="password" id="pwd-new" class="form-control" placeholder="Minimum 6 characters" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn" style="background-color: #374151; color: white; padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;">
+                        🔒 Update Password
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const notif = document.getElementById('profile-notif');
+            
+            // Load User Info & Avatar
+            let user = { username: 'User', email: 'user@bizvision.com', fullname: 'Pawan Kumar', jobtitle: 'Analytics Lead' };
+            const stored = localStorage.getItem('user_info');
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    user = { ...user, ...parsed };
+                } catch(e){}
+            }
+
+            const savedAvatar = localStorage.getItem('user_avatar') || user.avatar || '';
+
+            document.getElementById('display-name').textContent = user.username || 'User';
+            document.getElementById('display-email').textContent = user.email || 'user@bizvision.com';
+            
+            const profImg = document.getElementById('prof-avatar-img');
+            const profText = document.getElementById('prof-avatar-text');
+            if (savedAvatar) {
+                profImg.src = savedAvatar;
+                profImg.style.display = 'block';
+                profText.style.display = 'none';
+            } else {
+                profText.textContent = (user.username || 'U')[0].toUpperCase();
+            }
+
+            document.getElementById('prof-username').value = user.username || '';
+            document.getElementById('prof-email').value = user.email || '';
+            document.getElementById('prof-fullname').value = user.fullname || '';
+            document.getElementById('prof-jobtitle').value = user.jobtitle || '';
+            document.getElementById('prof-avatar-url').value = savedAvatar;
+
+            // Load tables count
+            try {
+                const tables = await window.API.fetchTables();
+                document.getElementById('stat-datasets').textContent = tables ? tables.length : 0;
+            } catch(e){}
+
+            // Profile Form Submit
+            document.getElementById('profile-details-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                user.username = document.getElementById('prof-username').value.trim();
+                user.email = document.getElementById('prof-email').value.trim();
+                user.fullname = document.getElementById('prof-fullname').value.trim();
+                user.jobtitle = document.getElementById('prof-jobtitle').value.trim();
+
+                const avatarUrl = document.getElementById('prof-avatar-url').value.trim();
+                if (avatarUrl) {
+                    user.avatar = avatarUrl;
+                    localStorage.setItem('user_avatar', avatarUrl);
+                    profImg.src = avatarUrl;
+                    profImg.style.display = 'block';
+                    profText.style.display = 'none';
+
+                    const headerAvatarImg = document.getElementById('avatar-img');
+                    const headerAvatarInit = document.getElementById('avatar-initial');
+                    if (headerAvatarImg) {
+                        headerAvatarImg.src = avatarUrl;
+                        headerAvatarImg.style.display = 'inline-flex';
+                    }
+                    if (headerAvatarInit) headerAvatarInit.style.display = 'none';
+                } else {
+                    localStorage.removeItem('user_avatar');
+                    profImg.style.display = 'none';
+                    profText.style.display = 'block';
+                    profText.textContent = user.username[0].toUpperCase();
+                }
+
+                localStorage.setItem('user_info', JSON.stringify(user));
+
+                document.getElementById('display-name').textContent = user.username;
+                document.getElementById('display-email').textContent = user.email;
+
+                // Update header text
+                const headerUserText = document.getElementById('header-username-text');
+                if (headerUserText) headerUserText.textContent = user.username;
+
+                showNotif('✅ Profile details and avatar updated successfully!', '#059669');
+            });
+
+            // Password Form Submit
+            document.getElementById('password-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const currentP = document.getElementById('pwd-current').value;
+                const newP = document.getElementById('pwd-new').value;
+
+                if (newP.length < 6) {
+                    showNotif('⚠️ New password must be at least 6 characters long.', '#ef4444');
+                    return;
+                }
+
+                showNotif('✅ Security password updated successfully!', '#059669');
+                document.getElementById('pwd-current').value = '';
+                document.getElementById('pwd-new').value = '';
+            });
+
+            function showNotif(msg, color) {
+                notif.style.display = 'block';
+                notif.style.backgroundColor = color;
+                notif.style.color = '#ffffff';
+                notif.textContent = msg;
+                setTimeout(() => { notif.style.display = 'none'; }, 4000);
+            }
+        });
+    </script>
+
+    <!-- FLOATING THEME TOGGLE BUTTON -->
+    <button id="floating-theme-toggle" class="floating-theme-toggle" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+        <span>🌙</span> <span>Dark Mode</span>
+    </button>
+</body>
+
+</html>

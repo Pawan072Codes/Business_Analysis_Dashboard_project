@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BizVision - AI-Powered Business Analytics & Automated Executive Insights">
+    <title>AI Insights - BizVision</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="js/auth.js"></script>
+
+    <style>
+        /* ═══════════════════════════════════════════════════════════════════════
+           BIZVISION AI INSIGHTS — MODERN PREMIUM DARK THEME STYLING
+           ═══════════════════════════════════════════════════════════════════════ */
+
+        .insights-page-wrapper {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding-bottom: 50px;
+        }
+
+        /* ── Action & Control Top Bar ── */
+        .insights-control-bar {
+            background: linear-gradient(145deg, #111827 0%, #0d1527 100%);
+            border: 1px solid #1f293d;
+            border-radius: 14px;
+            padding: 16px 22px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .control-group-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .dataset-select-label {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .insights-select {
+            background: #0b0f19;
+            color: #f8fafc;
+            border: 1px solid #334155;
+            padding: 9px 16px;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 500;
+            min-width: 260px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .insights-select:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+        }
+
+        .control-group-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .freshness-tag {
+            font-size: 12px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(30, 41, 59, 0.6);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid #334155;
+        }
+
+        .freshness-tag .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        .btn-regenerate {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            border: 1px solid #38bdf8;
+            padding: 9px 18px;
+            border-radius: 9px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 10px rgba(2, 132, 199, 0.3);
+        }
+
+        .btn-regenerate:hover:not(:disabled) {
+            background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+            box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-regenerate:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+            background: #1e293b;
+            border-color: #334155;
+            color: #94a3b8;
+        }
+
+        /* ── Fallback Warning Chip ── */
+        .ai-fallback-chip {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            color: #fbbf24;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ── 2. KEY TAKEAWAY BANNER ── */
+        .key-takeaway-banner {
+            background: linear-gradient(135deg, #0d1527 0%, #111d35 50%, #0c182f 100%);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 14px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+        }
+
+        .key-takeaway-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #38bdf8 0%, #6366f1 100%);
+        }
+
+        .takeaway-icon-box {
+            background: rgba(56, 189, 248, 0.12);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .takeaway-content {
+            flex: 1;
+        }
+
+        .takeaway-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .takeaway-tag {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.15);
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .takeaway-verified-badge {
+            font-size: 11.5px;
+            color: #2dd4bf;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 500;
+        }
+
+        .takeaway-text {
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1.55;
+            color: #f8fafc;
+            margin: 0;
+            letter-spacing: -0.2px;
+        }
+
+        .takeaway-text span.highlight {
+            color: #38bdf8;
+            font-weight: 800;
+        }
+
+        /* ── 3. FILTER CHIPS ── */
+        .filter-chips-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            margin-right: 4px;
+        }
+
+        .filter-chip {
+            background: #111827;
+            border: 1px solid #1f293d;
+            color: #94a3b8;
+            padding: 7px 16px;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .filter-chip:hover {
+            background: #1e293b;
+            color: #f1f5f9;
+            border-color: #334155;
+        }
+
+        .filter-chip.active {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #38bdf8;
+            box-shadow: 0 2px 10px rgba(2, 132, 199, 0.35);
+        }
+
+        .filter-count {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1px 7px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        /* ── 4. INSIGHT CARDS GRID (2 Columns on Desktop) ── */
+        .insight-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+            margin-bottom: 26px;
+        }
+
+        .insight-card {
+            background: #0e1526;
+            border: 1px solid #1c273c;
+            border-radius: 14px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+        }
+
+        .insight-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        .insight-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+        }
+
+        /* Color Coding Rules:
+           Growth = Green (#10b981)
+           Risk = Red (#ef4444)
+           Recommendation = Blue (#3b82f6)
+           Performance = Neutral / Indigo (#818cf8)
+        */
+
+        /* Growth Card */
+        .insight-card.card-growth {
+            border-left: 3px solid #10b981;
+        }
+        .insight-card.card-growth .card-badge {
+            background: rgba(16, 185, 129, 0.14);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .insight-card.card-growth .proof-number {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        /* Risk Card */
+        .insight-card.card-risk {
+            border-left: 3px solid #ef4444;
+        }
+        .insight-card.card-risk .card-badge {
+            background: rgba(239, 68, 68, 0.14);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .insight-card.card-risk .proof-number {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+        }
+
+        /* Recommendation Card */
+        .insight-card.card-recommendation {
+            border-left: 3px solid #3b82f6;
+        }
+        .insight-card.card-recommendation .card-badge {
+            background: rgba(59, 130, 246, 0.14);
+            color: #38bdf8;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .insight-card.card-recommendation .proof-number {
+            color: #38bdf8;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+        }
+
+        /* Performance Card */
+        .insight-card.card-performance {
+            border-left: 3px solid #818cf8;
+        }
+        .insight-card.card-performance .card-badge {
+            background: rgba(99, 102, 241, 0.14);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        .insight-card.card-performance .proof-number {
+            color: #e2e8f0;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+        }
+
+        /* Card Header */
+        .card-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+
+        .card-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 11px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .proof-number {
+            font-size: 14px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 8px;
+            white-space: nowrap;
+        }
+
+        .card-title {
+            font-size: 15.5px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin: 0 0 8px 0;
+        }
+
+        .card-body-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #cbd5e1;
+            margin: 0 0 16px 0;
+            min-height: 44px;
+        }
+
+        /* Supporting Proof & Sparkline Section */
+        .card-proof-section {
+            background: rgba(11, 15, 25, 0.7);
+            border: 1px solid #1a2334;
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .proof-meta-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .proof-caption {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+        }
+
+        .proof-desc {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .sparkline-canvas-box {
+            width: 140px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .sparkline-canvas {
+            width: 140px;
+            height: 40px;
+            display: block;
+        }
+
+        /* ── 5. FORECAST OUTLOOK SECTION ── */
+        .forecast-outlook-card {
+            background: linear-gradient(145deg, #0d1527 0%, #121c32 100%);
+            border: 1px solid #1f2d45;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .forecast-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #1a253a;
+        }
+
+        .forecast-title-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .forecast-title-box h3 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .btn-view-forecast {
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-view-forecast:hover {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #0284c7;
+        }
+
+        .forecast-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .fc-metric-item {
+            background: #090d16;
+            border: 1px solid #192437;
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+
+        .fc-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .fc-val {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .fc-val.trend-up {
+            color: #10b981;
+        }
+
+        .fc-val.trend-down {
+            color: #ef4444;
+        }
+
+        .forecast-summary-p {
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: #94a3b8;
+            margin: 0;
+        }
+
+        /* ── 6. ACTIONS: DOWNLOAD & EMAIL ── */
+        .bottom-actions-section {
+            background: #0e1526;
+            border: 1px solid #1c273c;
+            border-radius: 14px;
+            padding: 18px 24px;
+            margin-bottom: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .actions-label-box {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .actions-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .actions-sub {
+            font-size: 12.5px;
+            color: #64748b;
+        }
+
+        .actions-btn-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action-outline {
+            background: #111827;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action-outline:hover:not(:disabled) {
+            background: #1e293b;
+            border-color: #64748b;
+            color: #ffffff;
+        }
+
+        .btn-action-primary {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            border: 1px solid #38bdf8;
+            color: #ffffff;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 10px rgba(2, 132, 199, 0.25);
+        }
+
+        .btn-action-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+            transform: translateY(-1px);
+        }
+
+        /* ── 7. EMPTY STATE ── */
+        .insights-empty-state {
+            background: linear-gradient(145deg, #0d1527 0%, #111827 100%);
+            border: 2px dashed #1f293d;
+            border-radius: 16px;
+            padding: 60px 30px;
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .empty-icon-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 18px;
+        }
+
+        .empty-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin: 0 0 8px 0;
+        }
+
+        .empty-desc {
+            font-size: 14.5px;
+            color: #94a3b8;
+            max-width: 520px;
+            margin: 0 auto 20px auto;
+            line-height: 1.6;
+        }
+
+        /* ── Toast Notifications ── */
+        .insights-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #111827;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .insights-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .insights-toast.success {
+            border-color: #10b981;
+        }
+
+        .insights-toast.error {
+            border-color: #ef4444;
+        }
+
+        /* ── RESPONSIVE RULES ── */
+        @media (max-width: 960px) {
+            .insight-cards-grid {
+                grid-template-columns: 1fr;
+            }
+            .forecast-metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .insights-control-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .control-group-left, .control-group-right {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .insights-select {
+                min-width: 100%;
+            }
+            .bottom-actions-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .actions-btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            .actions-btn-group button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body class="insights-page">
+    <!-- APP HEADER -->
+    <header role="banner" class="app-header">
+        <div class="header-left">
+            <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Toggle Navigation" title="Toggle Sidebar Navigation">
+                ☰
+            </button>
+            <a href="index.html" class="logo-container">
+                <span class="logo-icon">📊</span>
+                <div class="logo-text">
+                    <h1 class="logo-title">BizVision</h1>
+                    <span class="logo-subtitle">Analytics Dashboard</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="header-middle">
+            <div class="dataset-search-wrapper">
+                <span class="dataset-search-icon" title="Search active dataset">🔍</span>
+                <input type="search" id="dataset-search-input" class="dataset-search-input" placeholder="Search anything in your dataset..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div style="position: relative;">
+                <button id="profile-btn" class="profile-trigger-btn" aria-label="User Profile">
+                    <span id="avatar-initial" class="avatar-badge">P</span>
+                    <span id="header-username-text" class="profile-username">User</span>
+                    <span style="font-size: 10px; opacity: 0.8;">▾</span>
+                </button>
+                <div id="profile-dropdown-menu" class="header-dropdown-menu" style="display: none;">
+                    <div class="dropdown-header-info">
+                        <strong id="menu-user-name">User</strong>
+                        <div id="menu-user-email" style="font-size: 12px; opacity: 0.75; margin-top: 2px;">user@bizvision.com</div>
+                    </div>
+                    <a href="profile.html" class="dropdown-item-link">👤 My Profile</a>
+                    <a href="settings.html" class="dropdown-item-link">⚙️ Account Settings</a>
+                    <a href="upload.html" class="dropdown-item-link">📁 Upload Datasets</a>
+                    <div class="dropdown-divider"></div>
+                    <button id="logout-menu-btn" class="dropdown-item-link danger">🚪 Log Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-layout">
+        <!-- SIDEBAR NAVIGATION -->
+        <nav role="navigation" aria-label="Main navigation" class="sidebar-nav">
+            <ul class="nav-list nav-list-main">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="upload.html" class="nav-link">
+                        <span class="nav-icon">📁</span>
+                        <span class="nav-label">Upload Data</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="forecast.html" class="nav-link">
+                        <span class="nav-icon">🔮</span>
+                        <span class="nav-label">Forecasting</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="compare.html" class="nav-link">
+                        <span class="nav-icon">⚖️</span>
+                        <span class="nav-label">Compare Dataset</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="insights.html" class="nav-link" aria-current="page">
+                        <span class="nav-icon">💡</span>
+                        <span class="nav-label">AI Insight</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="reports.html" class="nav-link">
+                        <span class="nav-icon">📄</span>
+                        <span class="nav-label">Report</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-section-bottom">
+                <ul class="nav-list nav-list-bottom">
+                    <li class="nav-item">
+                        <a href="profile.html" class="nav-link">
+                            <span class="nav-icon">👤</span>
+                            <span class="nav-label">My Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="settings.html" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            <span class="nav-label">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTENT AREA -->
+        <main role="main" class="main-content">
+            <div class="insights-page-wrapper">
+                <!-- PAGE TITLE -->
+                <section class="page-header" style="margin-bottom: 20px;">
+                    <h2 class="page-title">AI Business Insights</h2>
+                    <p class="page-description">Automated data-to-English executive intelligence, key driver breakdowns, risk alerts, and forecast outlook.</p>
+                </section>
+
+                <!-- 1. DATASET SELECTOR & REGENERATE TOP BAR -->
+                <section class="insights-control-bar">
+                    <div class="control-group-left">
+                        <label for="insight-dataset-select" class="dataset-select-label">
+                            📁 Cleaned Dataset:
+                        </label>
+                        <select id="insight-dataset-select" class="insights-select">
+                            <option value="">Select a cleaned dataset...</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group-right" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <input type="file" id="insights-upload-input" accept=".csv,.xlsx,.xls" style="display: none;">
+                        <label for="insights-upload-input" class="btn-regenerate" style="background: #0284c7; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                            <span>📁</span> Upload Cleaned Dataset
+                        </label>
+                        <div id="freshness-container" class="freshness-tag" style="display: none;">
+                            <span class="dot"></span>
+                            <span id="freshness-text">Generated just now</span>
+                        </div>
+                        <button id="regenerate-btn" class="btn-regenerate" disabled>
+                            🔄 Regenerate Insights
+                        </button>
+                    </div>
+                </section>
+
+                <!-- AI API FALLBACK BANNER -->
+                <div id="ai-fallback-banner" class="ai-fallback-chip">
+                    <span>⚠️</span>
+                    <span id="ai-fallback-text">AI summary is temporarily unavailable — Showing calculated statistics.</span>
+                </div>
+
+                <!-- 11. EMPTY STATE (shown before dataset is selected) -->
+                <section id="empty-state-section" class="insights-empty-state">
+                    <div class="empty-icon-circle">💡</div>
+                    <h3 class="empty-title">Select or upload a cleaned dataset to generate AI insights.</h3>
+                    <p class="empty-desc">
+                        Choose any of your uploaded and cleaned business datasets from the dropdown above, or upload a cleaned CSV/Excel file directly to calculate verified facts, detect growth drivers, identify risks, and translate numbers into clear executive takeaways.
+                    </p>
+                    <div style="display: flex; justify-content: center; gap: 12px; margin-top: 18px; flex-wrap: wrap;">
+                        <a href="upload.html" class="btn-regenerate" style="background: #0284c7; cursor: pointer; text-decoration: none; padding: 10px 22px; font-size: 13.5px; display: inline-flex; align-items: center; gap: 8px;">
+                            <span>📁</span> Upload Cleaned Dataset Now
+                        </a>
+                    </div>
+                </section>
+
+                <!-- MAIN INSIGHTS CONTENT CONTAINER (hidden until dataset selected) -->
+                <div id="insights-content-container" style="display: none;">
+                    <!-- 2. KEY TAKEAWAY BANNER (Single Bold Sentence) -->
+                    <section class="key-takeaway-banner" id="takeaway-banner">
+                        <div class="takeaway-icon-box">✨</div>
+                        <div class="takeaway-content">
+                            <div class="takeaway-badge-row">
+                                <span class="takeaway-tag">Executive Key Takeaway</span>
+                                <span class="takeaway-verified-badge">✓ Verified Numbers</span>
+                            </div>
+                            <h3 id="takeaway-sentence" class="takeaway-text">
+                                Analyzing verified dataset metrics...
+                            </h3>
+                        </div>
+                    </section>
+
+                    <!-- 7. CATEGORY FILTER CHIPS -->
+                    <section class="filter-chips-section">
+                        <span class="filter-label">Filter:</span>
+                        <button class="filter-chip active" data-filter="all">
+                            All <span id="count-all" class="filter-count">4</span>
+                        </button>
+                        <button class="filter-chip" data-filter="performance">
+                            📊 Performance <span id="count-performance" class="filter-count">1</span>
+                        </button>
+                        <button class="filter-chip" data-filter="growth">
+                            📈 Growth Opportunity <span id="count-growth" class="filter-count">1</span>
+                        </button>
+                        <button class="filter-chip" data-filter="risk">
+                            ⚠️ Risk Alert <span id="count-risk" class="filter-count">1</span>
+                        </button>
+                        <button class="filter-chip" data-filter="recommendation">
+                            💡 Recommendation <span id="count-recommendation" class="filter-count">1</span>
+                        </button>
+                    </section>
+
+                    <!-- 3 & 4. INSIGHT CARDS GRID (2 Columns on Desktop) -->
+                    <section class="insight-cards-grid" id="insight-cards-container">
+                        <!-- Populated dynamically via JS -->
+                    </section>
+
+                    <!-- 5. FORECAST OUTLOOK SECTION -->
+                    <section class="forecast-outlook-card" id="forecast-outlook-section">
+                        <div class="forecast-header-row">
+                            <div class="forecast-title-box">
+                                <span style="font-size: 20px;">🔮</span>
+                                <div>
+                                    <h3>Short-Term Forecast Outlook</h3>
+                                    <span style="font-size: 12px; color: #64748b;">Machine learning predictive trajectory (Next 1–3 Months)</span>
+                                </div>
+                            </div>
+                            <a id="link-forecast-page" href="forecast.html" class="btn-view-forecast">
+                                View Full Forecasting Page →
+                            </a>
+                        </div>
+
+                        <div class="forecast-metrics-grid">
+                            <div class="fc-metric-item">
+                                <div class="fc-label">Trend Direction</div>
+                                <div id="fc-trend-val" class="fc-val trend-up">
+                                    <span>↗</span> Upward Growth
+                                </div>
+                            </div>
+                            <div class="fc-metric-item">
+                                <div class="fc-label">Expected Growth</div>
+                                <div id="fc-growth-val" class="fc-val trend-up">
+                                    +12.4%
+                                </div>
+                            </div>
+                            <div class="fc-metric-item">
+                                <div class="fc-label">Confidence Level</div>
+                                <div id="fc-conf-val" class="fc-val" style="font-size: 15px; color: #38bdf8;">
+                                    95% Confidence Interval
+                                </div>
+                            </div>
+                        </div>
+
+                        <p id="fc-summary-text" class="forecast-summary-p">
+                            Predicted run-rate exhibits continuous positive momentum based on historical multi-period models.
+                        </p>
+                    </section>
+
+                    <!-- 9. DOWNLOAD AND EMAIL ACTIONS -->
+                    <section class="bottom-actions-section">
+                        <div class="actions-label-box">
+                            <div class="actions-title">Export & Distribute Executive Insights</div>
+                            <div class="actions-sub">Download your verified intelligence report or email the summary directly to your inbox.</div>
+                        </div>
+
+                        <div class="actions-btn-group">
+                            <button id="btn-download-insights" class="btn-action-outline">
+                                📥 Download Insights
+                            </button>
+                            <button id="btn-email-insights" class="btn-action-primary">
+                                ✉️ Send to Email
+                            </button>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- INTERACTIVE AI DATASET ASSISTANT (Chat Engine) -->
+                <section class="ai-chat-box" style="margin-top: 30px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <span style="font-size: 24px;">🤖</span>
+                        <div>
+                            <h3 style="margin: 0; font-size: 17px; color: #f8fafc;">Ask AI Dataset Assistant</h3>
+                            <p style="margin: 2px 0 0 0; font-size: 13px; color: #94a3b8;">Ask questions in plain English about your selected cleaned dataset.</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
+                        <span class="prompt-chip" onclick="askPresetPrompt('What is the main revenue driver in this dataset?')">💡 Main Revenue Driver</span>
+                        <span class="prompt-chip" onclick="askPresetPrompt('Are there any anomalies or outliers?')">⚠️ Find Outliers</span>
+                        <span class="prompt-chip" onclick="askPresetPrompt('What is the predicted growth forecast?')">📈 Growth Forecast</span>
+                        <span class="prompt-chip" onclick="askPresetPrompt('Summarize data cleanliness and record volume.')">🧹 Data Quality Audit</span>
+                    </div>
+
+                    <div id="chat-messages" class="chat-messages">
+                        <div class="msg-bubble msg-ai">
+                            Hello! I am your BizVision AI Intelligence Assistant. Select a dataset above to ask questions about your verified business numbers.
+                        </div>
+                    </div>
+
+                    <form id="ai-query-form" style="display: flex; gap: 10px;">
+                        <input type="text" id="ai-query-input" placeholder="Ask a question about your data numbers..." style="flex: 1; padding: 11px 14px; border-radius: 8px; border: 1px solid #334155; background: #0b0f19; color: #f8fafc; font-size: 14px;">
+                        <button type="submit" class="btn" style="background-color: #0284c7; color: white; padding: 11px 22px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;">
+                            Send Query
+                        </button>
+                    </form>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="insights-toast" class="insights-toast">
+        <span id="toast-icon">ℹ️</span>
+        <span id="toast-message">Message text</span>
+    </div>
+
+    <script src="js/api.js"></script>
+
+    <script>
+        /* ═══════════════════════════════════════════════════════════════════════
+           AI INSIGHTS CONTROLLER
+           ═══════════════════════════════════════════════════════════════════════ */
+
+        let activeDatasetId = '';
+        let currentInsightsData = null;
+        let activeFilter = 'all';
+
+        // DOM Elements
+        const datasetSelect = document.getElementById('insight-dataset-select');
+        const regenerateBtn = document.getElementById('regenerate-btn');
+        const emptyStateSection = document.getElementById('empty-state-section');
+        const contentContainer = document.getElementById('insights-content-container');
+        const takeawaySentence = document.getElementById('takeaway-sentence');
+        const cardsContainer = document.getElementById('insight-cards-container');
+        const fallbackBanner = document.getElementById('ai-fallback-banner');
+        const fallbackText = document.getElementById('ai-fallback-text');
+        const freshnessContainer = document.getElementById('freshness-container');
+        const freshnessText = document.getElementById('freshness-text');
+        const btnDownload = document.getElementById('btn-download-insights');
+        const btnEmail = document.getElementById('btn-email-insights');
+        const linkForecast = document.getElementById('link-forecast-page');
+
+        // Forecast Outlook Elements
+        const fcTrendVal = document.getElementById('fc-trend-val');
+        const fcGrowthVal = document.getElementById('fc-growth-val');
+        const fcConfVal = document.getElementById('fc-conf-val');
+        const fcSummaryText = document.getElementById('fc-summary-text');
+
+        // Toast Helper
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('insights-toast');
+            const msgEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
+
+            toast.className = `insights-toast ${type} show`;
+            msgEl.textContent = message;
+            iconEl.textContent = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3800);
+        }
+
+        // Relative Timestamp Formatter
+        function formatRelativeTime(isoString) {
+            if (!isoString) return 'Generated recently';
+            const date = new Date(isoString);
+            const now = new Date();
+            const diffSec = Math.floor((now - date) / 1000);
+
+            if (diffSec < 60) return 'Generated just now';
+            const diffMin = Math.floor(diffSec / 60);
+            if (diffMin === 1) return 'Generated 1 minute ago';
+            if (diffMin < 60) return `Generated ${diffMin} minutes ago`;
+            const diffHours = Math.floor(diffMin / 60);
+            if (diffHours === 1) return 'Generated 1 hour ago';
+            if (diffHours < 24) return `Generated ${diffHours} hours ago`;
+            return `Generated on ${date.toLocaleDateString()}`;
+        }
+
+        // Initialize Page
+        document.addEventListener('DOMContentLoaded', async () => {
+            await populateDatasetsDropdown();
+
+            datasetSelect.addEventListener('change', () => {
+                const val = datasetSelect.value;
+                if (val) {
+                    activeDatasetId = val;
+                    sessionStorage.setItem('currentTableName', val);
+                    window.dispatchEvent(new CustomEvent('datasetChanged', { detail: { table: val } }));
+                    loadInsights(val, false);
+                } else {
+                    activeDatasetId = '';
+                    showEmptyState();
+                }
+            });
+
+            window.addEventListener('datasetChanged', (e) => {
+                const val = e.detail && e.detail.table ? e.detail.table : null;
+                if (val && val !== activeDatasetId) {
+                    activeDatasetId = val;
+                    sessionStorage.setItem('currentTableName', val);
+                    datasetSelect.value = val;
+                    loadInsights(val, false);
+                }
+            });
+
+            regenerateBtn.addEventListener('click', () => {
+                if (activeDatasetId) {
+                    runRegenerate(activeDatasetId);
+                }
+            });
+
+            // Filter Chips Event Delegation
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    activeFilter = chip.dataset.filter;
+                    filterCards(activeFilter);
+                });
+            });
+
+            // Download Button
+            btnDownload.addEventListener('click', async () => {
+                if (!activeDatasetId) return;
+                try {
+                    btnDownload.disabled = true;
+                    btnDownload.textContent = '⏳ Preparing Download...';
+                    await window.API.downloadInsightsReport(activeDatasetId);
+                    showToast('Insights summary report downloaded successfully!', 'success');
+                } catch (err) {
+                    showToast(err.message || 'Download failed', 'error');
+                } finally {
+                    btnDownload.disabled = false;
+                    btnDownload.innerHTML = '📥 Download Insights';
+                }
+            });
+
+            // Email Button
+            btnEmail.addEventListener('click', async () => {
+                if (!activeDatasetId) return;
+                const user = JSON.parse(localStorage.getItem('user_info') || '{}');
+                const targetEmail = user.email || 'your account email';
+                if (!confirm(`Send executive insights report for '${activeDatasetId}' to ${targetEmail}?`)) {
+                    return;
+                }
+
+                try {
+                    btnEmail.disabled = true;
+                    btnEmail.textContent = '⏳ Dispatching Email...';
+                    const res = await window.API.sendInsightsEmail(activeDatasetId);
+                    if (res.warning) {
+                        showToast(res.message || res.warning, 'info');
+                    } else {
+                        showToast(`Executive Insights sent to ${targetEmail}!`, 'success');
+                    }
+                } catch (err) {
+                    showToast(err.message || 'Could not send email', 'error');
+                } finally {
+                    btnEmail.disabled = false;
+                    btnEmail.innerHTML = '✉️ Send to Email';
+                }
+            });
+
+            // Direct Cleaned Dataset Upload & Demo Loaders
+            const insightsUpload = document.getElementById('insights-upload-input');
+            if (insightsUpload) {
+                insightsUpload.addEventListener('change', async () => {
+                    if (insightsUpload.files && insightsUpload.files[0]) {
+                        const file = insightsUpload.files[0];
+                        showToast(`Uploading & cleaning "${file.name}"...`, 'info');
+                        try {
+                            const res = await window.API.uploadDataset(file);
+                            showToast(`✓ Dataset "${file.name}" cleaned & ready! Generating AI insights...`, 'success');
+                            sessionStorage.setItem('currentTableName', res.table_name);
+                            await populateDatasetsDropdown();
+                            datasetSelect.value = res.table_name;
+                            activeDatasetId = res.table_name;
+                            loadInsights(res.table_name, false);
+                        } catch (err) {
+                            showToast(`Upload failed: ${err.message}`, 'error');
+                        }
+                    }
+                });
+            }
+
+            const demoInsightsBtn = document.getElementById('btn-load-demo-insights');
+            if (demoInsightsBtn) {
+                demoInsightsBtn.style.display = 'none';
+            }
+        });
+
+        // 1. Populate Dropdown with User's Cleaned Datasets
+        async function populateDatasetsDropdown() {
+            try {
+                let datasets = [];
+                if (window.API.fetchCleanedDatasets) {
+                    try {
+                        const res = await window.API.fetchCleanedDatasets();
+                        datasets = res.datasets || [];
+                    } catch (e) {
+                        const tables = await window.API.fetchTables();
+                        datasets = tables.map(t => ({ dataset_id: t, filename: t }));
+                    }
+                } else {
+                    const tables = await window.API.fetchTables();
+                    datasets = tables.map(t => ({ dataset_id: t, filename: t }));
+                }
+
+                datasetSelect.innerHTML = '<option value="">Select a cleaned dataset...</option>';
+
+                if (datasets.length === 0) {
+                    datasetSelect.innerHTML = '<option value="">No cleaned datasets available</option>';
+                    showEmptyState();
+                    return;
+                }
+
+                datasets.forEach(ds => {
+                    const opt = document.createElement('option');
+                    opt.value = ds.dataset_id;
+                    const label = ds.filename && ds.filename !== ds.dataset_id 
+                        ? `${ds.filename} (${ds.dataset_id})` 
+                        : ds.dataset_id;
+                    opt.textContent = label;
+                    datasetSelect.appendChild(opt);
+                });
+
+                // Auto-select from URL parameter or session storage if present
+                const urlParams = new URLSearchParams(window.location.search);
+                const queryDataset = urlParams.get('dataset');
+                const sessionDataset = sessionStorage.getItem('currentTableName');
+
+                const targetToSelect = queryDataset || sessionDataset;
+                if (targetToSelect && datasets.some(d => d.dataset_id === targetToSelect)) {
+                    datasetSelect.value = targetToSelect;
+                    activeDatasetId = targetToSelect;
+                    loadInsights(targetToSelect, false);
+                } else {
+                    showEmptyState();
+                }
+
+            } catch (err) {
+                console.error('Error fetching datasets:', err);
+                datasetSelect.innerHTML = '<option value="">Error loading datasets</option>';
+                showEmptyState();
+            }
+        }
+
+        function showEmptyState() {
+            emptyStateSection.style.display = 'block';
+            contentContainer.style.display = 'none';
+            freshnessContainer.style.display = 'none';
+            regenerateBtn.disabled = true;
+            fallbackBanner.style.display = 'none';
+        }
+
+        // 2. Load Insights
+        async function loadInsights(datasetId, isRegenerate = false) {
+            emptyStateSection.style.display = 'none';
+            contentContainer.style.display = 'block';
+            regenerateBtn.disabled = true;
+            takeawaySentence.innerHTML = '<span style="color:#94a3b8; font-weight:normal;">Analyzing verified dataset facts and generating insights...</span>';
+
+            try {
+                const data = await window.API.fetchInsights(datasetId, isRegenerate);
+                currentInsightsData = data;
+                renderAllInsights(data);
+            } catch (err) {
+                console.error('Insights load error:', err);
+                showToast(err.message || 'Failed to load insights', 'error');
+                takeawaySentence.textContent = 'Unable to generate AI insights for this dataset. Please check data connection.';
+            } finally {
+                regenerateBtn.disabled = false;
+            }
+        }
+
+        // 6. Regenerate Insights Button with Progress States
+        async function runRegenerate(datasetId) {
+            regenerateBtn.disabled = true;
+            regenerateBtn.textContent = '⏳ Analyzing data...';
+
+            const timer = setTimeout(() => {
+                regenerateBtn.textContent = '✍️ Writing insights...';
+            }, 650);
+
+            try {
+                const data = await window.API.fetchInsights(datasetId, true);
+                clearTimeout(timer);
+                currentInsightsData = data;
+                renderAllInsights(data);
+                regenerateBtn.textContent = '✅ Ready';
+                showToast('Fresh insights calculated and cached!', 'success');
+            } catch (err) {
+                clearTimeout(timer);
+                showToast(err.message || 'Regeneration failed', 'error');
+                regenerateBtn.innerHTML = '🔄 Regenerate Insights';
+                regenerateBtn.disabled = false;
+                return;
+            }
+
+            setTimeout(() => {
+                regenerateBtn.innerHTML = '🔄 Regenerate Insights';
+                regenerateBtn.disabled = false;
+            }, 1200);
+        }
+
+        // Render All UI Components
+        function renderAllInsights(data) {
+            // Freshness Timestamp
+            freshnessContainer.style.display = 'inline-flex';
+            freshnessText.textContent = formatRelativeTime(data.generated_at);
+
+            // Fallback Banner
+            if (data.ai_status === 'fallback') {
+                fallbackBanner.style.display = 'flex';
+                fallbackText.textContent = data.ai_note || 'AI summary is temporarily unavailable — Showing calculated statistics.';
+            } else {
+                fallbackBanner.style.display = 'none';
+            }
+
+            // Key Takeaway Banner
+            takeawaySentence.textContent = data.key_takeaway || 'Dataset demonstrates verified operational activity.';
+
+            // Render Insight Cards
+            renderInsightCards(data.insights || []);
+
+            // Render Forecast Outlook
+            renderForecastOutlook(data.forecast_outlook || {});
+
+            // Update forecast link
+            linkForecast.href = `forecast.html?dataset=${encodeURIComponent(activeDatasetId)}`;
+        }
+
+        // 3, 4 & 8. Render Insight Cards with Colors, Proof Numbers, and Sparklines
+        function renderInsightCards(insights) {
+            cardsContainer.innerHTML = '';
+
+            const counts = { all: insights.length, performance: 0, growth: 0, risk: 0, recommendation: 0 };
+
+            insights.forEach((card, idx) => {
+                const type = (card.type || 'performance').toLowerCase();
+                if (counts[type] !== undefined) counts[type]++;
+
+                const cardEl = document.createElement('div');
+                cardEl.className = `insight-card card-${type}`;
+                cardEl.dataset.category = type;
+                cardEl.id = `insight-card-${idx}`;
+
+                // Icon and label per card type
+                let typeIcon = '📊';
+                let typeLabel = 'Performance';
+                let sparkColor = '#818cf8';
+
+                if (type === 'growth') {
+                    typeIcon = '📈';
+                    typeLabel = 'Growth Opportunity';
+                    sparkColor = '#10b981';
+                } else if (type === 'risk') {
+                    typeIcon = '⚠️';
+                    typeLabel = 'Risk Alert';
+                    sparkColor = '#ef4444';
+                } else if (type === 'recommendation') {
+                    typeIcon = '💡';
+                    typeLabel = 'Recommendation';
+                    sparkColor = '#38bdf8';
+                }
+
+                const canvasId = `sparkline-canvas-${idx}`;
+                const sparkData = Array.isArray(card.mini_chart_data) && card.mini_chart_data.length > 0 
+                    ? card.mini_chart_data 
+                    : [100, 110, 125, 140, 160];
+
+                cardEl.innerHTML = `
+                    <div>
+                        <div class="card-header-row">
+                            <span class="card-badge">
+                                <span>${typeIcon}</span>
+                                <span>${typeLabel}</span>
+                            </span>
+                            <span class="proof-number">${card.key_number || 'Verified'}</span>
+                        </div>
+                        <h4 class="card-title">${card.title || typeLabel}</h4>
+                        <p class="card-body-text">${card.text || ''}</p>
+                    </div>
+
+                    <div class="card-proof-section">
+                        <div class="proof-meta-info">
+                            <span class="proof-caption">Supporting Proof</span>
+                            <span class="proof-desc">${card.key_number ? `Verified: ${card.key_number}` : 'Cleaned Data Metric'}</span>
+                        </div>
+                        <div class="sparkline-canvas-box">
+                            <canvas id="${canvasId}" class="sparkline-canvas" width="140" height="40"></canvas>
+                        </div>
+                    </div>
+                `;
+
+                cardsContainer.appendChild(cardEl);
+
+                // Draw Mini Canvas Sparkline
+                setTimeout(() => {
+                    drawSparkline(canvasId, sparkData, sparkColor);
+                }, 30);
+            });
+
+            // Update Counts in Filter Chips
+            document.getElementById('count-all').textContent = counts.all;
+            document.getElementById('count-performance').textContent = counts.performance;
+            document.getElementById('count-growth').textContent = counts.growth;
+            document.getElementById('count-risk').textContent = counts.risk;
+            document.getElementById('count-recommendation').textContent = counts.recommendation;
+
+            filterCards(activeFilter);
+        }
+
+        // 7. Filter Cards
+        function filterCards(filterType) {
+            const cards = cardsContainer.querySelectorAll('.insight-card');
+            cards.forEach(c => {
+                if (filterType === 'all' || c.dataset.category === filterType) {
+                    c.style.display = 'flex';
+                } else {
+                    c.style.display = 'none';
+                }
+            });
+        }
+
+        // 4. Native Canvas Sparkline Renderer (Smooth Bezier with Gradient Area)
+        function drawSparkline(canvasId, dataPoints, strokeColor) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.clientWidth || 140;
+            const height = canvas.clientHeight || 40;
+
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+
+            if (!dataPoints || dataPoints.length < 2) {
+                dataPoints = [dataPoints[0] || 50, (dataPoints[0] || 50) * 1.05];
+            }
+
+            const minVal = Math.min(...dataPoints);
+            const maxVal = Math.max(...dataPoints);
+            const range = (maxVal - minVal) === 0 ? 1 : (maxVal - minVal);
+            const padding = 4;
+            const plotH = height - padding * 2;
+            const plotW = width - padding * 2;
+
+            const points = dataPoints.map((val, idx) => {
+                const x = padding + (idx / (dataPoints.length - 1)) * plotW;
+                const y = height - padding - ((val - minVal) / range) * plotH;
+                return { x, y };
+            });
+
+            ctx.clearRect(0, 0, width, height);
+
+            // Path for gradient fill
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 0; i < points.length - 1; i++) {
+                const xc = (points[i].x + points[i + 1].x) / 2;
+                const yc = (points[i].y + points[i + 1].y) / 2;
+                ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+            }
+            ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+
+            // Fill area
+            ctx.lineTo(points[points.length - 1].x, height);
+            ctx.lineTo(points[0].x, height);
+            ctx.closePath();
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, hexToRgba(strokeColor, 0.28));
+            gradient.addColorStop(1, hexToRgba(strokeColor, 0.01));
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            // Draw Stroke line
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 0; i < points.length - 1; i++) {
+                const xc = (points[i].x + points[i + 1].x) / 2;
+                const yc = (points[i].y + points[i + 1].y) / 2;
+                ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+            }
+            ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = 2.2;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // End dot highlight
+            const last = points[points.length - 1];
+            ctx.beginPath();
+            ctx.arc(last.x, last.y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = strokeColor;
+            ctx.fill();
+        }
+
+        function hexToRgba(hex, alpha) {
+            let c = hex.replace('#', '');
+            if (c.length === 3) c = c.split('').map(x => x + x).join('');
+            const num = parseInt(c, 16);
+            return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
+        }
+
+        // 5. Render Forecast Outlook
+        function renderForecastOutlook(fc) {
+            const trendDir = (fc.trend_direction || 'up').toLowerCase();
+            const isUp = trendDir === 'up';
+
+            fcTrendVal.className = `fc-val ${isUp ? 'trend-up' : 'trend-down'}`;
+            fcTrendVal.innerHTML = `<span>${isUp ? '↗' : '↘'}</span> ${fc.trend_label || (isUp ? 'Upward Growth' : 'Contraction')}`;
+
+            fcGrowthVal.className = `fc-val ${isUp ? 'trend-up' : 'trend-down'}`;
+            fcGrowthVal.textContent = fc.expected_growth_str || '+0.0%';
+
+            fcConfVal.textContent = fc.confidence_level || '95% Confidence Interval';
+            fcSummaryText.textContent = fc.forecast_summary || 'Short-term projection based on validated forecasting algorithms.';
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // INTERACTIVE CHAT ENGINE
+        // ─────────────────────────────────────────────────────────────────────
+        const chatForm = document.getElementById('ai-query-form');
+        const chatInput = document.getElementById('ai-query-input');
+        const chatMessages = document.getElementById('chat-messages');
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text) return;
+            sendChatMessage(text);
+            chatInput.value = '';
+        });
+
+        function askPresetPrompt(promptText) {
+            chatInput.value = promptText;
+            sendChatMessage(promptText);
+        }
+
+        async function sendChatMessage(userText) {
+            const uDiv = document.createElement('div');
+            uDiv.className = 'msg-bubble msg-user';
+            uDiv.textContent = userText;
+            chatMessages.appendChild(uDiv);
+
+            const aiDiv = document.createElement('div');
+            aiDiv.className = 'msg-bubble msg-ai';
+            aiDiv.innerHTML = '<span style="color:#38bdf8;">Querying active dataset metrics...</span>';
+            chatMessages.appendChild(aiDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            if (!activeDatasetId) {
+                aiDiv.innerHTML = '⚠️ Please select a dataset above before asking questions.';
+                return;
+            }
+
+            try {
+                const res = await window.API.sendChatMessage(activeDatasetId, userText);
+                aiDiv.innerHTML = formatChatMarkdown(res.answer);
+            } catch (err) {
+                aiDiv.innerHTML = `⚠️ Query failed: ${err.message || 'Please check backend service.'}`;
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function formatChatMarkdown(text) {
+            if (!text) return '';
+            return text
+                .replace(/^### (.*$)/gim, '<h3 style="color:#38bdf8; margin:6px 0 4px 0; font-size:14px;">$1</h3>')
+                .replace(/^## (.*$)/gim, '<h3 style="color:#38bdf8; margin:6px 0 4px 0; font-size:14px;">$1</h3>')
+                .replace(/\*\*(.*?)\*\*/gim, '<strong style="color:#f8fafc;">$1</strong>')
+                .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+                .replace(/^\s*-\s+(.*$)/gim, '<li style="margin-left:14px;">$1</li>')
+                .replace(/\n\n/g, '<br><br>')
+                .replace(/\n/g, '<br>');
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BizVision - System Settings, Regional Preferences, Branding & Storage Management">
+    <title>Settings - BizVision</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="js/auth.js"></script>
+
+    <style>
+        /* ══════════════════════════════════════════════════════════════════════
+           BIZVISION - SETTINGS PAGE STYLES
+           ══════════════════════════════════════════════════════════════════════ */
+
+        .settings-layout-wrapper {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 24px;
+            align-items: start;
+            margin-bottom: 90px; /* Space for sticky save bar */
+        }
+
+        @media (max-width: 992px) {
+            .settings-layout-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Left Sidebar of Tabs */
+        .settings-sidebar-card {
+            background: var(--color-white);
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--border-radius-lg);
+            padding: 12px;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 90px;
+        }
+
+        body.dark-mode .settings-sidebar-card {
+            background: var(--color-navy-lighter);
+            border-color: #334155;
+        }
+
+        .settings-tab-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--color-neutral-700);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: var(--transition-fast);
+            margin-bottom: 4px;
+        }
+
+        .settings-tab-btn:hover {
+            background: #f1f5f9;
+            color: var(--color-neutral-900);
+        }
+
+        body.dark-mode .settings-tab-btn {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .settings-tab-btn:hover {
+            background: #1e293b;
+            color: #ffffff;
+        }
+
+        .settings-tab-btn.active {
+            background: #eef2ff;
+            color: var(--color-indigo);
+            border-left: 3px solid var(--color-indigo);
+        }
+
+        body.dark-mode .settings-tab-btn.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            border-left-color: #6366f1;
+        }
+
+        .tab-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        /* Main Content Panes */
+        .settings-content-pane {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .settings-card {
+            background: var(--color-white);
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--border-radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        body.dark-mode .settings-card {
+            background: var(--color-navy-lighter);
+            border-color: #334155;
+        }
+
+        .settings-card-header {
+            border-bottom: 1px solid var(--color-neutral-200);
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+        }
+
+        body.dark-mode .settings-card-header {
+            border-color: #334155;
+        }
+
+        .settings-card-title {
+            margin: 0 0 4px 0;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--color-neutral-900);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        body.dark-mode .settings-card-title {
+            color: #ffffff;
+        }
+
+        .settings-card-subtitle {
+            margin: 0;
+            font-size: 13px;
+            color: var(--color-neutral-600);
+            line-height: 1.4;
+        }
+
+        body.dark-mode .settings-card-subtitle {
+            color: #94a3b8;
+        }
+
+        /* Setting Rows & Form Items */
+        .setting-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f1f5f9;
+            gap: 20px;
+        }
+
+        .setting-item-row:last-child {
+            border-bottom: none;
+            padding-bottom: 4px;
+        }
+
+        body.dark-mode .setting-item-row {
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .setting-label-block {
+            flex: 1;
+        }
+
+        .setting-main-label {
+            font-size: 14.5px;
+            font-weight: 600;
+            color: var(--color-neutral-900);
+            margin-bottom: 3px;
+            display: block;
+        }
+
+        body.dark-mode .setting-main-label {
+            color: #f8fafc;
+        }
+
+        .setting-helper-text {
+            font-size: 12.5px;
+            color: var(--color-neutral-600);
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        body.dark-mode .setting-helper-text {
+            color: #94a3b8;
+        }
+
+        /* Form Inputs & Selects */
+        .setting-select, .setting-input {
+            padding: 9px 14px;
+            font-size: 13.5px;
+            font-weight: 500;
+            border-radius: 8px;
+            border: 1px solid var(--color-neutral-300);
+            background: var(--color-white);
+            color: var(--color-neutral-900);
+            min-width: 220px;
+            outline: none;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .setting-select:focus, .setting-input:focus {
+            border-color: var(--color-indigo);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        body.dark-mode .setting-select,
+        body.dark-mode .setting-input {
+            background: #0f172a;
+            border-color: #334155;
+            color: #f1f5f9;
+        }
+
+        /* Toggle Switches */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .25s ease-in-out;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .25s ease-in-out;
+            border-radius: 50%;
+            box-shadow: var(--shadow-sm);
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--color-indigo);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        input:disabled + .toggle-slider {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Read-only Info Card */
+        .info-card-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 10px;
+        }
+
+        body.dark-mode .info-card-box {
+            background: #0f172a;
+            border-color: #334155;
+        }
+
+        .info-card-icon {
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .info-card-content {
+            font-size: 13px;
+            color: var(--color-neutral-700);
+            line-height: 1.5;
+        }
+
+        body.dark-mode .info-card-content {
+            color: #cbd5e1;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════════
+           REPORT BRANDING WATERMARK SECTION (Section 4)
+           ══════════════════════════════════════════════════════════════════════ */
+        .branding-drop-zone {
+            border: 2px dashed var(--color-neutral-300);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            background: #fafafa;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            margin-bottom: 20px;
+        }
+
+        .branding-drop-zone:hover, .drop-zone-active {
+            border-color: var(--color-indigo);
+            background: #eef2ff;
+        }
+
+        body.dark-mode .branding-drop-zone {
+            background: #0f172a;
+            border-color: #334155;
+        }
+
+        body.dark-mode .branding-drop-zone:hover,
+        body.dark-mode .drop-zone-active {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .branding-thumb-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .branding-thumb-preview img {
+            max-height: 70px;
+            max-width: 140px;
+            object-fit: contain;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            padding: 4px;
+        }
+
+        /* Live Report Preview Canvas */
+        .branding-live-preview-container {
+            border: 1px solid var(--color-neutral-300);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            margin-top: 14px;
+            background: #ffffff;
+        }
+
+        .branding-report-preview-canvas {
+            position: relative;
+            height: 280px;
+            padding: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background-color: #ffffff;
+        }
+
+        .branding-watermark-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .preview-sample-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .preview-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--color-indigo);
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+
+        .preview-kpi-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .preview-kpi-box {
+            background: rgba(248, 250, 252, 0.9);
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 12px;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════════
+           STORAGE USAGE SECTION (Section 5)
+           ══════════════════════════════════════════════════════════════════════ */
+        .storage-progress-container {
+            margin-bottom: 24px;
+        }
+
+        .storage-progress-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+        }
+
+        .storage-progress-track {
+            height: 12px;
+            width: 100%;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        body.dark-mode .storage-progress-track {
+            background: #334155;
+        }
+
+        .storage-progress-fill {
+            height: 100%;
+            background: var(--color-indigo);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+
+        .storage-table-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--color-neutral-200);
+            border-radius: 8px;
+            margin-top: 14px;
+        }
+
+        body.dark-mode .storage-table-wrapper {
+            border-color: #334155;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════════
+           STICKY "SAVE CHANGES" BAR (Section 6)
+           ══════════════════════════════════════════════════════════════════════ */
+        .sticky-save-bar {
+            position: fixed;
+            bottom: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            background: var(--color-white);
+            border-top: 1px solid var(--color-neutral-200);
+            padding: 14px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08);
+            z-index: 900;
+            transition: var(--transition-fast);
+        }
+
+        @media (max-width: 992px) {
+            .sticky-save-bar {
+                left: 0;
+                padding: 12px 20px;
+            }
+        }
+
+        body.dark-mode .sticky-save-bar {
+            background: var(--color-navy-lighter);
+            border-color: #334155;
+        }
+
+        .save-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .unsaved-pill {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            background: #fef3c7;
+            color: #b45309;
+            border: 1px solid #fde68a;
+            animation: pulseAlert 2s infinite;
+        }
+
+        @keyframes pulseAlert {
+            0% { opacity: 0.9; }
+            50% { opacity: 1; transform: scale(1.02); }
+            100% { opacity: 0.9; }
+        }
+
+        body.dark-mode .unsaved-pill {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: #fcd34d;
+        }
+
+        .save-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-settings-primary {
+            background: var(--color-indigo);
+            color: #ffffff;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-fast);
+        }
+
+        .btn-settings-primary:hover {
+            background: var(--color-indigo-dark);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-settings-secondary {
+            background: var(--color-light-bg);
+            border: 1px solid var(--color-neutral-300);
+            color: var(--color-neutral-700);
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .btn-settings-secondary:hover {
+            background: #e2e8f0;
+            color: var(--color-neutral-900);
+        }
+
+        body.dark-mode .btn-settings-secondary {
+            background: #0f172a;
+            border-color: #334155;
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .btn-settings-secondary:hover {
+            background: #1e293b;
+            color: #ffffff;
+        }
+
+        /* Toast Notifications */
+        .settings-toast-container {
+            position: fixed;
+            bottom: 80px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 9999;
+        }
+
+        .settings-toast {
+            background: #1e293b;
+            color: #ffffff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 420px;
+            font-size: 13.5px;
+            animation: toastSlide 0.25s ease-out;
+            transition: opacity 0.3s ease;
+        }
+
+        .settings-toast-success { border-left: 4px solid #10b981; }
+        .settings-toast-error { border-left: 4px solid #ef4444; }
+        .settings-toast-warning { border-left: 4px solid #f59e0b; }
+        .settings-toast-info { border-left: 4px solid #6366f1; }
+
+        .settings-toast-fade { opacity: 0; }
+        .settings-toast-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        @keyframes toastSlide {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Modal dialogs */
+        .settings-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .settings-modal-dialog {
+            background: var(--color-white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid var(--color-neutral-200);
+            padding: 24px;
+        }
+
+        body.dark-mode .settings-modal-dialog {
+            background: var(--color-navy-lighter);
+            border-color: #334155;
+            color: #f8fafc;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════════
+           EMAIL INTEGRATION TAB (Personal Gmail)
+           ══════════════════════════════════════════════════════════════════════ */
+        .gmail-status-card {
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--color-neutral-200);
+            background: #ffffff;
+            transition: var(--transition-fast);
+            margin-bottom: 20px;
+        }
+
+        body.dark-mode .gmail-status-card {
+            background: #0f172a;
+            border-color: #334155;
+        }
+
+        .gmail-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .gmail-badge-connected {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .gmail-badge-not-connected {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #cbd5e1;
+        }
+
+        body.dark-mode .gmail-badge-not-connected {
+            background: #1e293b;
+            color: #94a3b8;
+            border-color: #334155;
+        }
+
+        .gmail-badge-expired {
+            background: rgba(245, 158, 11, 0.15);
+            color: #d97706;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+        }
+
+        .gmail-badge-error {
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-google-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--color-neutral-300);
+            background: #ffffff;
+            color: var(--color-neutral-900);
+            cursor: pointer;
+            transition: var(--transition-fast);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .btn-google-action:hover {
+            background: #f8fafc;
+            border-color: var(--color-neutral-400);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode .btn-google-action {
+            background: #1e293b;
+            border-color: #475569;
+            color: #f8fafc;
+        }
+
+        body.dark-mode .btn-google-action:hover {
+            background: #334155;
+        }
+
+        .btn-google-connect {
+            background: #4285f4;
+            color: #ffffff;
+            border: 1px solid #3367d6;
+        }
+
+        .btn-google-connect:hover {
+            background: #3367d6;
+            color: #ffffff;
+        }
+
+        body.dark-mode .btn-google-connect {
+            background: #4285f4;
+            color: #ffffff;
+            border-color: #3367d6;
+        }
+
+        .gmail-user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+
+<body class="settings-page">
+    <!-- APP HEADER -->
+    <header role="banner" class="app-header">
+        <!-- LEFT: Mobile Menu Toggle, Logo & Branding -->
+        <div class="header-left">
+            <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Toggle Navigation" title="Toggle Sidebar Navigation">
+                ☰
+            </button>
+            <a href="index.html" class="logo-container">
+                <span class="logo-icon">📊</span>
+                <div class="logo-text">
+                    <h1 class="logo-title">BizVision</h1>
+                    <span class="logo-subtitle">Analytics Dashboard</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- MIDDLE: Search Bar -->
+        <div class="header-middle">
+            <div class="dataset-search-wrapper">
+                <span class="dataset-search-icon" title="Search active dataset" aria-label="Search dataset">🔍</span>
+                <input type="search" id="dataset-search-input" class="dataset-search-input" placeholder="Search settings or datasets..." autocomplete="off">
+                <button type="button" id="dataset-search-clear-btn" class="dataset-search-clear-btn" style="display: none;" title="Clear search">✕</button>
+                <div id="dataset-search-dropdown" class="dataset-search-dropdown" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Header Actions -->
+        <div class="header-right">
+            <!-- Notifications Bell -->
+            <div style="position: relative;">
+                <button id="notif-btn" class="header-action-btn" aria-label="Notifications" title="Notifications">
+                    🔔
+                    <span class="notif-badge" id="notif-badge-count">3</span>
+                </button>
+                <div id="notif-dropdown-menu" class="header-dropdown-menu" style="display: none;">
+                    <div class="dropdown-header-info" style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>Notifications</strong>
+                        <button id="clear-notif-btn" class="clear-notif-action-btn">Clear all</button>
+                    </div>
+                    <div id="notif-items-container">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Avatar Menu -->
+            <div style="position: relative;">
+                <button id="profile-btn" class="profile-trigger-btn" aria-label="User Profile">
+                    <img id="avatar-img" class="avatar-badge" src="" alt="Avatar" style="display: none;">
+                    <span id="avatar-initial" class="avatar-badge">P</span>
+                    <span id="header-username-text" class="profile-username">User</span>
+                    <span style="font-size: 10px; opacity: 0.8;">▾</span>
+                </button>
+                <div id="profile-dropdown-menu" class="header-dropdown-menu" style="display: none;">
+                    <div class="dropdown-header-info">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <strong id="menu-user-name">User</strong>
+                            <span class="user-role-badge">Pro Plan</span>
+                        </div>
+                        <div id="menu-user-email" style="font-size: 12px; opacity: 0.75; margin-top: 2px;">user@bizvision.com</div>
+                    </div>
+                    <a href="profile.html" class="dropdown-item-link">👤 My Profile</a>
+                    <a href="settings.html" class="dropdown-item-link">⚙️ Account Settings</a>
+                    <a href="upload.html" class="dropdown-item-link">📁 Upload Datasets</a>
+                    <button id="theme-toggle-menu-btn" class="dropdown-item-link">🌙 Toggle Theme</button>
+                    <div class="dropdown-divider"></div>
+                    <button id="logout-menu-btn" class="dropdown-item-link danger">🚪 Log Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-layout">
+        <!-- SIDEBAR NAVIGATION -->
+        <nav role="navigation" aria-label="Main navigation" class="sidebar-nav">
+            <ul class="nav-list nav-list-main">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="upload.html" class="nav-link">
+                        <span class="nav-icon">📁</span>
+                        <span class="nav-label">Upload Data</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="forecast.html" class="nav-link">
+                        <span class="nav-icon">🔮</span>
+                        <span class="nav-label">Forecasting</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="compare.html" class="nav-link">
+                        <span class="nav-icon">⚖️</span>
+                        <span class="nav-label">Compare Dataset</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="insights.html" class="nav-link">
+                        <span class="nav-icon">💡</span>
+                        <span class="nav-label">AI Insight</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="reports.html" class="nav-link">
+                        <span class="nav-icon">📄</span>
+                        <span class="nav-label">Reports</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-section-bottom">
+                <ul class="nav-list nav-list-bottom">
+                    <li class="nav-item">
+                        <a href="profile.html" class="nav-link">
+                            <span class="nav-icon">👤</span>
+                            <span class="nav-label">My Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="settings.html" class="nav-link" aria-current="page">
+                            <span class="nav-icon">⚙️</span>
+                            <span class="nav-label">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTENT AREA -->
+        <main role="main" class="main-content">
+            <!-- PAGE TITLE -->
+            <section class="page-header" style="margin-bottom: 24px;">
+                <h2 class="page-title">System Settings & Preferences</h2>
+                <p class="page-description">Customize dashboard regional formatting, automated data pipeline, alerts, report branding watermark, and storage limits.</p>
+            </section>
+
+            <!-- SETTINGS WRAPPER (Tabs Sidebar + Content Panes) -->
+            <div class="settings-layout-wrapper">
+                <!-- 1. LEFT SIDEBAR OF TABS -->
+                <aside class="settings-sidebar-card" aria-label="Settings categories">
+                    <button id="tab-btn-regional" class="settings-tab-btn active" data-tab="regional">
+                        <span class="tab-icon">🌐</span>
+                        <span class="tab-title">Regional & Language</span>
+                    </button>
+                    <button id="tab-btn-data" class="settings-tab-btn" data-tab="data">
+                        <span class="tab-icon">📊</span>
+                        <span class="tab-title">Data Settings</span>
+                    </button>
+                    <button id="tab-btn-notifications" class="settings-tab-btn" data-tab="notifications">
+                        <span class="tab-icon">🔔</span>
+                        <span class="tab-title">Notifications</span>
+                    </button>
+                    <button id="tab-btn-email" class="settings-tab-btn" data-tab="email">
+                        <span class="tab-icon">📧</span>
+                        <span class="tab-title">Email Integration</span>
+                    </button>
+                    <button id="tab-btn-branding" class="settings-tab-btn" data-tab="branding">
+                        <span class="tab-icon">🎨</span>
+                        <span class="tab-title">Report Branding</span>
+                    </button>
+                    <button id="tab-btn-storage" class="settings-tab-btn" data-tab="storage">
+                        <span class="tab-icon">💾</span>
+                        <span class="tab-title">Storage Usage</span>
+                    </button>
+                </aside>
+
+                <!-- 2. CONTENT PANES -->
+                <div class="settings-content-pane">
+                    <!-- ══════════════════════════════════════════════════════
+                         TAB 1: REGIONAL & LANGUAGE (Section 1)
+                         ══════════════════════════════════════════════════════ -->
+                    <div id="pane-regional" class="settings-tab-pane" style="display: block;">
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h3 class="settings-card-title">🌐 Regional & Language Preferences</h3>
+                                <p class="settings-card-subtitle">Choose your primary language. UI labels, navigation menus, and dashboard cards will update automatically.</p>
+                            </div>
+
+                            <div class="setting-item-row">
+                                <div class="setting-label-block">
+                                    <label for="setting-language" class="setting-main-label">Dashboard Language</label>
+                                    <p class="setting-helper-text">Select your preferred localized interface dialect.</p>
+                                </div>
+                                <select id="setting-language" class="setting-select">
+                                    <option value="en">English (US / Global)</option>
+                                    <option value="hi">हिन्दी (Hindi)</option>
+                                    <option value="es">Español (Spanish)</option>
+                                    <option value="fr">Français (French)</option>
+                                    <option value="de">Deutsch (German)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══════════════════════════════════════════════════════
+                         TAB 2: DATA SETTINGS (Section 2)
+                         ══════════════════════════════════════════════════════ -->
+                    <div id="pane-data" class="settings-tab-pane" style="display: none;">
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h3 class="settings-card-title">📊 Automated Data Ingestion & Table Defaults</h3>
+                                <p class="settings-card-subtitle">Manage how uploaded files are cleaned, duplicate records treated, and default rows displayed across tables.</p>
+                            </div>
+
+                            <!-- Auto Data Cleaning -->
+                            <div class="setting-item-row">
+                                <div class="setting-label-block">
+                                    <span class="setting-main-label">Auto Data Cleaning on Upload</span>
+                                    <p class="setting-helper-text">When enabled, newly uploaded files undergo zero-null imputation, datetime normalization, and outlier detection.</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="setting-auto-clean" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Duplicate Handling -->
+                            <div class="setting-item-row">
+                                <div class="setting-label-block">
+                                    <label for="setting-duplicate-handling" class="setting-main-label">Duplicate Record Handling</label>
+                                    <p class="setting-helper-text">Action taken when duplicate rows are identified during the pipeline upload step.</p>
+                                </div>
+                                <select id="setting-duplicate-handling" class="setting-select">
+                                    <option value="remove">Remove duplicates automatically</option>
+                                    <option value="keep">Keep duplicates intact</option>
+                                    <option value="prompt">Ask me every time</option>
+                                </select>
+                            </div>
+
+                            <!-- Default Rows Per Page -->
+                            <div class="setting-item-row">
+                                <div class="setting-label-block">
+                                    <label for="setting-rows-per-page" class="setting-main-label">Default Rows Per Page</label>
+                                    <p class="setting-helper-text">Default pagination page size applied across every data table in Dashboard, Reports, and Compare.</p>
+                                </div>
+                                <select id="setting-rows-per-page" class="setting-select" style="min-width: 140px;">
+                                    <option value="10">10 Rows per page</option>
+                                    <option value="25">25 Rows per page</option>
+                                    <option value="50">50 Rows per page</option>
+                                </select>
+                            </div>
+
+                            <!-- Max File Size Read-only Info Card -->
+                            <div class="info-card-box">
+                                <span class="info-card-icon">ℹ️</span>
+                                <div class="info-card-content">
+                                    <strong>Allowed Upload Capacity & Supported Formats</strong><br>
+                                    • Maximum upload size: <strong>100 MB per file</strong><br>
+                                    • Supported file extensions: <strong>CSV (.csv), Excel (.xlsx, .xls)</strong><br>
+                                    • Processing: In-memory vectorized PostgreSQL streaming engine.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══════════════════════════════════════════════════════
+                         TAB 3: NOTIFICATIONS (Section 3)
+                         ══════════════════════════════════════════════════════ -->
+                    <div id="pane-notifications" class="settings-tab-pane" style="display: none;">
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h3 class="settings-card-title">🔔 Outbound Notifications & Dispatch Alerts</h3>
+                                <p class="settings-card-subtitle">Configure email dispatch notifications, automated schedule alerts, and upload status pings.</p>
+                            </div>
+
+                            <!-- Master Email Toggle -->
+                            <div class="setting-item-row" style="background: #f8fafc; padding: 14px 18px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div class="setting-label-block">
+                                    <span class="setting-main-label" style="font-size: 15px;">Master Email Alerts</span>
+                                    <p class="setting-helper-text">Primary on/off switch for all automated email triggers. When turned off, all sub-alerts are suspended.</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="setting-email-alerts-master" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Child Toggles Container -->
+                            <div id="notification-children-container" style="margin-top: 10px;">
+                                <!-- Report-Sent Alerts -->
+                                <div class="setting-item-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-main-label">Report-Sent Confirmation Alerts</span>
+                                        <p class="setting-helper-text">Receive a confirmation notification whenever an on-demand report is dispatched to an email recipient.</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="setting-alert-report-sent" class="notification-child-toggle" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <!-- Schedule Failure Alerts -->
+                                <div class="setting-item-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-main-label">Schedule Failure & Critical Alerts</span>
+                                        <p class="setting-helper-text">Alert system administrators immediately if an automated weekly or monthly scheduled report fails to send.</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="setting-alert-schedule-failed" class="notification-child-toggle" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+
+                                <!-- Upload Complete Alerts -->
+                                <div class="setting-item-row">
+                                    <div class="setting-label-block">
+                                        <span class="setting-main-label">Upload & Cleaning Completion Alerts</span>
+                                        <p class="setting-helper-text">Notify when a large dataset has finished cleaning, imputation, and column role detection.</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="setting-alert-upload-complete" class="notification-child-toggle" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══════════════════════════════════════════════════════
+                         TAB: EMAIL INTEGRATION (Personal Gmail SaaS)
+                         ══════════════════════════════════════════════════════ -->
+                    <div id="pane-email" class="settings-tab-pane" style="display: none;">
+                        <div class="settings-card">
+                            <div class="settings-card-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                                <div>
+                                    <h3 class="settings-card-title">📧 Personal Gmail Integration</h3>
+                                    <p class="settings-card-subtitle">Connect your personal Google account to send executive business analytics reports directly from your Gmail address.</p>
+                                </div>
+                                <div id="gmail-global-status-badge">
+                                    <span class="gmail-badge-pill gmail-badge-not-connected">● Checking...</span>
+                                </div>
+                            </div>
+
+                            <!-- STATE 1: NOT CONNECTED -->
+                            <div id="gmail-state-not-connected" class="gmail-status-card" style="display: none;">
+                                <div style="display: flex; align-items: flex-start; gap: 18px; flex-wrap: wrap;">
+                                    <div style="font-size: 42px; line-height: 1;">📬</div>
+                                    <div style="flex: 1; min-width: 260px;">
+                                        <h4 style="margin: 0 0 6px 0; font-size: 16px;">Connect Your Personal Gmail Account</h4>
+                                        <p style="margin: 0 0 16px 0; font-size: 13.5px; color: var(--color-neutral-600); line-height: 1.5;">
+                                            Every BizVision workspace user has full isolation. When you send analytics reports to team members or executives, they will arrive with <strong>your personal Gmail address</strong> as the sender, guaranteeing high deliverability and professional presentation.
+                                        </p>
+                                        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                                            <button type="button" id="btn-connect-gmail" class="btn-google-action btn-google-connect">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" style="flex-shrink: 0;"><path fill="#EA4335" d="M12 5c1.58 0 2.99.55 4.1 1.6l3.07-3.07C17.3 1.76 14.84 1 12 1 7.42 1 3.53 3.61 1.63 7.37l3.72 2.89C6.27 7.42 8.87 5 12 5z"/><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58l3.71 2.88c2.17-2 3.71-4.94 3.71-8.7z"/><path fill="#FBBC05" d="M5.35 14.74c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29L1.63 7.37C.59 9.43 0 11.66 0 14.45s.59 5.02 1.63 7.08l3.72-2.89z"/><path fill="#34A853" d="M12 23c3.24 0 5.95-1.08 7.93-2.91l-3.71-2.88c-1.07.72-2.45 1.16-4.22 1.16-3.13 0-5.73-2.42-6.65-5.26L1.63 15.99C3.53 19.75 7.42 22.37 12 23z"/></svg>
+                                                Connect with Google
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- STATE 2: CONNECTING / POPUP WAITING -->
+                            <div id="gmail-state-connecting" class="gmail-status-card" style="display: none; text-align: center; padding: 36px 20px;">
+                                <div style="display: inline-block; width: 36px; height: 36px; border: 3px solid #cbd5e1; border-top-color: #4285f4; border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 14px;"></div>
+                                <h4 style="margin: 0 0 6px 0; font-size: 16px;">Connecting to Google...</h4>
+                                <p style="font-size: 13.5px; color: var(--color-neutral-600); margin: 0 0 14px 0;">Please complete the Google authentication in the popup window.</p>
+                                <button type="button" id="btn-cancel-connecting" class="btn-settings-secondary" style="font-size: 12.5px; padding: 6px 14px;">Cancel</button>
+                            </div>
+
+                            <!-- STATE 3: CONNECTED -->
+                            <div id="gmail-state-connected" class="gmail-status-card" style="display: none;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--color-neutral-200);">
+                                    <div style="display: flex; align-items: center; gap: 14px;">
+                                        <div id="gmail-connected-avatar" class="gmail-user-avatar">G</div>
+                                        <div>
+                                            <div style="font-size: 15px; font-weight: 700; color: var(--color-neutral-900);" id="gmail-connected-email">user@gmail.com</div>
+                                            <div style="font-size: 12px; color: var(--color-neutral-600); margin-top: 2px;">
+                                                Linked personal Gmail • Connected: <span id="gmail-connected-time">—</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="gmail-badge-pill gmail-badge-connected">● Active &amp; Verified</span>
+                                </div>
+
+                                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                        <button type="button" id="btn-send-test-email" class="btn-action btn-teal-action" style="font-size: 13px; padding: 8px 16px;">
+                                            ✉️ Send Verification Test Email
+                                        </button>
+                                        <button type="button" id="btn-reconnect-gmail" class="btn-settings-secondary" style="font-size: 13px; padding: 8px 16px;">
+                                            🔄 Reconnect / Refresh Token
+                                        </button>
+                                    </div>
+                                    <button type="button" id="btn-disconnect-gmail" class="btn-action" style="font-size: 13px; padding: 8px 16px; background: transparent; color: var(--color-red); border: 1px solid rgba(239, 68, 68, 0.4);">
+                                        🔌 Disconnect Account
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- STATE 4: AUTHORIZATION EXPIRED -->
+                            <div id="gmail-state-expired" class="gmail-status-card" style="display: none; border-color: rgba(245, 158, 11, 0.4); background: rgba(254, 243, 199, 0.2);">
+                                <div style="display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+                                    <div style="font-size: 36px; line-height: 1;">⚠️</div>
+                                    <div style="flex: 1; min-width: 260px;">
+                                        <h4 style="margin: 0 0 6px 0; font-size: 16px; color: #b45309;">Gmail Authorization Expired or Revoked</h4>
+                                        <p style="margin: 0 0 14px 0; font-size: 13px; color: var(--color-neutral-700); line-height: 1.5;">
+                                            Your Google OAuth token has expired or permissions were modified in your Google account settings. Please reconnect your account to continue sending reports seamlessly.
+                                        </p>
+                                        <div style="display: flex; gap: 10px;">
+                                            <button type="button" id="btn-reconnect-expired" class="btn-google-action btn-google-connect">
+                                                🔄 Reconnect Gmail Account
+                                            </button>
+                                            <button type="button" id="btn-disconnect-expired" class="btn-settings-secondary" style="font-size: 13px;">
+                                                Disconnect
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- STATE 5: CONNECTION ERROR / SERVER CONFIG REQUIRED -->
+                            <div id="gmail-state-error" class="gmail-status-card" style="display: none; border-color: rgba(239, 68, 68, 0.4); background: rgba(254, 242, 242, 0.3);">
+                                <div style="display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+                                    <div style="font-size: 36px; line-height: 1;">⚙️</div>
+                                    <div style="flex: 1; min-width: 260px;">
+                                        <h4 style="margin: 0 0 6px 0; font-size: 16px; color: #b91c1c;" id="gmail-error-title">Google OAuth Setup Required</h4>
+                                        <p style="margin: 0 0 12px 0; font-size: 13px; color: var(--color-neutral-700); line-height: 1.5;" id="gmail-error-desc">
+                                            The system administrator must configure Google OAuth 2.0 Client credentials in the backend environment.
+                                        </p>
+                                        <div id="gmail-error-guide" style="font-size: 12px; background: #ffffff; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 12px; line-height: 1.5; font-family: monospace;">
+                                            1. In Google Cloud Console, create OAuth 2.0 Web Client.<br>
+                                            2. Add Authorized Redirect URI: <code>http://127.0.0.1:8000/api/gmail/callback</code><br>
+                                            3. Add to backend .env:<br>
+                                            &nbsp;&nbsp;GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com<br>
+                                            &nbsp;&nbsp;GOOGLE_CLIENT_SECRET=your_client_secret
+                                        </div>
+                                        <button type="button" id="btn-retry-gmail-status" class="btn-settings-secondary" style="font-size: 13px;">
+                                            🔄 Retry Connection
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SECURITY & PRIVACY NOTICE -->
+                            <div class="info-card-box">
+                                <span class="info-card-icon">🛡️</span>
+                                <div class="info-card-content">
+                                    <strong>Multi-User Security &amp; Token Privacy Guarantee</strong><br>
+                                    • <strong>Isolated Senders:</strong> User A sends exclusively from User A's connected Gmail; User B sends from User B's.<br>
+                                    • <strong>Encryption at Rest:</strong> Access and refresh tokens are encrypted using AES-128-CBC/Fernet with server-side keys before writing to PostgreSQL.<br>
+                                    • <strong>Strict Scope:</strong> Only <code>https://www.googleapis.com/auth/gmail.send</code> is granted. BizVision cannot read your inbox or delete emails.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══════════════════════════════════════════════════════
+                         TAB 4: REPORT BRANDING WATERMARK (Section 4)
+                         ══════════════════════════════════════════════════════ -->
+                    <div id="pane-branding" class="settings-tab-pane" style="display: none;">
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h3 class="settings-card-title">🎨 Report Branding & Background Watermark</h3>
+                                <p class="settings-card-subtitle">Upload your organization's logo or custom background image. Applied automatically to all downloaded PDFs and print views.</p>
+                            </div>
+
+                            <!-- Hidden file input -->
+                            <input type="file" id="branding-file-input" accept="image/png,image/jpeg,image/webp" style="display: none;">
+
+                            <!-- Drag-and-Drop Area -->
+                            <div id="branding-drop-zone" class="branding-drop-zone">
+                                <!-- Empty state inside dropzone -->
+                                <div id="branding-drop-zone-empty">
+                                    <span style="font-size: 38px; display: block; margin-bottom: 8px;">🖼️</span>
+                                    <strong style="color: var(--color-indigo); font-size: 14.5px;">Click to upload or drag & drop</strong>
+                                    <div style="font-size: 12px; color: var(--color-neutral-600); margin-top: 4px;">PNG, JPG, or WEBP (Max file size: 5 MB)</div>
+                                </div>
+
+                                <!-- Filled state inside dropzone -->
+                                <div id="branding-drop-zone-filled" class="branding-thumb-preview" style="display: none;">
+                                    <img id="branding-thumb-img" src="" alt="Branding Logo Preview">
+                                    <div>
+                                        <div style="font-size: 13.5px; font-weight: 600; margin-bottom: 6px;">Active Branding Image Loaded</div>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button type="button" id="btn-replace-branding" class="btn-action btn-secondary-action" style="font-size: 12px; padding: 5px 10px;">
+                                                🔄 Replace
+                                            </button>
+                                            <button type="button" id="btn-remove-branding" class="btn-action btn-secondary-action" style="font-size: 12px; padding: 5px 10px; color: var(--color-red);">
+                                                🗑️ Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Watermark Controls: Opacity, Position, Size -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px;">
+                                <!-- Opacity Slider -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                        <label for="setting-branding-opacity" style="font-size: 13px; font-weight: 600;">Watermark Opacity</label>
+                                        <span id="branding-opacity-val" style="font-size: 12px; font-weight: 700; color: var(--color-indigo);">10%</span>
+                                    </div>
+                                    <input type="range" id="setting-branding-opacity" min="5" max="100" value="10" step="1" style="width: 100%; accent-color: var(--color-indigo);">
+                                    <span style="font-size: 11px; color: var(--color-neutral-600);">Default 10% ensures optimal data readability</span>
+                                </div>
+
+                                <!-- Position Selector -->
+                                <div>
+                                    <label for="setting-branding-position" style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Watermark Position</label>
+                                    <select id="setting-branding-position" class="setting-select" style="min-width: 100%;">
+                                        <option value="center">Center</option>
+                                        <option value="tiled">Tiled Pattern</option>
+                                        <option value="top-right">Top-Right Corner</option>
+                                    </select>
+                                </div>
+
+                                <!-- Size Selector -->
+                                <div>
+                                    <label for="setting-branding-size" style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Image Sizing</label>
+                                    <select id="setting-branding-size" class="setting-select" style="min-width: 100%;">
+                                        <option value="fit">Fit (Contain)</option>
+                                        <option value="fill">Fill (Cover canvas)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Excluded formats note -->
+                            <div style="font-size: 12px; color: var(--color-neutral-600); margin-bottom: 16px; line-height: 1.5; background: #f8fafc; padding: 10px 14px; border-radius: 6px; border-left: 3px solid #6366f1;">
+                                ℹ️ <strong>Note:</strong> Excel (.xlsx) and CSV formats cannot hold background images. This branding watermark automatically applies to PDF documents, print-friendly views, and HTML email previews.
+                            </div>
+
+                            <!-- LIVE SAMPLE REPORT PREVIEW -->
+                            <h4 style="margin: 0 0 6px 0; font-size: 14px;">Live Report Watermark Preview</h4>
+                            <div class="branding-live-preview-container">
+                                <div id="branding-report-preview-canvas" class="branding-report-preview-canvas">
+                                    <div class="preview-sample-content">
+                                        <div class="preview-header-bar">
+                                            <div>
+                                                <h5 style="margin: 0; color: var(--color-indigo); font-size: 15px;">BizVision Analytics Report</h5>
+                                                <span style="font-size: 11px; color: #64748b;">Executive Document Watermark Sample</span>
+                                            </div>
+                                            <span style="font-size: 10px; color: #94a3b8; font-weight: 600;">CONFIDENTIAL</span>
+                                        </div>
+
+                                        <div class="preview-kpi-row">
+                                            <div class="preview-kpi-box">
+                                                <div style="color: #64748b; font-size: 10px;">Total Sales</div>
+                                                <strong style="font-size: 14px; color: #0f172a;">$1,117,345</strong>
+                                            </div>
+                                            <div class="preview-kpi-box">
+                                                <div style="color: #64748b; font-size: 10px;">Total Profit</div>
+                                                <strong style="font-size: 14px; color: #10b981;">$148,255</strong>
+                                            </div>
+                                            <div class="preview-kpi-box">
+                                                <div style="color: #64748b; font-size: 10px;">Margin</div>
+                                                <strong style="font-size: 14px; color: #6366f1;">13.3%</strong>
+                                            </div>
+                                        </div>
+
+                                        <div style="background: rgba(241, 245, 249, 0.85); border-radius: 4px; height: 75px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #64748b; border: 1px dashed #cbd5e1;">
+                                            Sample Visual Trend Chart Layer (Text remains crisp over watermark)
+                                        </div>
+                                    </div>
+
+                                    <div id="branding-preview-empty-note" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #94a3b8; font-size: 12px; pointer-events: none;">
+                                        No custom watermark image uploaded yet.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══════════════════════════════════════════════════════
+                         TAB 5: STORAGE USAGE (Section 5)
+                         ══════════════════════════════════════════════════════ -->
+                    <div id="pane-storage" class="settings-tab-pane" style="display: none;">
+                        <div class="settings-card">
+                            <div class="settings-card-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <h3 class="settings-card-title">💾 Storage Usage & Dataset File Manager</h3>
+                                    <p class="settings-card-subtitle">Review disk storage consumption, inspect ingested datasets, and reclaim space.</p>
+                                </div>
+                                <button id="btn-open-clear-cache-modal" class="btn-action btn-secondary-action" style="font-size: 12.5px; padding: 7px 12px;">
+                                    🧹 Clear Cache
+                                </button>
+                            </div>
+
+                            <!-- Storage Skeleton Loader -->
+                            <div id="storage-loading-skeleton" style="display: none; padding: 20px 0;">
+                                <div class="skeleton-loader" style="height: 14px; margin-bottom: 12px;"></div>
+                                <div class="skeleton-loader" style="height: 120px;"></div>
+                            </div>
+
+                            <!-- Storage Content Display -->
+                            <div id="storage-content-display">
+                                <!-- Progress Bar -->
+                                <div class="storage-progress-container">
+                                    <div class="storage-progress-meta">
+                                        <span id="storage-used-text">0 MB / 500 MB (0%) used</span>
+                                        <span id="storage-pct-badge" class="report-format-pill">0% Used</span>
+                                    </div>
+                                    <div class="storage-progress-track">
+                                        <div id="storage-progress-fill" class="storage-progress-fill" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+
+                                <!-- File Search & Header -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 20px;">
+                                    <h4 style="margin: 0; font-size: 15px;">Uploaded Datasets</h4>
+                                    <input type="text" id="storage-search-input" class="setting-input" placeholder="Search files by name..." style="min-width: 200px; padding: 6px 12px; font-size: 12.5px;">
+                                </div>
+
+                                <!-- Files Table -->
+                                <div class="storage-table-wrapper">
+                                    <table class="report-data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>File Name / Table ID</th>
+                                                <th>Format</th>
+                                                <th class="num-cell">Records</th>
+                                                <th class="num-cell">Disk Size</th>
+                                                <th>Upload Date</th>
+                                                <th style="text-align: right;">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="storage-files-tbody">
+                                            <!-- Populated dynamically via JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Empty state for files -->
+                                <div id="storage-empty-state" style="display: none; text-align: center; padding: 35px 20px; color: var(--color-neutral-600);">
+                                    <span style="font-size: 32px; display: block; margin-bottom: 6px;">📂</span>
+                                    <strong>No files uploaded yet</strong>
+                                    <p style="font-size: 12px; margin: 4px 0 0 0;">Upload CSV or Excel files in the Upload Data page to see storage metrics.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════════════════════════════
+                 STICKY "SAVE CHANGES" BOTTOM BAR (Section 6)
+                 ══════════════════════════════════════════════════════════════════ -->
+            <div id="sticky-save-bar" class="sticky-save-bar">
+                <div class="save-bar-left">
+                    <div id="unsaved-changes-pill" class="unsaved-pill">
+                        <span>●</span> <span id="unsaved-pill-text">Unsaved changes detected</span>
+                    </div>
+                </div>
+                <div class="save-bar-actions">
+                    <button type="button" id="btn-reset-settings" class="btn-settings-secondary">
+                        ↺ Reset to Default
+                    </button>
+                    <button type="button" id="btn-save-settings" class="btn-settings-primary">
+                        💾 Save Changes
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         CONFIRMATION MODALS
+         ══════════════════════════════════════════════════════════════════════════ -->
+
+    <!-- DELETE FILE CONFIRMATION MODAL -->
+    <div id="delete-file-modal" class="settings-modal" role="dialog" aria-modal="true">
+        <div class="settings-modal-dialog">
+            <h3 style="margin: 0 0 10px 0; font-size: 17px; color: var(--color-red);">🗑️ Delete Dataset</h3>
+            <p style="font-size: 13.5px; line-height: 1.5; color: var(--color-neutral-700); margin-bottom: 20px;">
+                Are you sure you want to permanently delete <strong id="delete-file-modal-name">this file</strong>? This will drop the database table, purge all associated analytical reports, and free disk space. This action cannot be undone.
+            </p>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn-settings-secondary btn-modal-cancel">Cancel</button>
+                <button id="btn-confirm-delete-file" class="btn-action" style="background: var(--color-red); color: white; border: none;">
+                    Yes, Delete Permanently
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLEAR CACHE CONFIRMATION MODAL -->
+    <div id="clear-cache-modal" class="settings-modal" role="dialog" aria-modal="true">
+        <div class="settings-modal-dialog">
+            <h3 style="margin: 0 0 10px 0; font-size: 17px; color: var(--color-indigo);">🧹 Clear Analytics Cache</h3>
+            <p style="font-size: 13.5px; line-height: 1.5; color: var(--color-neutral-700); margin-bottom: 20px;">
+                Clearing the cache wipes temporary query results, pre-calculated AI insights, and offline browser state. Your raw uploaded datasets will NOT be deleted.
+            </p>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn-settings-secondary btn-modal-cancel">Cancel</button>
+                <button id="btn-confirm-clear-cache" class="btn-settings-primary">
+                    Clear Cache Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer role="contentinfo" class="app-footer" style="margin-bottom: 70px;">
+        <div class="footer-content">
+            <p>&copy; 2026 BizVision Analytics. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- FLOATING ANIMATED THEME TOGGLE (Fixed Bottom Right) -->
+    <button id="floating-theme-toggle" class="floating-theme-toggle" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+        <span>🌙</span> <span>Dark Mode</span>
+    </button>
+
+    <!-- CORE SCRIPTS -->
+    <script src="js/api.js"></script>
+    <script src="js/settings_controller.js"></script>
+    <script src="js/copilot.js"></script>
+</body>
+
+</html>

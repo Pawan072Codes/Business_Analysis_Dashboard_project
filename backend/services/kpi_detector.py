@@ -16,7 +16,7 @@ KEYWORD_MAP = {
 
 def match_keywords(column_name: str, keywords: list) -> bool:
     """Column naam mein koi bhi keyword partial match ho to True"""
-    col_lower = column_name.lower()
+    col_lower = str(column_name).lower()
     return any(keyword in col_lower for keyword in keywords)
 
 
@@ -36,7 +36,7 @@ def detect_column_roles(df: pd.DataFrame) -> dict:
     }
 
     for col in df.columns:
-        if col.endswith("_is_outlier"):  # cleaning.py ke flag columns skip karo
+        if str(col).endswith("_is_outlier"):  # cleaning.py ke flag columns skip karo
             continue
 
         is_numeric = pd.api.types.is_numeric_dtype(df[col])

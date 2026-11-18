@@ -1,21 +1,1195 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="BizVision - Business Analytics Dashboard">
-    <title>BizVision - Dashboard</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="stylesheet" href="/static/css/responsive.css">
+    <meta name="description" content="BizVision - Modern Business Analytics Dashboard, KPI Performance & Executive Insights">
+    <title>BizVision - Analytics Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="js/auth.js"></script>
+
+    <style>
+        /* ══════════════════════════════════════════════════════════════════════
+           BIZVISION - DASHBOARD CUSTOM COMPONENT STYLES
+           ══════════════════════════════════════════════════════════════════════ */
+        
+        /* ── Base Dashboard Layout & Spacing ── */
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* ── Section 1: Top Welcome & Action Controls Bar ── */
+        .dashboard-top-section {
+            background: var(--color-white);
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--border-radius-xl);
+            padding: 24px 28px;
+            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+
+        body.dark-mode .dashboard-top-section {
+            background: #1e293b;
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+        }
+
+        .dashboard-top-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4f46e5 0%, #6366f1 50%, #14b8a6 100%);
+        }
+
+        .welcome-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .welcome-title-group h2 {
+            margin: 0 0 6px 0;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: var(--color-neutral-900);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.02em;
+        }
+
+        body.dark-mode .welcome-title-group h2 {
+            color: #f8fafc;
+        }
+
+        .welcome-subtitle {
+            margin: 0;
+            font-size: 0.92rem;
+            color: var(--color-neutral-600);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        body.dark-mode .welcome-subtitle {
+            color: #94a3b8;
+        }
+
+        .live-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .live-status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse-dot 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .top-controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        body.dark-mode .top-controls-row {
+            border-top-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .controls-left-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .dataset-picker-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-neutral-700);
+        }
+
+        body.dark-mode .control-label {
+            color: #cbd5e1;
+        }
+
+        .custom-select-styled {
+            padding: 8px 14px;
+            font-size: 13.5px;
+            font-weight: 500;
+            border-radius: 8px;
+            border: 1px solid var(--color-neutral-300);
+            background: var(--color-white);
+            color: var(--color-neutral-900);
+            min-width: 220px;
+            outline: none;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .custom-select-styled:focus {
+            border-color: var(--color-indigo);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        body.dark-mode .custom-select-styled {
+            background: #0f172a;
+            border-color: #334155;
+            color: #f1f5f9;
+        }
+
+        /* Date Range Segmented Pill Filter */
+        .date-range-filter-group {
+            display: inline-flex;
+            background: var(--color-light-bg);
+            border: 1px solid var(--color-neutral-300);
+            border-radius: 8px;
+            padding: 2px;
+            gap: 2px;
+        }
+
+        body.dark-mode .date-range-filter-group {
+            background: #0f172a;
+            border-color: #334155;
+        }
+
+        .date-filter-pill {
+            padding: 6px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            color: var(--color-neutral-600);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        body.dark-mode .date-filter-pill {
+            color: #94a3b8;
+        }
+
+        .date-filter-pill:hover {
+            color: var(--color-neutral-900);
+        }
+
+        body.dark-mode .date-filter-pill:hover {
+            color: #f8fafc;
+        }
+
+        .date-filter-pill.active {
+            background: var(--color-indigo);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.25);
+        }
+
+        .controls-right-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .last-updated-text {
+            font-size: 12px;
+            color: var(--color-neutral-600);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        body.dark-mode .last-updated-text {
+            color: #94a3b8;
+        }
+
+        .btn-refresh-dashboard {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 1px solid var(--color-neutral-300);
+            background: var(--color-white);
+            color: var(--color-neutral-700);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        body.dark-mode .btn-refresh-dashboard {
+            background: #0f172a;
+            border-color: #334155;
+            color: #cbd5e1;
+        }
+
+        .btn-refresh-dashboard:hover {
+            background: var(--color-light-bg);
+            border-color: var(--color-indigo);
+            color: var(--color-indigo);
+        }
+
+        body.dark-mode .btn-refresh-dashboard:hover {
+            background: #1e293b;
+            color: #818cf8;
+        }
+
+        .btn-quick-upload {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            font-size: 12.5px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            background: var(--color-indigo);
+            color: #ffffff;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-quick-upload:hover {
+            background: var(--color-indigo-dark);
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Custom Date Range Popover Box */
+        .custom-date-box {
+            display: none;
+            padding: 12px 16px;
+            background: var(--color-light-bg);
+            border: 1px solid var(--color-neutral-200);
+            border-radius: 8px;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        body.dark-mode .custom-date-box {
+            background: #0f172a;
+            border-color: #334155;
+        }
+
+        .custom-date-input {
+            padding: 6px 10px;
+            font-size: 12.5px;
+            border-radius: 6px;
+            border: 1px solid var(--color-neutral-300);
+            background: var(--color-white);
+            color: var(--color-neutral-900);
+            outline: none;
+        }
+
+        body.dark-mode .custom-date-input {
+            background: #1e293b;
+            border-color: #475569;
+            color: #f1f5f9;
+        }
+
+        /* ── Section 2: Dynamic KPI Cards Grid ── */
+        .kpi-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .kpi-dashboard-card {
+            background: var(--color-white);
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--border-radius-lg);
+            padding: 20px 22px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+            cursor: default;
+        }
+
+        body.dark-mode .kpi-dashboard-card {
+            background: #1e293b;
+            border-color: rgba(255, 255, 255, 0.07);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        }
+
+        .kpi-dashboard-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+            border-color: var(--color-neutral-300);
+        }
+
+        body.dark-mode .kpi-dashboard-card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .kpi-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .kpi-card-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-neutral-600);
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        body.dark-mode .kpi-card-title {
+            color: #94a3b8;
+        }
+
+        .kpi-card-icon-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--color-indigo);
+        }
+
+        body.dark-mode .kpi-card-icon-badge {
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+        }
+
+        .kpi-card-value {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--color-neutral-900);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        body.dark-mode .kpi-card-value {
+            color: #f8fafc;
+        }
+
+        .kpi-card-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .kpi-trend-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 14px;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+
+        .kpi-trend-pill.positive {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+        }
+
+        .kpi-trend-pill.negative {
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+        }
+
+        .kpi-trend-pill.neutral {
+            background: rgba(56, 189, 248, 0.12);
+            color: #0284c7;
+        }
+
+        body.dark-mode .kpi-trend-pill.neutral {
+            color: #38bdf8;
+        }
+
+        .kpi-subtext {
+            font-size: 11.5px;
+            color: var(--color-neutral-600);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        body.dark-mode .kpi-subtext {
+            color: #64748b;
+        }
+
+        /* SVG Sparkline inside KPI Card */
+        .kpi-sparkline-svg {
+            width: 72px;
+            height: 28px;
+            overflow: visible;
+        }
+
+        /* ── Section Cards (General SaaS Glassmorphism & Solid Styling) ── */
+        .saas-dashboard-card {
+            background: var(--color-white);
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--border-radius-xl);
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all var(--transition-base);
+        }
+
+        body.dark-mode .saas-dashboard-card {
+            background: #1e293b;
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .saas-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .saas-card-title-group h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--color-neutral-900);
+            margin: 0 0 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        body.dark-mode .saas-card-title-group h3 {
+            color: #f8fafc;
+        }
+
+        .saas-card-subtitle {
+            font-size: 12.5px;
+            color: var(--color-neutral-600);
+            margin: 0;
+        }
+
+        body.dark-mode .saas-card-subtitle {
+            color: #94a3b8;
+        }
+
+        .card-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-action-link {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--color-indigo);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: color var(--transition-fast);
+        }
+
+        body.dark-mode .card-action-link {
+            color: #818cf8;
+        }
+
+        .card-action-link:hover {
+            color: var(--color-indigo-dark);
+            text-decoration: underline;
+        }
+
+        body.dark-mode .card-action-link:hover {
+            color: #c7d2fe;
+        }
+
+        /* ── Grid Layouts for Sections 3, 4, 5, 6 ── */
+        .two-column-grid-asymmetric {
+            display: grid;
+            grid-template-columns: 1.8fr 1fr;
+            gap: 24px;
+        }
+
+        .two-column-grid-balanced {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .three-column-grid-breakdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.2fr;
+            gap: 24px;
+        }
+
+        /* Chart Canvas Containers */
+        .chart-responsive-box {
+            position: relative;
+            width: 100%;
+            min-height: 280px;
+            max-height: 340px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-responsive-box.tall {
+            min-height: 320px;
+            max-height: 380px;
+        }
+
+        .chart-responsive-box.donut-box {
+            min-height: 240px;
+            max-height: 290px;
+        }
+
+        /* ── AI Insights Widget Styling (Section 3 Right) ── */
+        .ai-insights-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .ai-insight-item {
+            padding: 14px 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transition: transform var(--transition-fast);
+            border: 1px solid transparent;
+        }
+
+        .ai-insight-item:hover {
+            transform: translateX(3px);
+        }
+
+        .ai-insight-item.positive {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .ai-insight-item.negative {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .ai-insight-item.neutral {
+            background: rgba(79, 70, 229, 0.08);
+            border-color: rgba(79, 70, 229, 0.2);
+        }
+
+        body.dark-mode .ai-insight-item.positive {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+
+        body.dark-mode .ai-insight-item.negative {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.25);
+        }
+
+        body.dark-mode .ai-insight-item.neutral {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.25);
+        }
+
+        .ai-insight-icon {
+            font-size: 20px;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        .ai-insight-content {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+        }
+
+        .ai-insight-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-neutral-900);
+        }
+
+        body.dark-mode .ai-insight-title {
+            color: #f1f5f9;
+        }
+
+        .ai-insight-text {
+            font-size: 12.5px;
+            color: var(--color-neutral-600);
+            line-height: 1.45;
+        }
+
+        body.dark-mode .ai-insight-text {
+            color: #cbd5e1;
+        }
+
+        .ai-insight-footer {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        body.dark-mode .ai-insight-footer {
+            border-top-color: rgba(255, 255, 255, 0.06);
+        }
+
+        /* ── Compare Dataset Widget (Section 4 Right) ── */
+        .compare-selector-bar {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            background: var(--color-light-bg);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--color-neutral-200);
+        }
+
+        body.dark-mode .compare-selector-bar {
+            background: #0f172a;
+            border-color: #334155;
+        }
+
+        .compare-vs-badge {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--color-indigo);
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        body.dark-mode .compare-vs-badge {
+            color: #818cf8;
+            background: rgba(99, 102, 241, 0.18);
+        }
+
+        .compare-metrics-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .compare-metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .compare-metrics-table th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-neutral-600);
+            border-bottom: 2px solid var(--color-neutral-200);
+        }
+
+        body.dark-mode .compare-metrics-table th {
+            color: #94a3b8;
+            border-bottom-color: #334155;
+        }
+
+        .compare-metrics-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--color-neutral-200);
+            color: var(--color-neutral-800);
+        }
+
+        body.dark-mode .compare-metrics-table td {
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+        }
+
+        .variance-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+
+        .variance-badge.up {
+            background: rgba(16, 185, 129, 0.14);
+            color: #10b981;
+        }
+
+        .variance-badge.down {
+            background: rgba(239, 68, 68, 0.14);
+            color: #ef4444;
+        }
+
+        /* ── Top & Bottom 5 Products/Entities Tables (Section 5) ── */
+        .products-dual-tables-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .product-sub-table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .product-sub-table-title {
+            font-size: 12.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .product-sub-table-title.top {
+            color: #10b981;
+        }
+
+        .product-sub-table-title.bottom {
+            color: #ef4444;
+        }
+
+        .clean-compact-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+        }
+
+        .clean-compact-table tr {
+            border-bottom: 1px solid var(--color-neutral-200);
+            transition: background var(--transition-fast);
+        }
+
+        body.dark-mode .clean-compact-table tr {
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .clean-compact-table tr:hover {
+            background: var(--color-light-bg);
+        }
+
+        body.dark-mode .clean-compact-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .clean-compact-table td {
+            padding: 8px 10px;
+        }
+
+        .rank-num-badge {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10.5px;
+            font-weight: 700;
+            background: var(--color-light-bg);
+            color: var(--color-neutral-700);
+        }
+
+        body.dark-mode .rank-num-badge {
+            background: #0f172a;
+            color: #cbd5e1;
+        }
+
+        .rank-num-badge.gold {
+            background: rgba(245, 158, 11, 0.18);
+            color: #f59e0b;
+        }
+
+        /* ── Recent Datasets & Email History (Section 6) ── */
+        .recent-dataset-row {
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .recent-dataset-row:hover {
+            background: var(--color-light-bg);
+        }
+
+        body.dark-mode .recent-dataset-row:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .active-ds-row {
+            background: rgba(79, 70, 229, 0.06);
+            border-left: 3px solid var(--color-indigo);
+        }
+
+        body.dark-mode .active-ds-row {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 3px solid #6366f1;
+        }
+
+        .progress-bar-wrap {
+            width: 100%;
+            height: 6px;
+            background: var(--color-neutral-200);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        body.dark-mode .progress-bar-wrap {
+            background: #334155;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: #10b981;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+
+        .status-badge.sent {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+        }
+
+        .status-badge.failed {
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+        }
+
+        .status-badge.pending {
+            background: rgba(245, 158, 11, 0.12);
+            color: #f59e0b;
+        }
+
+        /* ── Loading Skeleton Effects ── */
+        .skeleton-shimmer {
+            background: linear-gradient(90deg, rgba(226, 232, 240, 0.5) 25%, rgba(203, 213, 225, 0.7) 50%, rgba(226, 232, 240, 0.5) 75%);
+            background-size: 200% 100%;
+            animation: shimmer-load 1.5s infinite;
+            border-radius: 6px;
+        }
+
+        body.dark-mode .skeleton-shimmer {
+            background: linear-gradient(90deg, rgba(51, 65, 85, 0.5) 25%, rgba(71, 85, 105, 0.7) 50%, rgba(51, 65, 85, 0.5) 75%);
+            background-size: 200% 100%;
+        }
+
+        @keyframes shimmer-load {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .kpi-skeleton-card {
+            height: 125px;
+            border-radius: 12px;
+            border: 1px solid var(--color-neutral-200);
+        }
+
+        body.dark-mode .kpi-skeleton-card {
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* ── Empty State View (Shown when 0 datasets are uploaded) ── */
+        .dashboard-empty-state-card {
+            display: none;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.90)), url('/images/dashboard-empty-bg.jpg') center/cover no-repeat;
+            border: 2px dashed var(--color-neutral-300);
+            border-radius: var(--border-radius-xl);
+            padding: 60px 30px;
+            text-align: center;
+            max-width: 680px;
+            margin: 40px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+        }
+
+        body.dark-mode .dashboard-empty-state-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.82), rgba(30, 41, 59, 0.75)), url('/images/dashboard-empty-bg.jpg') center/cover no-repeat;
+            border: 1px solid rgba(129, 140, 248, 0.4);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(99, 102, 241, 0.25);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        body.dark-mode .main-content,
+        [data-theme="dark"] .main-content {
+            background: #0b0f19 linear-gradient(135deg, rgba(11, 15, 25, 0.82) 0%, rgba(15, 23, 42, 0.88) 100%), url('/images/dashboard-empty-bg.jpg') center/cover fixed no-repeat !important;
+        }
+
+        .empty-icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--color-indigo);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+            margin-bottom: 8px;
+        }
+
+        body.dark-mode .empty-icon-circle {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-neutral-900);
+            margin: 0;
+        }
+
+        body.dark-mode .empty-state-title {
+            color: #f8fafc;
+        }
+
+        .empty-state-desc {
+            font-size: 0.95rem;
+            color: var(--color-neutral-600);
+            margin: 0;
+            max-width: 480px;
+            line-height: 1.5;
+        }
+
+        body.dark-mode .empty-state-desc {
+            color: #94a3b8;
+        }
+
+        .btn-empty-upload {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            font-size: 14.5px;
+            font-weight: 700;
+            border-radius: 10px;
+            background: var(--color-indigo);
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            margin-top: 10px;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+        }
+
+        .btn-empty-upload:hover {
+            background: var(--color-indigo-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45);
+        }
+
+        /* ── Responsive Mobile Stacking ── */
+        @media (max-width: 1100px) {
+            .two-column-grid-asymmetric,
+            .two-column-grid-balanced,
+            .three-column-grid-breakdown {
+                grid-template-columns: 1fr;
+            }
+
+            .compare-selector-bar {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-top-section {
+                padding: 18px;
+            }
+
+            .top-controls-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls-left-group, .controls-right-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .custom-select-styled {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .date-range-filter-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .date-filter-pill {
+                flex: 1;
+                text-align: center;
+            }
+
+            .kpi-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-<body>
+
+<body class="dashboard-page">
     <!-- HEADER: Top navigation and branding -->
     <header role="banner" class="app-header">
-        <div class="header-container">
-            <h1 class="app-title">BizVision</h1>
-            <p class="app-subtitle">Business Analytics & Forecasting</p>
-            <div class="header-actions">
-                <span id="user-info" aria-label="User information"></span>
+        <!-- LEFT: Mobile Menu Toggle, Logo & Branding -->
+        <div class="header-left">
+            <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Toggle Navigation" title="Toggle Sidebar Navigation">
+                ☰
+            </button>
+            <a href="index.html" class="logo-container">
+                <span class="logo-icon">📊</span>
+                <div class="logo-text">
+                    <h1 class="logo-title">BizVision</h1>
+                    <span class="logo-subtitle">Analytics Dashboard</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- MIDDLE: Primary Global Dataset Search Bar -->
+        <div class="header-middle">
+            <div class="dataset-search-wrapper">
+                <span class="dataset-search-icon" title="Search active dataset" aria-label="Search dataset">🔍</span>
+                <input type="search" id="dataset-search-input" class="dataset-search-input" placeholder="Search anything in your dataset..." autocomplete="off">
+                <button type="button" id="dataset-search-clear-btn" class="dataset-search-clear-btn" style="display: none;" title="Clear search">✕</button>
+                <div id="dataset-search-dropdown" class="dataset-search-dropdown" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Header Actions -->
+        <div class="header-right">
+            <!-- Notifications Bell -->
+            <div style="position: relative;">
+                <button id="notif-btn" class="header-action-btn" aria-label="Notifications" title="Notifications">
+                    🔔
+                    <span class="notif-badge" id="notif-badge-count">3</span>
+                </button>
+                <div id="notif-dropdown-menu" class="header-dropdown-menu" style="display: none;">
+                    <div class="dropdown-header-info" style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>Notifications</strong>
+                        <button id="clear-notif-btn" class="clear-notif-action-btn">Clear all</button>
+                    </div>
+                    <div id="notif-items-container">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Avatar Menu -->
+            <div style="position: relative;">
+                <button id="profile-btn" class="profile-trigger-btn" aria-label="User Profile">
+                    <img id="avatar-img" class="avatar-badge" src="" alt="Avatar" style="display: none;">
+                    <span id="avatar-initial" class="avatar-badge">P</span>
+                    <span id="header-username-text" class="profile-username">User</span>
+                    <span style="font-size: 10px; opacity: 0.8;">▾</span>
+                </button>
+                <div id="profile-dropdown-menu" class="header-dropdown-menu" style="display: none;">
+                    <div class="dropdown-header-info">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <strong id="menu-user-name">User</strong>
+                            <span class="user-role-badge">Pro Plan</span>
+                        </div>
+                        <div id="menu-user-email" style="font-size: 12px; opacity: 0.75; margin-top: 2px;">user@bizvision.com</div>
+                    </div>
+                    <a href="profile.html" class="dropdown-item-link">👤 My Profile</a>
+                    <a href="settings.html" class="dropdown-item-link">⚙️ Account Settings</a>
+                    <a href="upload.html" class="dropdown-item-link">📁 Upload Datasets</a>
+                    <button id="theme-toggle-menu-btn" class="dropdown-item-link">🌙 Toggle Theme</button>
+                    <div class="dropdown-divider"></div>
+                    <button id="logout-menu-btn" class="dropdown-item-link danger">🚪 Log Out</button>
+                </div>
             </div>
         </div>
     </header>
@@ -23,9 +1197,9 @@
     <div class="app-layout">
         <!-- SIDEBAR NAVIGATION: Primary navigation menu -->
         <nav role="navigation" aria-label="Main navigation" class="sidebar-nav">
-            <ul class="nav-list">
+            <ul class="nav-list nav-list-main">
                 <li class="nav-item active">
-                    <a href="#dashboard" class="nav-link" aria-current="page">
+                    <a href="index.html" class="nav-link" aria-current="page">
                         <span class="nav-icon">📊</span>
                         <span class="nav-label">Dashboard</span>
                     </a>
@@ -43,242 +1217,443 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#settings" class="nav-link">
-                        <span class="nav-icon">⚙️</span>
-                        <span class="nav-label">Settings</span>
+                    <a href="compare.html" class="nav-link">
+                        <span class="nav-icon">⚖️</span>
+                        <span class="nav-label">Compare Dataset</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="insights.html" class="nav-link">
+                        <span class="nav-icon">💡</span>
+                        <span class="nav-label">AI Insight</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="reports.html" class="nav-link">
+                        <span class="nav-icon">📄</span>
+                        <span class="nav-label">Report</span>
                     </a>
                 </li>
             </ul>
+
+            <div class="nav-section-bottom">
+                <ul class="nav-list nav-list-bottom">
+                    <li class="nav-item">
+                        <a href="profile.html" class="nav-link">
+                            <span class="nav-icon">👤</span>
+                            <span class="nav-label">My Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="settings.html" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            <span class="nav-label">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </nav>
 
         <!-- MAIN CONTENT AREA -->
         <main role="main" class="main-content">
-            <!-- KPI CARDS SECTION: Key Performance Indicators at a glance -->
-            <section class="kpi-section" aria-labelledby="kpi-heading">
-                <h2 id="kpi-heading" class="section-title">Key Performance Indicators</h2>
-                <div class="kpi-grid" role="region" aria-label="KPI Cards">
-                    <!-- KPI Card 1: Total Revenue -->
-                    <article class="kpi-card" role="region" aria-label="Total Revenue KPI">
-                        <header class="kpi-header">
-                            <h3 class="kpi-title">Total Revenue</h3>
-                        </header>
-                        <div class="kpi-value" aria-live="polite">
-                            <span class="value">$0</span>
-                            <span class="unit">(Loading...)</span>
-                        </div>
-                        <div class="kpi-change" aria-label="Change indicator">
-                            <span class="change-badge">—</span>
-                        </div>
-                    </article>
+            <!-- Global Flash Alert Notification -->
+            <div id="action-notification" role="status" aria-live="polite" style="display: none; padding: 12px 18px; margin-bottom: 20px; border-radius: 8px; font-weight: 500;"></div>
 
-                    <!-- KPI Card 2: Growth Rate -->
-                    <article class="kpi-card" role="region" aria-label="Growth Rate KPI">
-                        <header class="kpi-header">
-                            <h3 class="kpi-title">Growth Rate</h3>
-                        </header>
-                        <div class="kpi-value" aria-live="polite">
-                            <span class="value">0%</span>
-                            <span class="unit">Month-over-Month</span>
-                        </div>
-                        <div class="kpi-change" aria-label="Change indicator">
-                            <span class="change-badge">—</span>
-                        </div>
-                    </article>
+            <!-- EMPTY STATE: Shown when user has 0 uploaded datasets -->
+            <div id="dashboard-empty-state" class="dashboard-empty-state-card" style="display: none;">
+                <div class="empty-icon-circle">📂</div>
+                <h2 class="empty-state-title">Upload a Dataset to Get Started</h2>
+                <p class="empty-state-desc">
+                    Your analytics dashboard is ready to go! Upload any business, sales, educational, or custom dataset (CSV or Excel) to automatically generate live KPIs, intelligent forecasts, comparison benchmarks, and automated AI executive insights.
+                </p>
+                <a href="upload.html" class="btn-empty-upload">
+                    <span>📁</span> Upload Data Now
+                </a>
+            </div>
 
-                    <!-- KPI Card 3: Total Transactions -->
-                    <article class="kpi-card" role="region" aria-label="Total Transactions KPI">
-                        <header class="kpi-header">
-                            <h3 class="kpi-title">Total Transactions</h3>
-                        </header>
-                        <div class="kpi-value" aria-live="polite">
-                            <span class="value">0</span>
-                            <span class="unit">Transactions</span>
+            <!-- MAIN ACTIVE DASHBOARD WRAPPER -->
+            <div id="dashboard-content" class="dashboard-container">
+
+                <!-- 1. TOP SECTION: Dynamic Welcome, Active Dataset Selector, Date Range Filter, Last Updated -->
+                <section class="dashboard-top-section" aria-labelledby="welcome-heading">
+                    <div class="welcome-header-row">
+                        <div class="welcome-title-group">
+                            <h2 id="welcome-heading">
+                                <span id="welcome-dynamic-greeting">Welcome back</span>
+                            </h2>
+                            <p class="welcome-subtitle">
+                                <span>Real-time business performance synthesis across your connected dataset modules.</span>
+                                <span class="live-status-badge">
+                                    <span class="live-status-dot"></span> Live Telemetry
+                                </span>
+                            </p>
                         </div>
-                        <div class="kpi-change" aria-label="Change indicator">
-                            <span class="change-badge">—</span>
+
+                        <!-- Top Right Quick Actions -->
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <a href="upload.html" class="btn-quick-upload">
+                                <span>+</span> Upload Dataset
+                            </a>
                         </div>
-                    </article>
+                    </div>
 
-                    <!-- KPI Card 4: Forecast Accuracy -->
-                    <article class="kpi-card" role="region" aria-label="Forecast Accuracy KPI">
-                        <header class="kpi-header">
-                            <h3 class="kpi-title">Forecast Accuracy</h3>
-                        </header>
-                        <div class="kpi-value" aria-live="polite">
-                            <span class="value">0%</span>
-                            <span class="unit">Model Performance</span>
+                    <!-- Top Controls Bar -->
+                    <div class="top-controls-row">
+                        <div class="controls-left-group">
+                            <div class="dataset-picker-box">
+                                <label for="dataset-select" class="control-label">Active Dataset:</label>
+                                <select id="dataset-select" class="custom-select-styled" aria-label="Select Active Dataset">
+                                    <option value="">Detecting datasets...</option>
+                                </select>
+                            </div>
+
+                            <!-- Date Range Filter -->
+                            <div class="date-picker-box" style="display: flex; align-items: center; gap: 8px;">
+                                <span class="control-label">Date Range:</span>
+                                <div class="date-range-filter-group" role="group" aria-label="Date Range Filters">
+                                    <button type="button" class="date-filter-pill" data-range="7d">Last 7D</button>
+                                    <button type="button" class="date-filter-pill active" data-range="30d">Last 30D</button>
+                                    <button type="button" class="date-filter-pill" data-range="90d">Last 90D</button>
+                                    <button type="button" class="date-filter-pill" data-range="custom">Custom</button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="kpi-change" aria-label="Change indicator">
-                            <span class="change-badge">—</span>
+
+                        <div class="controls-right-group">
+                            <span class="last-updated-text" id="last-updated-display">
+                                <span>🕒</span> Last updated: Just now
+                            </span>
+                            <button type="button" id="refresh-dashboard-btn" class="btn-refresh-dashboard" title="Refresh dashboard data">
+                                <span>↻</span> Refresh
+                            </button>
                         </div>
-                    </article>
-                </div>
-            </section>
+                    </div>
 
-            <!-- CHARTS SECTION: Data visualization containers -->
-            <section class="charts-section" aria-labelledby="charts-heading">
-                <h2 id="charts-heading" class="section-title">Analytics & Trends</h2>
-                <div class="charts-grid" role="region" aria-label="Data visualization charts">
-                    <!-- Chart 1: Time Series Chart -->
-                    <figure class="chart-container" role="img" aria-label="Time series trend chart">
-                        <figcaption class="chart-title">Revenue Trend</figcaption>
-                        <div class="chart-placeholder" data-chart-type="line">
-                            <canvas id="revenue-chart" aria-label="Revenue over time"></canvas>
-                            <p class="loading-state">Loading chart...</p>
+                    <!-- Custom Date Range Expandable Bar -->
+                    <div id="custom-date-container" class="custom-date-box">
+                        <span style="font-size: 12.5px; font-weight: 600; color: var(--color-neutral-700);">Custom Filter:</span>
+                        <label style="font-size: 12px; color: var(--color-neutral-600);">Start: <input type="date" id="custom-start-date" class="custom-date-input"></label>
+                        <label style="font-size: 12px; color: var(--color-neutral-600);">End: <input type="date" id="custom-end-date" class="custom-date-input"></label>
+                        <button type="button" id="apply-custom-date-btn" class="btn-quick-upload" style="padding: 5px 12px; font-size: 12px;">Apply Filter</button>
+                    </div>
+                </section>
+
+                <!-- 2. KPI CARDS SECTION: Auto-generated from Active Dataset -->
+                <section class="kpi-section" aria-labelledby="kpi-section-title">
+                    <h2 id="kpi-section-title" class="sr-only" style="display: none;">Key Performance Indicators</h2>
+                    
+                    <!-- Loading Skeletons for KPIs -->
+                    <div id="kpi-skeleton-grid" class="kpi-cards-grid" style="display: none;">
+                        <div class="kpi-skeleton-card skeleton-shimmer"></div>
+                        <div class="kpi-skeleton-card skeleton-shimmer"></div>
+                        <div class="kpi-skeleton-card skeleton-shimmer"></div>
+                        <div class="kpi-skeleton-card skeleton-shimmer"></div>
+                    </div>
+
+                    <!-- Dynamic Live KPI Cards -->
+                    <div id="kpi-cards-grid" class="kpi-cards-grid" role="region" aria-label="Dynamic KPI Cards">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </section>
+
+                <!-- 3. MAIN CHARTS: Trend Line Chart + AI Insights Widget (Side by Side) -->
+                <section class="two-column-grid-asymmetric" aria-labelledby="trend-heading">
+                    <!-- LEFT: Trend Line Chart (Time-Series) -->
+                    <div class="saas-dashboard-card" role="region" aria-label="Performance Trend Chart">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <h3 id="trend-heading">
+                                    <span>📈</span> <span id="trend-metric-title">Performance Trend</span>
+                                </h3>
+                                <p class="saas-card-subtitle" id="trend-metric-subtitle">Time-series trajectory over selected time horizon</p>
+                            </div>
+                            <div class="card-header-actions">
+                                <span class="live-status-badge" style="font-size: 11px;">Interactive Zoom & Hover</span>
+                            </div>
                         </div>
-                    </figure>
-
-                    <!-- Chart 2: Distribution Chart -->
-                    <figure class="chart-container" role="img" aria-label="Distribution analysis chart">
-                        <figcaption class="chart-title">Data Distribution</figcaption>
-                        <div class="chart-placeholder" data-chart-type="histogram">
-                            <canvas id="distribution-chart" aria-label="Data distribution"></canvas>
-                            <p class="loading-state">Loading chart...</p>
+                        <div class="chart-responsive-box tall">
+                            <canvas id="trend-line-chart" aria-label="Performance trend chart"></canvas>
                         </div>
-                    </figure>
+                    </div>
 
-                    <!-- Chart 3: Category Breakdown -->
-                    <figure class="chart-container" role="img" aria-label="Category breakdown chart">
-                        <figcaption class="chart-title">Category Performance</figcaption>
-                        <div class="chart-placeholder" data-chart-type="bar">
-                            <canvas id="category-chart" aria-label="Performance by category"></canvas>
-                            <p class="loading-state">Loading chart...</p>
+                    <!-- RIGHT: AI Insights Widget (3 Insight Cards) -->
+                    <div class="saas-dashboard-card" role="region" aria-label="AI Insights Widget">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <h3>
+                                    <span>💡</span> AI Executive Insights
+                                </h3>
+                                <p class="saas-card-subtitle">Automated heuristics & pattern recognition</p>
+                            </div>
                         </div>
-                    </figure>
 
-                    <!-- Chart 4: Comparison Chart -->
-                    <figure class="chart-container" role="img" aria-label="Comparison analysis chart">
-                        <figcaption class="chart-title">Comparative Analysis</figcaption>
-                        <div class="chart-placeholder" data-chart-type="scatter">
-                            <canvas id="comparison-chart" aria-label="Comparative metrics"></canvas>
-                            <p class="loading-state">Loading chart...</p>
+                        <!-- 3 Insight Cards Container -->
+                        <div id="ai-insights-widget-list" class="ai-insights-list">
+                            <!-- Populated dynamically with 3 insight cards (positive, negative, neutral) -->
                         </div>
-                    </figure>
-                </div>
-            </section>
 
-            <!-- AI INSIGHTS SECTION: Automated analysis and recommendations -->
-            <section class="insights-section" aria-labelledby="insights-heading">
-                <h2 id="insights-heading" class="section-title">AI-Powered Insights</h2>
-                <div class="insights-container" role="region" aria-label="AI generated insights">
-                    <!-- Insights List -->
-                    <article class="insights-article">
-                        <header class="insights-header">
-                            <h3 class="insights-title">Key Findings</h3>
-                            <time class="insights-timestamp" datetime="2026-08-31">Last updated: Today</time>
-                        </header>
-                        <ul class="insights-list" role="list">
-                            <li class="insight-item" role="listitem" aria-label="Insight">
-                                <span class="insight-badge">📈</span>
-                                <span class="insight-text">Loading insights...</span>
-                            </li>
-                            <li class="insight-item" role="listitem" aria-label="Insight">
-                                <span class="insight-badge">🔍</span>
-                                <span class="insight-text">Analyzing data patterns...</span>
-                            </li>
-                            <li class="insight-item" role="listitem" aria-label="Insight">
-                                <span class="insight-badge">💡</span>
-                                <span class="insight-text">Generating recommendations...</span>
-                            </li>
-                        </ul>
-                    </article>
+                        <div class="ai-insight-footer">
+                            <span style="font-size: 11.5px; color: var(--color-neutral-600);">Auto-refreshed with active dataset</span>
+                            <a href="insights.html" class="card-action-link">
+                                View all insights <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
 
-                    <!-- Insights Recommendations -->
-                    <article class="recommendations-article">
-                        <header class="recommendations-header">
-                            <h3 class="recommendations-title">Recommendations</h3>
-                        </header>
-                        <ol class="recommendations-list" role="list">
-                            <li class="recommendation-item" role="listitem">
-                                <strong>Action:</strong>
-                                <span class="recommendation-text">Awaiting analysis...</span>
-                            </li>
-                            <li class="recommendation-item" role="listitem">
-                                <strong>Action:</strong>
-                                <span class="recommendation-text">Awaiting analysis...</span>
-                            </li>
-                        </ol>
-                    </article>
-                </div>
-            </section>
+                <!-- 4. FORECAST PREVIEW + COMPARE DATASET WIDGET (Side by Side) -->
+                <section class="two-column-grid-balanced" aria-labelledby="forecast-preview-heading">
+                    <!-- LEFT: Forecast Preview (Actual solid line + Dotted Predicted line) -->
+                    <div class="saas-dashboard-card" role="region" aria-label="Forecasting Preview">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <h3 id="forecast-preview-heading">
+                                    <span>🔮</span> Predictive Forecast Preview
+                                </h3>
+                                <p class="saas-card-subtitle">Historical actuals vs machine learning projection</p>
+                            </div>
+                            <div class="card-header-actions">
+                                <a href="forecast.html" class="card-action-link">
+                                    View full forecast <span>→</span>
+                                </a>
+                            </div>
+                        </div>
 
-            <!-- DATA TABLE SECTION: Detailed dataset view -->
-            <section class="data-table-section" aria-labelledby="data-table-heading">
-                <h2 id="data-table-heading" class="section-title">Data Overview</h2>
-                <div class="table-controls" role="region" aria-label="Table controls">
-                    <input 
-                        type="search" 
-                        id="table-search" 
-                        class="search-input" 
-                        placeholder="Search data..." 
-                        aria-label="Search table data">
-                    <select id="table-sort" class="sort-select" aria-label="Sort options">
-                        <option value="date-desc">Newest First</option>
-                        <option value="date-asc">Oldest First</option>
-                        <option value="value-desc">Highest Value</option>
-                        <option value="value-asc">Lowest Value</option>
-                    </select>
-                </div>
-                
-                <div class="table-wrapper" role="region" aria-label="Data table">
-                    <table class="data-table" role="grid">
-                        <caption class="sr-only">Detailed data records</caption>
-                        <thead role="rowgroup">
-                            <tr role="row">
-                                <th role="columnheader" scope="col">Date</th>
-                                <th role="columnheader" scope="col">Category</th>
-                                <th role="columnheader" scope="col">Value</th>
-                                <th role="columnheader" scope="col">Status</th>
-                                <th role="columnheader" scope="col">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody role="rowgroup">
-                            <tr role="row" class="table-row">
-                                <td role="gridcell">—</td>
-                                <td role="gridcell">—</td>
-                                <td role="gridcell">—</td>
-                                <td role="gridcell">
-                                    <span class="status-badge" aria-label="Status">Pending</span>
-                                </td>
-                                <td role="gridcell">
-                                    <button class="action-btn" aria-label="View details">View</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <p class="no-data-message" aria-live="polite">No data loaded. Upload a dataset to begin.</p>
-                </div>
+                        <div class="chart-responsive-box">
+                            <canvas id="forecast-preview-chart" aria-label="Forecast preview chart"></canvas>
+                        </div>
 
-                <!-- Pagination -->
-                <nav class="table-pagination" aria-label="Table pagination">
-                    <ul class="pagination-list" role="list">
-                        <li role="listitem"><button disabled aria-label="Previous page">← Previous</button></li>
-                        <li role="listitem"><span aria-current="page">Page 1 of 1</span></li>
-                        <li role="listitem"><button disabled aria-label="Next page">Next →</button></li>
-                    </ul>
-                </nav>
-            </section>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--color-neutral-200); font-size: 12px;">
+                            <span style="color: var(--color-neutral-600);" id="forecast-summary-note">Dotted line indicates projected next 30 days</span>
+                            <a href="forecast.html" style="font-weight: 600; color: var(--color-indigo); text-decoration: none;">Tune ML Model ⚙️</a>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Compare Dataset Widget (Side-by-side comparison of two datasets) -->
+                    <div class="saas-dashboard-card" role="region" aria-label="Dataset Comparison Widget">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <h3>
+                                    <span>⚖️</span> Compare Dataset Widget
+                                </h3>
+                                <p class="saas-card-subtitle">Cross-benchmark analysis between two datasets</p>
+                            </div>
+                            <div class="card-header-actions">
+                                <a href="compare.html" class="card-action-link" id="compare-more-btn">
+                                    Compare more <span>→</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Dropdown Selectors for Dataset A and Dataset B -->
+                        <div class="compare-selector-bar">
+                            <div>
+                                <label style="font-size: 11px; font-weight: 700; color: var(--color-neutral-600); display: block; margin-bottom: 3px;">DATASET A</label>
+                                <select id="compare-dataset-a-select" class="custom-select-styled" style="min-width: 0; width: 100%; font-size: 12px; padding: 6px 10px;">
+                                    <option value="">Select Dataset A...</option>
+                                </select>
+                            </div>
+
+                            <span class="compare-vs-badge">VS</span>
+
+                            <div>
+                                <label style="font-size: 11px; font-weight: 700; color: var(--color-neutral-600); display: block; margin-bottom: 3px;">DATASET B</label>
+                                <select id="compare-dataset-b-select" class="custom-select-styled" style="min-width: 0; width: 100%; font-size: 12px; padding: 6px 10px;">
+                                    <option value="">Select Dataset B...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Comparison Results Table -->
+                        <div class="compare-metrics-table-wrap">
+                            <table class="compare-metrics-table">
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th>Dataset A</th>
+                                        <th>Dataset B</th>
+                                        <th>Difference</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="compare-widget-tbody">
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; padding: 24px; color: var(--color-neutral-600);">
+                                            Select two datasets above to view side-by-side variance
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. CATEGORY BAR + REGION DONUT + TOP 5 / BOTTOM 5 PRODUCTS -->
+                <section class="three-column-grid-breakdown" id="breakdown-section">
+                    <!-- 5A. Category Bar Chart -->
+                    <div class="saas-dashboard-card" id="category-chart-card" role="region" aria-label="Category Breakdown">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <h3>
+                                    <span>🏷️</span> Category Distribution
+                                </h3>
+                                <p class="saas-card-subtitle" id="category-subtitle">Performance segmented by category</p>
+                            </div>
+                        </div>
+                        <div class="chart-responsive-box donut-box">
+                            <canvas id="category-bar-chart" aria-label="Category performance bar chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 5B. Region Donut Chart -->
+                    <div class="saas-dashboard-card" id="region-chart-card" role="region" aria-label="Regional Distribution">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <h3>
+                                    <span>🌐</span> Regional Share
+                                </h3>
+                                <p class="saas-card-subtitle" id="region-subtitle">Volume breakdown by region/territory</p>
+                            </div>
+                        </div>
+                        <div class="chart-responsive-box donut-box">
+                            <canvas id="region-donut-chart" aria-label="Regional donut chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 5C. Top 5 & Bottom 5 Products/Entities -->
+                    <div class="saas-dashboard-card" id="top-bottom-products-card" role="region" aria-label="Top and Bottom Products">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <h3>
+                                    <span>🏆</span> Performer Extremes
+                                </h3>
+                                <p class="saas-card-subtitle">Highest & lowest performing units</p>
+                            </div>
+                        </div>
+
+                        <div class="products-dual-tables-container">
+                            <!-- Top 5 Products Table -->
+                            <div>
+                                <div class="product-sub-table-header">
+                                    <span class="product-sub-table-title top">
+                                        <span>▲</span> Top 5 Performers
+                                    </span>
+                                </div>
+                                <table class="clean-compact-table">
+                                    <tbody id="top-5-products-tbody">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Bottom 5 Products Table -->
+                            <div style="margin-top: 8px;">
+                                <div class="product-sub-table-header">
+                                    <span class="product-sub-table-title bottom">
+                                        <span>▼</span> Bottom 5 Performers
+                                    </span>
+                                </div>
+                                <table class="clean-compact-table">
+                                    <tbody id="bottom-5-products-tbody">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. DATASETS & REPORTS SECTION: Recent Datasets + Email History Status -->
+                <section class="two-column-grid-balanced" aria-labelledby="datasets-reports-heading">
+                    <!-- LEFT: Recent Datasets List / Table -->
+                    <div class="saas-dashboard-card" role="region" aria-label="Recent Datasets">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <h3 id="datasets-reports-heading">
+                                    <span>📁</span> Recent Datasets
+                                </h3>
+                                <p class="saas-card-subtitle">Click any dataset to switch and refresh dashboard</p>
+                            </div>
+                            <div class="card-header-actions">
+                                <a href="upload.html" class="card-action-link">
+                                    Manage datasets <span>→</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table class="compare-metrics-table">
+                                <thead>
+                                    <tr>
+                                        <th>Dataset Name</th>
+                                        <th>Rows</th>
+                                        <th>Cols</th>
+                                        <th>Uploaded</th>
+                                        <th>Cleaned</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-datasets-tbody">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Email History Status -->
+                    <div class="saas-dashboard-card" role="region" aria-label="Email History Status">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <h3>
+                                    <span>✉️</span> Report Dispatch History
+                                </h3>
+                                <p class="saas-card-subtitle">Automated report emails and delivery status</p>
+                            </div>
+                            <div class="card-header-actions">
+                                <a href="reports.html" class="card-action-link">
+                                    View all reports <span>→</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table class="compare-metrics-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>Recipient</th>
+                                        <th>Format</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="email-history-tbody">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
         </main>
     </div>
 
-    <!-- FOOTER: Footer information -->
+    <!-- FOOTER -->
     <footer role="contentinfo" class="app-footer">
         <div class="footer-content">
-            <p>&copy; 2026 BizVision. All rights reserved.</p>
-            <ul class="footer-links" role="list">
-                <li role="listitem"><a href="#privacy">Privacy Policy</a></li>
-                <li role="listitem"><a href="#terms">Terms of Service</a></li>
-                <li role="listitem"><a href="#support">Support</a></li>
-            </ul>
+            <p>&copy; 2026 BizVision. Advanced Business Analytics, Forecasting & Automated Intelligence.</p>
         </div>
     </footer>
 
-    <!-- Chart.js library for rendering charts -->
+    <!-- FLOATING ANIMATED THEME TOGGLE (Fixed Bottom Right) -->
+    <button id="floating-theme-toggle" class="floating-theme-toggle" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+        <span>🌙</span> <span>Dark Mode</span>
+    </button>
+
+    <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-    
-    <!-- BizVision application scripts -->
-    <script src="/static/js/api.js"></script>
-    <script src="/static/js/charts.js"></script>
-    <script src="/static/js/main.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/copilot.js"></script>
+    <script src="js/main.js"></script>
 </body>
+
 </html>

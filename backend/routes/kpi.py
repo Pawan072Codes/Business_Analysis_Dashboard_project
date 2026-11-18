@@ -29,6 +29,18 @@ def get_kpis(dataset_id: str, current_user: dict = Depends(get_current_user)):
     qty_col = roles["quantity_columns"][0] if roles["quantity_columns"] else None
     cat_col = roles["category_columns"][0] if roles["category_columns"] else None
 
+    # Fallback: if no revenue keyword matched, dynamically select the first non-id numeric column
+    if not rev_col:
+        numeric_cols = [
+            c for c in df.columns 
+            if pd.api.types.is_numeric_dtype(df[c]) 
+            and not c.endswith("_is_outlier")
+            and not c.lower().endswith("_id")
+            and not c.lower() == "id"
+        ]
+        if numeric_cols:
+            rev_col = numeric_cols[0]
+
     total_revenue = float(df[rev_col].sum()) if rev_col else 0.0
 
     growth_rate = 0.0

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BizVision - Create an account for business analytics">
+    <title>BizVision - Sign Up</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth.js"></script>
+</head>
+<body class="auth-page">
+    <main role="main" class="auth-container">
+        <article class="auth-card" role="region" aria-label="Sign Up Card">
+            <header class="auth-header">
+                <h1 class="auth-title">BizVision</h1>
+                <p class="auth-subtitle">Create your new account</p>
+            </header>
+
+            <div id="auth-alert" class="auth-alert" role="alert" style="display: none;"></div>
+
+            <form id="signup-form" class="auth-form" novalidate>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        class="form-input" 
+                        placeholder="Choose a username" 
+                        required 
+                        autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="form-input" 
+                        placeholder="name@example.com" 
+                        required 
+                        autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        placeholder="At least 6 characters" 
+                        required 
+                        autocomplete="new-password">
+                </div>
+
+                <button type="submit" id="signup-btn" class="auth-submit-btn">Create Account</button>
+            </form>
+
+            <footer class="auth-footer">
+                <p>Already have an account? <a href="login.html">Log In</a></p>
+            </footer>
+        </article>
+    </main>
+
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const alertEl = document.getElementById('auth-alert');
+            alertEl.style.display = 'none';
+
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !email || !password) {
+                alertEl.textContent = 'Please fill out all fields.';
+                alertEl.style.display = 'block';
+                return;
+            }
+
+            if (!email.includes('@') || !email.includes('.')) {
+                alertEl.textContent = 'Please enter a valid email address.';
+                alertEl.style.display = 'block';
+                return;
+            }
+
+            if (password.length < 6) {
+                alertEl.textContent = 'Password must be at least 6 characters long.';
+                alertEl.style.display = 'block';
+                return;
+            }
+
+            const btn = document.getElementById('signup-btn');
+            btn.disabled = true;
+            btn.textContent = 'Creating Account...';
+
+            try {
+                const apiBase = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '8000'))
+                    ? 'http://127.0.0.1:8000/api'
+                    : '/api';
+                const res = await fetch(`${apiBase}/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Sign up failed.');
+                }
+
+                // Auto-login newly registered user
+                try {
+                    const loginRes = await fetch(`${apiBase}/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const loginData = await loginRes.json();
+                    if (loginRes.ok && loginData.token) {
+                        sessionStorage.clear();
+                        localStorage.setItem('session_token', loginData.token);
+                        localStorage.setItem('user_info', JSON.stringify(loginData.user));
+                        window.location.href = 'upload.html?onboarding=1';
+                        return;
+                    }
+                } catch (e) {
+                    // fallback to login page
+                }
+
+                alertEl.style.backgroundColor = '#d4edda';
+                alertEl.style.color = '#155724';
+                alertEl.style.borderColor = '#c3e6cb';
+                alertEl.textContent = 'Account created successfully! Redirecting to login...';
+                alertEl.style.display = 'block';
+
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1200);
+            } catch (err) {
+                alertEl.style.backgroundColor = '#f8d7da';
+                alertEl.style.color = '#721c24';
+                alertEl.style.borderColor = '#f5c6cb';
+                alertEl.textContent = err.message;
+                alertEl.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+            }
+        });
+    </script>
+</body>
+</html>

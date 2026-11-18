@@ -1,5 +1,6 @@
 import os
-
+from datetime import datetime
+import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException, Query, Depends
@@ -16,12 +17,36 @@ router = APIRouter()
 
 
 def _json_safe(value):
-    if pd.isna(value):
+    if value is None:
         return None
-    if isinstance(value, pd.Timestamp):
+    if isinstance(value, np.ndarray):
+        return value.tolist() if value.size > 0 else []
+    if isinstance(value, pd.DataFrame):
+        return value.to_dict(orient="records") if not value.empty else []
+    if isinstance(value, pd.Series):
+        return value.to_list() if not value.empty else []
+    if isinstance(value, (list, tuple, set)):
+        return [_json_safe(v) for v in value] if len(value) > 0 else []
+    if isinstance(value, (datetime, pd.Timestamp)):
         return value.isoformat()
+    if isinstance(value, (float, np.floating)):
+        if np.isnan(value) or np.isinf(value):
+            return None
+        return float(value)
+    if isinstance(value, (bool, np.bool_)):
+        return bool(value)
+    if isinstance(value, (int, np.integer)):
+        return int(value)
     if hasattr(value, "item"):
-        return value.item()
+        try:
+            return value.item()
+        except Exception:
+            pass
+    try:
+        if pd.isna(value):
+            return None
+    except Exception:
+        pass
     return value
 
 
@@ -92,5 +117,3 @@ def search_dataset(
         "total_matches": total_matches,
         "results": results
     }
-
-

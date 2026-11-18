@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 from database import init_db
-from routes import analytics, auth, data, forecast, insights, kpi, upload
+from routes import analytics, auth, compare, data, forecast, insights, kpi, upload, reports, settings, gmail_auth
 
 app = FastAPI(title="BizVision API")
 
@@ -76,6 +76,11 @@ app.include_router(analytics.router, prefix="/api", tags=["analytics"])
 app.include_router(data.router, prefix="/api", tags=["data"])
 app.include_router(kpi.router, prefix="/api", tags=["kpi"])
 app.include_router(insights.router, prefix="/api", tags=["insights"])
+app.include_router(insights.router, tags=["insights_direct"])
+app.include_router(compare.router, prefix="/api", tags=["compare"])
+app.include_router(reports.router, prefix="/api", tags=["reports"])
+app.include_router(settings.router, prefix="/api", tags=["settings"])
+app.include_router(gmail_auth.router, prefix="/api", tags=["gmail"])
 
 # Favicon routes (resolves GET /favicon.ico 404)
 @app.get("/favicon.ico", include_in_schema=False)
@@ -91,96 +96,82 @@ def favicon():
         return FileResponse(str(svg_path), media_type="image/svg+xml")
     return Response(status_code=204)
 
-# Serve HTML pages (must come before static files mount)
+frontend_dir = Path(__file__).parent.parent / "frontend"
+
+def _serve_page(filename: str):
+    p = frontend_dir / filename
+    if p.exists():
+        return FileResponse(str(p), media_type="text/html")
+    return {"error": f"Page '{filename}' not found"}
+
+# Default landing page: Authentication (Log In / Sign Up)
 @app.get("/")
-def root():
-    frontend_path = Path(__file__).parent.parent / "frontend" / "index.html"
-    if frontend_path.exists():
-        return FileResponse(str(frontend_path), media_type="text/html")
-    return {"message": "BizVision API running"}
-
+@app.get("/login")
 @app.get("/login.html")
-def login_page():
-    frontend_path = Path(__file__).parent.parent / "frontend" / "login.html"
-    if frontend_path.exists():
-        return FileResponse(str(frontend_path), media_type="text/html")
-    return {"error": "Login page not found"}
+@app.get("/auth")
+def login_route():
+    return _serve_page("login.html")
 
+@app.get("/signup")
 @app.get("/signup.html")
-def signup_page():
-    frontend_path = Path(__file__).parent.parent / "frontend" / "signup.html"
-    if frontend_path.exists():
-        return FileResponse(str(frontend_path), media_type="text/html")
-    return {"error": "Signup page not found"}
+def signup_route():
+    return _serve_page("signup.html")
 
+@app.get("/dashboard")
 @app.get("/index.html")
-def index_page():
-    frontend_path = Path(__file__).parent.parent / "frontend" / "index.html"
-    if frontend_path.exists():
-        return FileResponse(str(frontend_path), media_type="text/html")
-    return {"error": "Dashboard page not found"}
+def dashboard_route():
+    return _serve_page("index.html")
 
+@app.get("/upload")
 @app.get("/upload.html")
-def upload_page():
-    frontend_path = Path(__file__).parent.parent / "frontend" / "upload.html"
-    if frontend_path.exists():
-        return FileResponse(str(frontend_path), media_type="text/html")
-    return {"error": "Upload page not found"}
+def upload_route():
+    return _serve_page("upload.html")
 
+@app.get("/data")
+@app.get("/data.html")
+def data_route():
+    return _serve_page("data.html")
+
+@app.get("/forecast")
 @app.get("/forecast.html")
-def forecast_page():
-    frontend_path = Path(__file__).parent.parent / "frontend" / "forecast.html"
-    if frontend_path.exists():
-        return FileResponse(str(frontend_path), media_type="text/html")
-    return {"error": "Forecast page not found"}
+def forecast_route():
+    return _serve_page("forecast.html")
 
+@app.get("/compare")
 @app.get("/compare.html")
-def compare_page():
-    frontend_path = Path(__file__).parent.parent / "frontend" / "compare.html"
-    if frontend_path.exists():
-        return FileResponse(str(frontend_path), media_type="text/html")
-    return {"error": "Compare page not found"}
+def compare_route():
+    return _serve_page("compare.html")
 
+@app.get("/insights")
 @app.get("/insights.html")
-def insights_page():
-    frontend_path = Path(__file__).parent.parent / "frontend" / "insights.html"
-    if frontend_path.exists():
-        return FileResponse(str(frontend_path), media_type="text/html")
-    return {"error": "Insights page not found"}
+def insights_route():
+    return _serve_page("insights.html")
 
+@app.get("/reports")
 @app.get("/reports.html")
-def reports_page():
-    frontend_path = Path(__file__).parent.parent / "frontend" / "reports.html"
-    if frontend_path.exists():
-        return FileResponse(str(frontend_path), media_type="text/html")
-    return {"error": "Reports page not found"}
+def reports_route():
+    return _serve_page("reports.html")
 
+@app.get("/profile")
 @app.get("/profile.html")
-def profile_page():
-    frontend_path = Path(__file__).parent.parent / "frontend" / "profile.html"
-    if frontend_path.exists():
-        return FileResponse(str(frontend_path), media_type="text/html")
-    return {"error": "Profile page not found"}
+def profile_route():
+    return _serve_page("profile.html")
 
+@app.get("/settings")
 @app.get("/settings.html")
-def settings_page():
-    frontend_path = Path(__file__).parent.parent / "frontend" / "settings.html"
-    if frontend_path.exists():
-        return FileResponse(str(frontend_path), media_type="text/html")
-    return {"error": "Settings page not found"}
+def settings_route():
+    return _serve_page("settings.html")
 
 # Mount static files (CSS, JS) - MUST come after HTML routes
-frontend_path = Path(__file__).parent.parent / "frontend"
-if frontend_path.exists():
-    app.mount("/static", StaticFiles(directory=str(frontend_path)), name="static")
-    if (frontend_path / "css").exists():
-        app.mount("/css", StaticFiles(directory=str(frontend_path / "css")), name="css")
-    if (frontend_path / "js").exists():
-        app.mount("/js", StaticFiles(directory=str(frontend_path / "js")), name="js")
-
+if frontend_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(frontend_dir)), name="static")
+    if (frontend_dir / "css").exists():
+        app.mount("/css", StaticFiles(directory=str(frontend_dir / "css")), name="css")
+    if (frontend_dir / "js").exists():
+        app.mount("/js", StaticFiles(directory=str(frontend_dir / "js")), name="js")
+    if (frontend_dir / "images").exists():
+        app.mount("/images", StaticFiles(directory=str(frontend_dir / "images")), name="images")
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
-
-
